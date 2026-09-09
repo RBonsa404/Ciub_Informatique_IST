@@ -1,0 +1,10 @@
+﻿target/
+*.class
+*.jar
+*.war
+*.log
+.idea/
+.vscode/
+node_modules/
+dist/
+.angular/
