@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: club-informatique-backend
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/clubinfo}
+    username: ${DB_USERNAME:clubinfo}
+    password: ${DB_PASSWORD:clubinfo_secret}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: public
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    schemas: public
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:noreply@clubinfo.fr}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+    default-encoding: UTF-8
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: ${SERVER_PORT:8080}
+  servlet:
+    context-path: /api
+  error:
+    include-message: never
+    include-binding-errors: never
+
+# JWT configuration
+app:
+  jwt:
+    secret: ${JWT_SECRET:clubinfo-super-secret-key-change-in-production-minimum-256-bits-long}
+    expiration-ms: ${JWT_EXPIRATION_MS:900000}      # 15 minutes
+    refresh-expiration-ms: ${JWT_REFRESH_MS:604800000} # 7 jours
+  cors:
+    allowed-origins: ${ALLOWED_ORIGINS:http://localhost:4200,http://localhost:80}
+  upload:
+    dir: ${UPLOAD_DIR:/uploads}
+  frontend-url: ${FRONTEND_URL:http://localhost:4200}
+  mail:
+    from: ${MAIL_FROM:noreply@clubinfo.fr}
+    enabled: ${MAIL_ENABLED:false}
+
+# Springdoc / Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    operations-sorter: method
+  show-actuator: false
+
+# Logging
+logging:
+  level:
+    com.clubinfo: INFO
+    org.springframework.security: WARN
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
