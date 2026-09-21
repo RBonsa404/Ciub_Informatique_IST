@@ -1,0 +1,12 @@
+# Profil utilisé par les tests d'intégration (CI et local).
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/club_informatique_test
+    username: club_info
+    password: club_info_test
+  jpa:
+    show-sql: false
+
+logging:
+  level:
+    bf.ist.clubinfo: INFO

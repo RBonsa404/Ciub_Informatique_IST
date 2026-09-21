@@ -1,0 +1,26 @@
+# PostgreSQL local pour le développement (et une base séparée pour les tests
+# d'intégration). Démarrage : docker compose up -d
+# Correspond à backend/src/main/resources/application-dev.yml et application-test.yml.
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: club-informatique-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: club_info
+      POSTGRES_PASSWORD: club_info_dev
+      POSTGRES_DB: club_informatique
+    ports:
+      - "5433:5432"
+    volumes:
+      - club_informatique_pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U club_info -d club_informatique"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  club_informatique_pgdata:

@@ -1,0 +1,20 @@
+# Profil de production (déploiement Ubuntu/Nginx). Aucun secret en dur :
+# tout vient de variables d'environnement (voir backend/.env.example).
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    show-sql: false
+
+server:
+  forward-headers-strategy: framework   # nécessaire derrière le reverse proxy Nginx
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS}
+
+logging:
+  level:
+    bf.ist.clubinfo: INFO
