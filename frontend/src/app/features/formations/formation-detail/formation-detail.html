@@ -17,7 +17,7 @@
     <div class="objectifs">
       <h4>🎯 Ce que vous allez apprendre</h4>
       <ul>
-        <li *ngFor="let obj of formation.objectifs">
+        <li *ngFor="let obj of $any(formation).objectifs">
           <span class="check">✓</span> {{ obj }}
         </li>
       </ul>
