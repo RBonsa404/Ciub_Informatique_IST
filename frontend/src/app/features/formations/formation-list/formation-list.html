@@ -1,0 +1,85 @@
+<div class="page-wrapper fade-in">
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <div class="hero-content">
+      <div class="hero-tag">📚 Espace Formation</div>
+      <h1>Développez vos <span class="gradient-text">compétences</span></h1>
+      <p>Rejoignez nos formations animées par des experts du Club Informatique IST. Progressez à votre rythme, du débutant à l'expert.</p>
+
+      <!-- Bouton Créer (visible uniquement pour FORMATEUR / ADMIN) -->
+      <button class="btn-create" *ngIf="isFormateur" routerLink="/formations/nouvelle">
+        <span class="icon">+</span> Créer une formation
+      </button>
+      <p class="login-hint" *ngIf="!isLoggedIn">
+        <a routerLink="/login">Connectez-vous</a> pour vous inscrire à une formation
+      </p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-card glass-panel">
+        <span class="stat-number">{{ formations.length }}</span>
+        <span class="stat-label">Formations</span>
+      </div>
+      <div class="stat-card glass-panel">
+        <span class="stat-number">4</span>
+        <span class="stat-label">Niveaux</span>
+      </div>
+      <div class="stat-card glass-panel">
+        <span class="stat-number">∞</span>
+        <span class="stat-label">Passion</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-bar glass-panel">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        placeholder="Rechercher une formation..."
+        [(ngModel)]="searchTerm"
+        id="search-formation"
+      />
+    </div>
+    <div class="niveau-filters">
+      <button
+        class="filter-chip"
+        [class.active]="selectedNiveau === ''"
+        (click)="selectedNiveau = ''"
+      >Tous</button>
+      <button
+        *ngFor="let n of niveaux"
+        class="filter-chip"
+        [class.active]="selectedNiveau === n"
+        (click)="selectedNiveau = n"
+      >{{ n }}</button>
+    </div>
+  </div>
+
+  <!-- Grille des formations -->
+  <div class="formations-grid" *ngIf="filteredFormations.length > 0; else empty">
+    <div
+      class="formation-card glass-panel"
+      *ngFor="let f of filteredFormations"
+      [routerLink]="['/formations', f.id]"
+    >
+      <div class="card-header">
+        <span class="niveau-badge" [ngClass]="getNiveauClass(f.niveau)">{{ f.niveau }}</span>
+      </div>
+      <h3>{{ f.titre }}</h3>
+      <p class="card-desc">{{ f.description }}</p>
+      <div class="card-footer">
+        <span class="link-arrow">Voir les sessions →</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #empty>
+    <div class="empty-state glass-panel">
+      <p>Aucune formation ne correspond à votre recherche.</p>
+      <button class="btn-primary" (click)="searchTerm = ''; selectedNiveau = ''">Réinitialiser les filtres</button>
+    </div>
+  </ng-template>
+
+</div>

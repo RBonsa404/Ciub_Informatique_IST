@@ -1,42 +1,33 @@
 package com.clubinfo.controller;
 
-import com.clubinfo.dto.FormationDTO;
-import com.clubinfo.entity.Utilisateur;
+import com.clubinfo.entity.Formation;
 import com.clubinfo.service.FormationService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/api/formations")
+@RequestMapping("/api/v1/formations")
 @RequiredArgsConstructor
 public class FormationController {
-
-    private final FormationService formationService;
+    private final FormationService service;
 
     @GetMapping
-    public ResponseEntity<Page<FormationDTO>> getPublishedFormations(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        return ResponseEntity.ok(formationService.getPublishedFormations(PageRequest.of(page, size)));
+    public List<Formation> getAll() {
+        return service.findAll();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FormationDTO> getFormationById(@PathVariable Long id) {
-        return ResponseEntity.ok(formationService.getFormationById(id));
+    public ResponseEntity<Formation> getById(@PathVariable Long id) {
+        return service.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('FORMATEUR', 'ADMINISTRATEUR', 'SUPERADMIN')")
-    public ResponseEntity<FormationDTO> createFormation(
-            @Valid @RequestBody FormationDTO dto,
-            @AuthenticationPrincipal Utilisateur user) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(formationService.createFormation(dto, user.getId()));
+    public Formation create(@RequestBody Formation entity) {
+        return service.save(entity);
     }
 }

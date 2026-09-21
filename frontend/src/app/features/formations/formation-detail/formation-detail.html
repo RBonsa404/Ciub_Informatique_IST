@@ -1,0 +1,101 @@
+<div class="page-wrapper fade-in" *ngIf="formation">
+
+  <!-- Breadcrumb -->
+  <nav class="breadcrumb">
+    <a routerLink="/formations">Formations</a>
+    <span>›</span>
+    <span>{{ formation.titre }}</span>
+  </nav>
+
+  <!-- Header de la formation -->
+  <div class="formation-header glass-panel">
+    <div class="header-body">
+      <span class="niveau-badge" [ngClass]="getNiveauClass(formation.niveau)">{{ formation.niveau }}</span>
+      <h1>{{ formation.titre }}</h1>
+      <p class="description">{{ formation.description }}</p>
+    </div>
+    <div class="objectifs">
+      <h4>🎯 Ce que vous allez apprendre</h4>
+      <ul>
+        <li *ngFor="let obj of formation.objectifs">
+          <span class="check">✓</span> {{ obj }}
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Toast succès inscription -->
+  <div class="toast-success" *ngIf="inscriptionSuccess">
+    ✅ Inscription confirmée ! Vous recevrez un e-mail de confirmation.
+  </div>
+
+  <!-- Sessions -->
+  <h2 class="section-title">Sessions disponibles</h2>
+
+  <div class="sessions-grid">
+    <div class="session-card glass-panel" *ngFor="let session of sessions" [class.session-complet]="isComplet(session)">
+
+      <div class="session-header">
+        <div class="date-block">
+          <span class="day">{{ session.dateDebut | date:'dd' }}</span>
+          <span class="month-year">{{ session.dateDebut | date:'MMM yyyy' | uppercase }}</span>
+        </div>
+        <span class="session-tag" [class.tag-complet]="isComplet(session)">
+          {{ isComplet(session) ? '🔴 Complet' : '🟢 Places disponibles' }}
+        </span>
+      </div>
+
+      <div class="session-details">
+        <div class="detail-row">
+          <span class="detail-icon">⏰</span>
+          <span>{{ session.dateDebut | date:'HH:mm' }} – {{ session.dateFin | date:'HH:mm' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">📍</span>
+          <span>{{ session.lieu }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-icon">👥</span>
+          <span>{{ session.inscrits }} / {{ session.capaciteMax }} participants</span>
+        </div>
+      </div>
+
+      <div class="capacity-bar">
+        <div class="capacity-fill"
+          [style.width.%]="getProgressPercent(session)"
+          [class.fill-danger]="getProgressPercent(session) >= 80"
+          [class.fill-complet]="isComplet(session)">
+        </div>
+      </div>
+      <span class="capacity-pct">{{ getProgressPercent(session) }}% rempli</span>
+
+      <button
+        class="btn-inscrire"
+        [disabled]="isComplet(session)"
+        (click)="inscrire(session)">
+        {{ isComplet(session) ? 'Session complète' : (authService.isLoggedIn() ? "M'inscrire" : "Se connecter pour s'inscrire") }}
+      </button>
+
+    </div>
+  </div>
+
+  <!-- Aucune session -->
+  <div class="empty-state glass-panel" *ngIf="sessions.length === 0">
+    <p>Aucune session programmée pour le moment.</p>
+    <p class="hint">Revenez bientôt ou <a routerLink="/contact">contactez-nous</a>.</p>
+  </div>
+
+</div>
+
+<!-- Modal de connexion requise -->
+<div class="modal-overlay" *ngIf="showLoginModal" (click)="showLoginModal = false">
+  <div class="modal-box glass-panel" (click)="$event.stopPropagation()">
+    <div class="modal-icon">🔐</div>
+    <h3>Connexion requise</h3>
+    <p>Vous devez être connecté pour vous inscrire à une session de formation.</p>
+    <div class="modal-actions">
+      <button class="btn-secondary" (click)="showLoginModal = false">Annuler</button>
+      <button class="btn-primary" (click)="goToLogin()">Se connecter</button>
+    </div>
+  </div>
+</div>

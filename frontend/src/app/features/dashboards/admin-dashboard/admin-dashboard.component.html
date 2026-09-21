@@ -1,0 +1,158 @@
+<div class="dashboard-wrapper fade-in">
+
+  <!-- Header -->
+  <div class="dash-header">
+    <div>
+      <div class="dash-tag">⚙️ Back-office</div>
+      <h1>Administration <span class="gradient-text">Club Informatique</span></h1>
+      <p class="dash-subtitle">Gestion des utilisateurs, contenus, sécurité et journal d'audit RBAC</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-primary" routerLink="/formations/nouvelle">+ Nouvelle formation</button>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="stats-grid">
+    <div class="stat-card glass-panel">
+      <div class="stat-icon">👥</div>
+      <div class="stat-body">
+        <span class="stat-value">{{ users().length }}</span>
+        <span class="stat-label">Utilisateurs</span>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon">🟢</div>
+      <div class="stat-body">
+        <span class="stat-value op">Opérationnel</span>
+        <span class="stat-label">Statut système</span>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon">🔐</div>
+      <div class="stat-body">
+        <span class="stat-value purple">Active</span>
+        <span class="stat-label">Sécurité 2FA</span>
+      </div>
+    </div>
+    <div class="stat-card glass-panel">
+      <div class="stat-icon">📋</div>
+      <div class="stat-body">
+        <span class="stat-value cyan">{{ auditLogs().length }}</span>
+        <span class="stat-label">Événements d'audit</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-bar glass-panel">
+    <button class="tab-btn" [class.active]="activeTab === 'utilisateurs'" (click)="activeTab = 'utilisateurs'">
+      👤 Utilisateurs
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'formations'" (click)="activeTab = 'formations'">
+      📚 Formations
+    </button>
+    <button class="tab-btn" [class.active]="activeTab === 'audit'" (click)="activeTab = 'audit'">
+      🔍 Journal d'audit
+    </button>
+  </div>
+
+  <!-- Spinner -->
+  <div class="loading-state" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Chargement des données...</p>
+  </div>
+
+  <!-- Erreur -->
+  <div class="error-state glass-panel" *ngIf="errorMsg && !isLoading">
+    ⚠️ {{ errorMsg }}
+  </div>
+
+  <!-- Tab: Utilisateurs -->
+  <div class="glass-panel table-panel" *ngIf="activeTab === 'utilisateurs' && !isLoading">
+    <div class="table-header">
+      <h2>Gestion des comptes</h2>
+      <span class="count-badge">{{ users().length }} membres</span>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Utilisateur</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Statut</th>
+            <th>2FA</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let u of users()">
+            <td class="user-cell">
+              <div class="avatar">{{ (u.prenom || '?')[0] }}{{ (u.nom || '?')[0] }}</div>
+              <div>
+                <div class="user-name">{{ u.prenom }} {{ u.nom }}</div>
+              </div>
+            </td>
+            <td class="email-cell">{{ u.email }}</td>
+            <td><span class="role-badge" [ngClass]="getRoleBadgeClass(u.dtype)">{{ u.dtype }}</span></td>
+            <td><span class="status-badge">{{ u.statut }}</span></td>
+            <td>
+              <span class="totp-badge" [class.totp-on]="u.totpEnabled" [class.totp-off]="!u.totpEnabled">
+                {{ u.totpEnabled ? '✓ Activé' : '✗ Désactivé' }}
+              </span>
+            </td>
+          </tr>
+          <tr *ngIf="users().length === 0">
+            <td colspan="5" class="empty-row">Aucun utilisateur trouvé.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Tab: Formations -->
+  <div class="glass-panel table-panel" *ngIf="activeTab === 'formations' && !isLoading">
+    <div class="table-header">
+      <h2>Gestion des formations</h2>
+      <button class="btn-primary" routerLink="/formations/nouvelle">+ Créer</button>
+    </div>
+    <div class="empty-tab">
+      <p>📚 Les formations créées via l'API apparaîtront ici.</p>
+      <a routerLink="/formations">Voir le catalogue public →</a>
+    </div>
+  </div>
+
+  <!-- Tab: Audit -->
+  <div class="glass-panel table-panel" *ngIf="activeTab === 'audit' && !isLoading">
+    <div class="table-header">
+      <h2>Journal d'audit</h2>
+      <span class="count-badge">{{ auditLogs().length }} événements</span>
+    </div>
+    <div class="table-scroll" *ngIf="auditLogs().length > 0; else noAudit">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Utilisateur</th>
+            <th>Action</th>
+            <th>Ressource</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let log of auditLogs()">
+            <td class="date-cell">{{ log.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>{{ log.userEmail }}</td>
+            <td><span class="action-badge">{{ log.action }}</span></td>
+            <td class="email-cell">{{ log.resource }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <ng-template #noAudit>
+      <div class="empty-tab">
+        <p>🔍 Aucun événement d'audit enregistré pour le moment.</p>
+      </div>
+    </ng-template>
+  </div>
+
+</div>

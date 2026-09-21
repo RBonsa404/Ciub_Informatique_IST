@@ -1,7 +1,7 @@
 package com.clubinfo.service;
 
-import com.clubinfo.entity.Formation;
-import com.clubinfo.repository.FormationRepository;
+import com.clubinfo.entity.Devoir;
+import com.clubinfo.repository.DevoirRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -9,18 +9,18 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class FormationService {
-    private final FormationRepository repository;
+public class DevoirService {
+    private final DevoirRepository repository;
 
-    public List<Formation> findAll() {
+    public List<Devoir> findAll() {
         return repository.findAll();
     }
 
-    public Optional<Formation> findById(Long id) {
+    public Optional<Devoir> findById(Long id) {
         return repository.findById(id);
     }
 
-    public Formation save(Formation entity) {
+    public Devoir save(Devoir entity) {
         return repository.save(entity);
     }
 

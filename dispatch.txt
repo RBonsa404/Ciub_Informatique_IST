@@ -1,0 +1,2100 @@
+Document de Dispatch, d’Architecture et de Planification de Développement
+Application Web du Club Informatique — Version de travail directement exploitable
+Base documentaire utilisée
+Diagramme de classes UML : 
+club_informatique_diagramme_classes.drawio.md
+Diagrammes de séquence UML : 
+club_informatique_diagrammes_sequence.drawio.md
+Cahier des charges : 
+Cahier_des_charges_Club_Informatique.md
+Équipe :
+PAMOUSSO PRINCE
+BONSA Abdoul Rachid
+SALOU Christ-Orient
+KI Fode
+ZONGO Tony
+OUARE Arnaud
+0. Règles de lecture et décisions d’architecture
+Ce document transforme les éléments fournis dans les trois sources en unités de travail codables.
+Deux catégories sont utilisées :
+Source
+ : élément explicitement présent dans les documents fournis.
+Décision d’implémentation
+ : détail ajouté pour rendre le système directement codable lorsque le cahier des charges ou les diagrammes n’imposent pas la forme technique exacte.
+Les URI REST, le nommage exact des packages, la structure des DTO et certains champs techniques ne sont pas explicitement définis par les diagrammes de séquence. Ils sont donc proposés ici comme 
+contrat d’implémentation à figer une fois au démarrage
+, sans modifier les flux fonctionnels UML.
+SECTION 1 — VUE D’ENSEMBLE TECHNIQUE ET STACK
+1.1 Architecture cible
+Architecture client–serveur en couches :
+Navigateur / Smartphone
+        |
+        v
+Angular SPA
+  - pages
+  - composants
+  - guards
+  - services HTTP
+        |
+        | HTTPS / JSON
+        v
+Spring Boot REST API
+  Controller
+        |
+        v
+  Service métier
+        |
+        v
+  Repository / DAO
+        |
+        v
+PostgreSQL
+Composants transverses :
+Spring Security
+  -> Authentification
+  -> RBAC
+  -> 2FA des comptes à privilèges
+  -> contrôle endpoint par endpoint
+DTO + MapStruct
+  -> séparation API / domaine / persistance
+Gestion centralisée des exceptions
+  -> @RestControllerAdvice
+  -> ErrorResponse homogène
+OpenAPI / Swagger UI
+  -> documentation et test de contrat
+GitHub Actions
+  -> build
+  -> tests
+  -> quality gates
+Nginx
+  -> HTTPS / reverse proxy
+  -> exposition de l’API
+  -> servir les assets Angular
+Le cahier des charges demande une séparation Angular / Spring Boot via API REST, une architecture en couches 
+presentation/service/repository/entity
+, des DTO et mappers MapStruct, et un design pouvant faire évoluer séparément la notification et la statistique. 
+1.2 Stack retenue
+Domaine
+Technologie retenue
+Usage
+Frontend
+Angular + TypeScript
+SPA responsive
+UI
+HTML5 + SCSS/CSS Grid/Flexbox
+Design responsive et accessible
+Backend
+Java 17 + Spring Boot 3.x
+API REST et logique métier
+Sécurité
+Spring Security
+Authentification, autorisation RBAC
+Hash mot de passe
+BCrypt
+Stockage non réversible
+2FA
+OTP
+Comptes administrateur, super administrateur, DSI
+API
+REST + JSON
+Contrat frontend/backend
+Documentation API
+OpenAPI / Swagger UI
+Documentation et essais
+ORM
+Spring Data JPA / Hibernate
+Persistance
+Mapping
+MapStruct
+Entity <-> DTO
+BDD
+PostgreSQL
+SGBD principal
+Build backend
+Maven
+Dépendances et packaging
+Build frontend
+npm
+Dépendances et build Angular
+VCS
+Git + GitHub
+Versionnement et PR
+CI
+GitHub Actions
+Build + tests
+Tests backend
+JUnit 5 + Mockito
+Unitaire
+Tests API
+REST Assured
+Intégration
+Tests frontend
+Jasmine / framework de test Angular
+Unitaire
+E2E
+Playwright
+Parcours navigateur
+Sécurité
+OWASP ZAP
+Scan
+Performance
+JMeter
+Charge
+Déploiement
+Ubuntu LTS + Nginx
+Hébergement
+TLS
+Certificat HTTPS
+Sécurisation transport
+Les versions majeures imposées par le cahier des charges sont Java 17, Spring Boot 3.x, Angular/TypeScript et PostgreSQL de préférence. Les versions mineures exactes doivent être gelées dans 
+pom.xml
+, 
+package.json
+ et les lockfiles avant le premier sprint de développement.
+1.3 Structure logique du backend
+src/main/java/.../
+├── config/
+├── security/
+├── common/
+│   ├── exception/
+│   ├── dto/
+│   └── mapper/
+├── utilisateur/
+│   ├── controller/
+│   ├── service/
+│   ├── repository/
+│   ├── entity/
+│   ├── dto/
+│   └── mapper/
+├── role/
+├── permission/
+├── actualite/
+├── evenement/
+├── formation/
+├── inscription/
+├── presence/
+├── projet/
+├── ressource/
+├── devoir/
+├── notification/
+├── contact/
+├── statistique/
+└── ...
+1.4 Structure logique du frontend
+src/app/
+├── core/
+│   ├── auth/
+│   ├── guards/
+│   ├── interceptors/
+│   ├── services/
+│   └── models/
+├── shared/
+│   ├── components/
+│   ├── forms/
+│   ├── tables/
+│   ├── dialogs/
+│   └── validators/
+├── features/
+│   ├── accueil/
+│   ├── actualites/
+│   ├── evenements/
+│   ├── formations/
+│   ├── projets/
+│   ├── ressources/
+│   ├── notifications/
+│   ├── profil/
+│   ├── administration/
+│   └── contact/
+├── layout/
+└── app.routes.ts
+1.5 Principes non négociables
+Aucun accès direct à la base depuis un Controller.
+Aucune Entity JPA exposée directement par l’API.
+Tous les endpoints écrivent/lisent via DTO.
+Toute règle métier appartient au Service.
+Toute validation d’autorisation serveur est indépendante des Guards Angular.
+Les erreurs API utilisent un format unique.
+Toute donnée sensible est absente des réponses publiques.
+Les listes volumineuses sont paginées.
+Les transitions d’état sont contrôlées côté serveur.
+Les opérations d’inscription concurrentes utilisent une stratégie transactionnelle empêchant le dépassement de capacité.
+SECTION 2 — DISPATCH DÉTAILLÉ DU TRAVAIL PAR MEMBRE
+2.1 PAMOUSSO PRINCE
+2.1.1 Périmètre et modules
+Création de compte membre.
+Connexion.
+Déconnexion.
+Réinitialisation du mot de passe.
+Consultation et modification du profil.
+Gestion des rôles affectés à un utilisateur.
+Gestion des permissions.
+Administration des utilisateurs : création, modification, activation, désactivation, suppression.
+Flux 2FA pour les comptes concernés.
+Écran « Mes données » lié à l’accès, la rectification et l’effacement.
+Guards Angular liés à l’authentification et aux permissions.
+Couverture de tests des flux d’authentification et d’autorisation.
+Correspondance UML : le diagramme de classes comporte 
+Utilisateur
+, 
+Membre
+, 
+Formateur
+, 
+ResponsableClub
+, 
+Administrateur
+, 
+SuperAdmin
+, 
+DSI
+, 
+Role
+ et 
+Permission
+; le premier diagramme de séquence montre la création du compte puis la connexion avec vérification de l’email et recherche de l’utilisateur.
+2.1.2 Backend
+Entités :
+Utilisateur
+Membre
+Formateur
+ResponsableClub
+Administrateur
+SuperAdmin
+Role
+Permission
+éventuellement 
+UserRole
+ si la table d’association est matérialisée explicitement.
+Repositories :
+UtilisateurRepository
+RoleRepository
+PermissionRepository
+repositories des sous-types si JPA choisi en héritage concret.
+Services :
+AuthService
+UtilisateurService
+RoleService
+PermissionService
+TwoFactorService
+PasswordResetService
+Controllers :
+AuthController
+UtilisateurController
+RoleController
+PermissionController
+2.1.3 Frontend
+/connexion
+/inscription
+/mot-de-passe-oublie
+/reinitialiser-mot-de-passe
+/profil
+/mes-donnees
+/administration/utilisateurs
+/administration/roles
+/administration/permissions
+/administration/securite
+formulaire 2FA
+auth.guard.ts
+role.guard.ts
+permission.guard.ts
+auth.interceptor.ts
+auth.service.ts
+utilisateur.service.ts
+role.service.ts
+permission.service.ts
+2.1.4 Livrables techniques
+Utilisateur.java
+Membre.java
+Formateur.java
+ResponsableClub.java
+Administrateur.java
+SuperAdmin.java
+DSI.java
+Role.java
+Permission.java
+UtilisateurRepository.java
+RoleRepository.java
+PermissionRepository.java
+AuthController.java
+AuthService.java
+UtilisateurController.java
+RoleController.java
+PermissionController.java
+DTO auth/profil/RBAC
+mappers MapStruct correspondants
+SecurityConfig.java
+gestion des password encoders
+mécanisme 2FA
+contrôles 
+@PreAuthorize
+/équivalent
+migrations SQL utilisateurs/rôles/permissions
+tests unitaires et d’intégration de sécurité
+écrans Angular correspondants
+2.1.5 Dépendances et intégration
+À fournir :
+contrat 
+LoginRequest
+, 
+LoginResponse
+, 
+RegisterRequest
+, 
+ProfileResponse
+.
+modèle de permissions utilisable par les autres Controllers.
+mécanisme de récupération de l’utilisateur courant.
+règles de sécurité documentées.
+données de référence pour les rôles initiaux.
+À attendre :
+structure PostgreSQL de base.
+conventions DTO communes.
+service de notification pour les emails de réinitialisation si un fournisseur d’email est utilisé.
+route frontend globale déjà branchée sur le shell Angular.
+2.2 BONSA Abdoul Rachid
+2.2.1 Périmètre et modules
+Gestion publique des événements.
+Recherche et filtrage des événements.
+Consultation du détail d’un événement.
+Création, modification et annulation d’un événement.
+Inscription d’un membre à un événement.
+Vérification de capacité.
+Détection de doublon d’inscription.
+Confirmation et annulation d’inscription.
+Liste des inscrits pour les utilisateurs autorisés.
+Création de notifications de confirmation.
+Interface calendrier.
+2.2.2 Backend
+Entités :
+Evenement
+Inscription
+réutilisation de 
+Utilisateur/Membre
+Notification
+Repositories :
+EvenementRepository
+InscriptionRepository
+Méthodes obligatoires issues des séquences :
+findById
+recherche paginée et filtrée
+vérification d’inscription existante
+comptage de capacité disponible
+requêtes des inscriptions par événement et membre
+Services :
+EvenementService
+InscriptionService
+appel au 
+NotificationService
+Controllers :
+EvenementController
+InscriptionEvenementController
+2.2.3 Frontend
+/evenements
+/evenements/:id
+/evenements/calendrier
+/evenements/admin
+/evenements/nouveau
+/evenements/:id/modifier
+/evenements/:id/inscrits
+evenement.service.ts
+inscription.service.ts
+filtres par date/catégorie
+affichage des places disponibles
+confirmation d’inscription
+gestion des erreurs « complet » / « déjà inscrit »
+2.2.4 Livrables
+Evenement.java
+Inscription.java
+DTO événement
+DTO inscription
+repositories
+services
+controllers
+mappers
+migrations SQL
+index sur dates et statut
+tests capacité/doublon
+pages Angular
+tests E2E inscription événement
+2.2.5 Dépendances
+À fournir :
+contrat événement et inscription à SALOU Christ-Orient pour réutiliser le modèle 
+Inscription
+.
+événements publics à ZONGO Tony pour l’agrégation des notifications.
+contrat 
+NotificationCreateRequest
+ au service notification.
+À attendre :
+auth courante et 
+membreId
+.
+base 
+Evenement
+ + migrations.
+système global de notification.
+composants UI partagés.
+2.3 SALOU Christ-Orient
+2.3.1 Périmètre et modules
+Consultation des formations.
+Recherche de formations.
+Gestion des formations.
+Gestion des sessions de formation.
+Planification/annulation des sessions.
+Inscription à une session.
+Vérification de place et de doublon.
+Suivi du statut d’inscription.
+Gestion des présences.
+Gestion des devoirs associés aux formations.
+Gestion des ressources associées aux formations.
+Le diagramme de séquence SD02 précise le flux 
+getFormations
+, sélection d’une session, vérification 
+existsByMembreEtSession
+, 
+countPlacesDisponibles
+, création de l’inscription et création d’une notification.
+2.3.2 Backend
+Entités :
+Formation
+SessionFormation
+Inscription
+Presence
+Devoir
+Ressource
+Repositories :
+FormationRepository
+SessionFormationRepository
+PresenceRepository
+DevoirRepository
+RessourceRepository
+utilisation de 
+InscriptionRepository
+Services :
+FormationService
+SessionFormationService
+PresenceService
+DevoirService
+RessourceService
+Controllers :
+FormationController
+SessionFormationController
+PresenceController
+DevoirController
+RessourceController
+2.3.3 Frontend
+/formations
+/formations/:id
+/formations/:id/sessions
+/formations/admin
+/formations/nouvelle
+/formations/:id/modifier
+/formations/:id/inscrits
+/formations/:id/presences
+/formations/:id/ressources
+/formations/:id/devoirs
+formation.service.ts
+session-formation.service.ts
+presence.service.ts
+ressource.service.ts
+devoir.service.ts
+2.3.4 Livrables
+entités et DTO des 6 domaines.
+repositories.
+services.
+controllers.
+mappers.
+migrations SQL formation/session/inscription/presence/ressource/devoir.
+règles d’intégrité.
+tests de capacité.
+tests de présence.
+tests de téléchargement/visibilité.
+écrans Angular.
+tests E2E inscription formation.
+2.3.5 Dépendances
+À fournir :
+contrat commun 
+Inscription
+ à BONSA Abdoul Rachid.
+structure 
+Formation
+ et 
+SessionFormation
+ à PAMOUSSO PRINCE pour les droits.
+événements métier de confirmation d’inscription à ZONGO Tony.
+À attendre :
+utilisateur courant.
+politique d’autorisation.
+composants de formulaire/tableaux communs.
+infrastructure de stockage de fichiers ou convention d’URL.
+2.4 KI Fode
+2.4.1 Périmètre et modules
+Gestion des actualités.
+Publication/modification/archivage d’actualité.
+Consultation publique des actualités.
+Gestion des projets.
+Soumission d’un projet par un membre.
+Consultation des projets en attente.
+Validation ou refus.
+Notification du membre auteur.
+Gestion du formulaire de contact.
+Traitement des messages entrants.
+Les séquences SD04 et SD05 couvrent la soumission/validation de projet et la publication d’actualité; SD05 met explicitement en scène 
+creerActualite
+, 
+save
+, 
+updateStatut(PUBLIEE)
+ et notification.
+2.4.2 Backend
+Entités :
+Actualite
+Projet
+MessageContact
+ajout proposé : 
+Proposition
+ (voir section 3.6)
+Repositories :
+ActualiteRepository
+ProjetRepository
+MessageContactRepository
+PropositionRepository
+ si ajout validé
+Services :
+ActualiteService
+ProjetService
+MessageContactService
+PropositionService
+Controllers :
+ActualiteController
+ProjetController
+MessageContactController
+PropositionController
+2.4.3 Frontend
+/actualites
+/actualites/:id
+/administration/actualites
+/administration/actualites/nouvelle
+/projets
+/projets/:id
+/projets/nouveau
+/administration/projets/en-attente
+/contact
+/administration/messages-contact
+/mes-propositions
+actualite.service.ts
+projet.service.ts
+contact.service.ts
+proposition.service.ts
+2.4.4 Livrables
+entités, DTO, mapper et repository des domaines.
+endpoints de publication.
+règles de transition de statut.
+migrations SQL.
+tests des transitions 
+EN_ATTENTE -> VALIDE/REFUSE
+.
+tests d’actualité.
+tests formulaire contact.
+écrans Angular et validation des formulaires.
+E2E publication + validation projet.
+2.4.5 Dépendances
+À fournir :
+événements de domaine nécessaires aux notifications.
+schéma des statuts projet/actualité.
+composants de lecture publique réutilisables.
+À attendre :
+utilisateur courant.
+système notification.
+décision sur l’entité 
+Proposition
+.
+kit UI.
+2.5 ZONGO Tony
+2.5.1 Périmètre et modules
+Création de notifications individuelles.
+Création de notifications globales.
+Consultation des notifications personnelles.
+Marquage comme lu.
+Gestion des types de notification.
+Déclenchement depuis inscription formation, inscription événement, projet et publication.
+Tableau de bord utilisateur centré sur les événements, formations et notifications.
+Interfaces de synthèse.
+La séquence SD06 décrit l’envoi à une liste de destinataires, 
+saveAll(notifications)
+, puis la lecture personnelle et 
+marquerCommeLue
+.
+2.5.2 Backend
+Entités :
+Notification
+association vers 
+Membre/Utilisateur
+agrégations statistiques simples
+Repositories :
+NotificationRepository
+éventuellement repositories de projection statistique.
+Services :
+NotificationService
+DashboardService
+interface d’abstraction 
+NotificationChannel
+implémentation in-app ; canal email pluggable
+Controllers :
+NotificationController
+DashboardController
+2.5.3 Frontend
+/notifications
+/notifications/:id
+menu notification avec compteur non lu
+/tableau-de-bord
+widgets : prochaines activités, inscriptions récentes, notifications
+notification.service.ts
+dashboard.service.ts
+refresh du compteur
+marquage lu
+2.5.4 Livrables
+Notification.java
+NotificationRepository.java
+NotificationService.java
+NotificationController.java
+DashboardController.java
+DTO notification
+interface de canal de notification
+migrations SQL
+index sur 
+membre_id
+, 
+lu
+, 
+date_envoi
+tests de création en lot
+tests lecture/marquage lu
+tests E2E de notification
+2.5.5 Dépendances
+À fournir :
+NotificationCreateRequest
+.
+API consommable depuis les modules formation, événement, projet et actualité.
+composant global notification.
+contrat dashboard.
+À attendre :
+identité du membre courant.
+événements fonctionnels des autres modules.
+serveur SMTP ou prestataire email si le canal email est activé.
+2.6 OUARE Arnaud
+2.6.1 Périmètre et modules
+Schéma PostgreSQL complet.
+Migrations et données de référence.
+intégration front/back.
+CI GitHub Actions.
+tests de bout en bout transverses.
+tests de performance.
+tests de sécurité.
+qualité de livraison.
+déploiement Ubuntu/Nginx.
+configuration des environnements.
+sauvegardes et restauration.
+observabilité et heartbeat.
+vérification finale des exigences non fonctionnelles.
+Ce périmètre produit les éléments transverses nécessaires à ce que toutes les fonctionnalités codées par les autres membres puissent être intégrées, testées et livrées.
+2.6.2 Backend
+configuration Maven.
+profils 
+dev
+, 
+test
+, 
+prod
+.
+migrations PostgreSQL.
+configuration centralisée.
+HealthController
+/actuator.
+gestion CORS.
+ErrorResponse
+.
+GlobalExceptionHandler
+.
+corrélation des logs.
+configuration Swagger/OpenAPI.
+contrôles de pagination.
+protections transactionnelles sur les inscriptions.
+tests d’intégration REST.
+2.6.3 Frontend
+configuration environnements Angular.
+api.interceptor.ts
+.
+error.interceptor.ts
+.
+composant d’erreur global.
+shell/layout commun.
+vérification responsive aux trois breakpoints.
+instrumentation minimale nécessaire aux tests E2E.
+scripts npm de build/test.
+configuration Playwright.
+vérification Chrome/Firefox/Edge.
+2.6.4 Livrables
+db/migrations/*.sql
+db/seeds/*.sql
+Dockerfile
+ éventuel
+docker-compose.yml
+ si retenu
+configuration Nginx
+workflow GitHub Actions
+scripts backup/restore
+configuration Actuator
+collection de tests REST
+projet Playwright
+rapport ZAP
+scripts JMeter
+procédure de restauration
+checklist release
+fichiers d’environnement d’exemple sans secrets
+2.6.5 Dépendances
+À fournir :
+pipeline de CI prêt à exécuter.
+base PostgreSQL reproductible.
+environnement de test.
+rapport de couverture.
+rapport E2E.
+package de déploiement.
+À attendre :
+DTO/contracts stabilisés.
+migrations de chaque module.
+commandes de lancement officielles des deux applications.
+aucun secret codé en dur.
+SECTION 3 — CONTRATS D’INTERFACES ET SPÉCIFICATION API / DTO
+3.1 Convention générale API
+Préfixe :
+/api/v1
+Format d’erreur :
+{
+  "timestamp": "2026-09-07T16:00:00Z",
+  "status": 400,
+  "code": "VALIDATION_ERROR",
+  "message": "Les données fournies sont invalides",
+  "path": "/api/v1/inscriptions",
+  "details": [
+    {
+      "field": "sessionId",
+      "message": "La session est obligatoire"
+    }
+  ]
+}
+Codes :
+200
+ : opération de lecture ou de modification terminée.
+201
+ : création terminée.
+400
+ : validation métier ou syntaxique invalide.
+401
+ : non authentifié.
+403
+ : authentifié mais non autorisé.
+404
+ : ressource inexistante.
+409
+ : conflit métier, par exemple doublon ou capacité atteinte.
+500
+ : erreur inattendue.
+Le cahier des charges impose explicitement la protection RBAC de chaque endpoint, le bcrypt, le 2FA des comptes concernés, la journalisation des connexions et des actions sensibles.
+3.2 Entités de sécurité
+Utilisateur
+Attribut
+Type
+Contraintes
+id
+Long
+PK
+nom
+String
+obligatoire
+prenom
+String
+obligatoire
+email
+String
+obligatoire, unique
+motDePasse
+String
+hash BCrypt uniquement
+dateCreation
+LocalDateTime
+obligatoire
+statut
+String
+ACTIF/INACTIF
+photo
+String
+nullable
+Le diagramme de classes donne explicitement ces attributs.
+Écart du cahier des charges :
+le formulaire d’inscription demande aussi date de naissance, filière et année d’étude. Ces champs ne figurent pas dans 
+Utilisateur
+. Décision : les ajouter à 
+Membre
+ ou à une fiche de profil, sans les exposer dans les réponses publiques.
+Membre
+Attribut
+Type
+numeroMembre
+String
+biographie
+String
+dateAdhesion
+LocalDate
+Role
+Attribut
+Type
+id
+Long
+nom
+String
+description
+String
+Permission
+Attribut
+Type
+id
+Long
+code
+String
+libelle
+String
+Le diagramme relie 
+Utilisateur -> Role
+ avec 
+0..*
+ d’un côté et 
+1..*
+ de l’autre, et 
+Role <-> Permission
+ en many-to-many.
+3.3 Endpoints d’authentification
+Verbe
+URI
+Request
+Response
+Statuts
+POST
+/auth/register
+RegisterRequest
+UtilisateurResponse
+201, 400, 409, 500
+POST
+/auth/login
+LoginRequest
+LoginResponse
+200, 400, 401, 500
+POST
+/auth/logout
+aucun
+MessageResponse
+200, 401
+POST
+/auth/password/forgot
+ForgotPasswordRequest
+MessageResponse
+200, 400
+POST
+/auth/password/reset
+ResetPasswordRequest
+MessageResponse
+200, 400, 404
+POST
+/auth/2fa/verify
+TwoFactorVerifyRequest
+LoginResponse
+200, 400, 401
+Correspondance séquence SD01 :
+creerCompte(dto)
+existsByEmail(email)
+save(utilisateur)
+seConnecter(credentials)
+authentifier(credentials)
+findByEmail(email)
+création de session
+erreur email existant
+erreur identifiants incorrects.
+3.4 API des actualités
+Entité Actualite
+Attribut
+Type
+id
+Long
+titre
+String
+contenu
+String
+dateCreation
+LocalDateTime
+datePublication
+LocalDateTime
+statut
+String
+Le diagramme définit les opérations 
+publier
+, 
+modifier
+, 
+archiver
+.
+Verbe
+URI
+Request
+Response
+GET
+/actualites
+query 
+page,size,statut
+PageResponse<ActualiteSummaryResponse>
+GET
+/actualites/{id}
+path id
+ActualiteResponse
+POST
+/actualites
+ActualiteCreateRequest
+ActualiteResponse
+PUT
+/actualites/{id}
+ActualiteUpdateRequest
+ActualiteResponse
+PATCH
+/actualites/{id}/publier
+aucun
+ActualiteResponse
+PATCH
+/actualites/{id}/archiver
+aucun
+ActualiteResponse
+DELETE
+/actualites/{id}
+aucun
+204
+Autorisations proposées :
+GET public selon statut.
+POST/PUT/PATCH/DELETE : rôle possédant la permission correspondante.
+Correspondance SD05 :
+création, sauvegarde, insertion, passage à 
+PUBLIEE
+, notification puis confirmation.
+3.5 API événements
+Entité Evenement
+Attribut
+Type
+id
+Long
+titre
+String
+description
+String
+dateDebut
+LocalDateTime
+dateFin
+LocalDateTime
+lieu
+String
+capaciteMax
+Integer
+statut
+String
+Verbe
+URI
+Request
+Response
+GET
+/evenements
+filtres/pagination
+PageResponse<EvenementSummaryResponse>
+GET
+/evenements/{id}
+id
+EvenementResponse
+POST
+/evenements
+EvenementCreateRequest
+EvenementResponse
+PUT
+/evenements/{id}
+EvenementUpdateRequest
+EvenementResponse
+PATCH
+/evenements/{id}/annuler
+aucun
+EvenementResponse
+DELETE
+/evenements/{id}
+aucun
+204
+GET
+/evenements/{id}/inscrits
+pagination
+PageResponse<InscriptionResponse>
+POST
+/evenements/{id}/inscription
+aucun
+InscriptionResponse
+DELETE
+/evenements/{id}/inscription
+aucun
+204
+Comportement métier obligatoire :
+vérifier existence événement ;
+vérifier statut autorisant l’inscription ;
+vérifier capacité ;
+vérifier absence d’inscription existante ;
+créer 
+Inscription
+ ;
+générer 
+Notification
+ ;
+confirmer.
+3.6 API formations
+Entité Formation
+Attribut
+Type
+id
+Long
+titre
+String
+description
+String
+niveau
+String
+duree
+Integer
+statut
+String
+SessionFormation
+Attribut
+Type
+id
+Long
+dateDebut
+LocalDateTime
+dateFin
+LocalDateTime
+lieu
+String
+capaciteMax
+Integer
+statut
+String
+Verbe
+URI
+Request
+Response
+GET
+/formations
+filtres/pagination
+PageResponse<FormationSummaryResponse>
+GET
+/formations/{id}
+id
+FormationResponse
+POST
+/formations
+FormationCreateRequest
+201
+PUT
+/formations/{id}
+FormationUpdateRequest
+200
+PATCH
+/formations/{id}/publier
+aucun
+200
+DELETE
+/formations/{id}
+aucun
+204
+GET
+/formations/{id}/sessions
+pagination
+page de sessions
+POST
+/formations/{id}/sessions
+SessionFormationCreateRequest
+201
+PUT
+/sessions/{id}
+SessionFormationUpdateRequest
+200
+PATCH
+/sessions/{id}/annuler
+aucun
+200
+POST
+/sessions/{id}/inscription
+aucun
+InscriptionResponse
+DELETE
+/sessions/{id}/inscription
+aucun
+204
+GET
+/sessions/{id}/inscrits
+pagination
+page inscriptions
+GET
+/sessions/{id}/presences
+pagination
+page présences
+PUT
+/sessions/{id}/presences
+PresenceBatchRequest
+200
+Correspondance SD02 :
+getFormations -> rechercherFormations -> SELECT formations -> selection session -> sInscrire(sessionId) -> existsByMembreEtSession -> countPlacesDisponibles -> save inscription -> notification
+.
+3.7 API projets
+Entité Projet
+Attribut
+Type
+id
+Long
+titre
+String
+description
+String
+dateSoumission
+LocalDateTime
+statut
+String
+lienDepot
+String
+Statuts recommandés pour rester cohérent avec la séquence :
+EN_ATTENTE
+VALIDE
+REFUSE
+Verbe
+URI
+Request
+Response
+GET
+/projets
+filtres/pagination
+page projets
+GET
+/projets/{id}
+id
+ProjetResponse
+POST
+/projets
+ProjetCreateRequest
+201
+PATCH
+/projets/{id}/valider
+aucun
+200
+PATCH
+/projets/{id}/refuser
+aucun
+200
+GET
+/projets/en-attente
+pagination
+page projets
+PUT
+/projets/{id}
+ProjetUpdateRequest
+200
+DELETE
+/projets/{id}
+aucun
+204
+Correspondance SD04 :
+création initiale en 
+EN_ATTENTE
+, notification du responsable, récupération des projets en attente, décision, 
+UPDATE projet
+, notification du membre.
+3.8 API notifications
+Entité Notification
+Attribut
+Type
+id
+Long
+titre
+String
+message
+String
+dateEnvoi
+LocalDateTime
+lu
+Boolean
+type
+String
+Verbe
+URI
+Request
+Response
+GET
+/notifications/me
+page/filtres
+page notifications
+GET
+/notifications/{id}
+id
+NotificationResponse
+PATCH
+/notifications/{id}/lue
+aucun
+NotificationResponse
+POST
+/notifications/broadcast
+NotificationBroadcastRequest
+201
+POST
+/notifications/internal
+NotificationInternalCreateRequest
+201
+Correspondance SD06 :
+envoi à plusieurs destinataires, sélection des membres, 
+saveAll(notifications)
+, consultation personnelle et marquage 
+lu=true
+.
+3.9 API ressources
+Entité Ressource
+Attribut
+Type
+id
+Long
+titre
+String
+type
+String
+url
+String
+dateAjout
+LocalDateTime
+visibilite
+String
+Verbe
+URI
+Request
+Response
+GET
+/ressources
+filtres
+page ressources
+GET
+/ressources/{id}
+id
+RessourceResponse
+POST
+/ressources
+RessourceCreateRequest
+201
+PUT
+/ressources/{id}
+RessourceUpdateRequest
+200
+DELETE
+/ressources/{id}
+aucun
+204
+GET
+/ressources/{id}/telechargement
+id
+redirect/stream
+Visibilités :
+PUBLIC
+MEMBRE
+ACTIVITE
+3.10 API contact
+Entité MessageContact
+Attribut
+Type
+id
+Long
+nom
+String
+email
+String
+sujet
+String
+message
+String
+dateEnvoi
+LocalDateTime
+traite
+Boolean
+Verbe
+URI
+Request
+Response
+POST
+/contact
+MessageContactCreateRequest
+201
+GET
+/contact/messages
+pagination
+page messages
+PATCH
+/contact/messages/{id}/traiter
+aucun
+200
+3.11 Proposition : écart à formaliser
+Le cahier des charges exige que le membre puisse soumettre des propositions, mais le diagramme de classes ne contient pas de classe 
+Proposition
+.
+Décision d’implémentation recommandée :
+ ajouter :
+Proposition
+- id : Long
+- titre : String
+- contenu : String
+- dateCreation : LocalDateTime
+- statut : String
+- reponse : String nullable
+Relation :
+Membre 1 ---- 0..* Proposition
+Endpoints :
+POST /api/v1/propositions
+GET  /api/v1/propositions/me
+GET  /api/v1/propositions
+PATCH /api/v1/propositions/{id}/statut
+Cette extension doit être considérée comme une évolution du modèle UML, car elle est exigée fonctionnellement mais absente du diagramme fourni.
+3.12 Règles de DTO
+Exemple RegisterRequest
+{
+  "nom": "Doe",
+  "prenom": "Jean",
+  "email": "jean@example.org",
+  "dateNaissance": "2003-04-12",
+  "filiere": "Informatique",
+  "anneeEtude": "L3",
+  "motDePasse": "MotDePasseFort",
+  "consentement": true
+}
+Exemple LoginRequest
+{
+  "email": "jean@example.org",
+  "motDePasse": "MotDePasseFort",
+  "otp": "123456"
+}
+Exemple LoginResponse
+{
+  "accessToken": "…",
+  "expiresIn": 3600,
+  "user": {
+    "id": 15,
+    "nom": "Doe",
+    "prenom": "Jean",
+    "roles": ["MEMBRE"]
+  }
+}
+En production, ne jamais retourner 
+motDePasse
+, même haché.
+SECTION 4 — WORKFLOW GIT, NORME DE CODE ET DEFINITION OF DONE
+4.1 Organisation du dépôt
+Branches longues :
+main
+develop
+Branches courtes :
+feature/PAMOUSSO-auth-register
+feature/PAMOUSSO-rbac
+feature/BONSA-events
+feature/BONSA-event-registration
+feature/SALOU-formations
+feature/SALOU-attendance
+feature/KI-news
+feature/KI-projects
+feature/ZONGO-notifications
+feature/ZONGO-dashboard
+feature/OUARE-database
+feature/OUARE-ci
+fix/<prenom>-<module>-<description>
+test/<prenom>-<module>-<description>
+chore/<prenom>-<description>
+Convention :
+<type>/<MEMBRE_EN_MAJUSCULES>-<module>-<action>
+Aucune branche personnelle ne doit être fusionnée directement dans 
+main
+.
+4.2 Flux de fusion
+feature/*
+   |
+   v
+Pull Request
+   |
+   +--> build backend
+   +--> build frontend
+   +--> tests unitaires
+   +--> tests d’intégration
+   +--> lint / format
+   +--> vérification couverture
+   |
+   v
+develop
+   |
+   v
+validation d’intégration
+   |
+   v
+main
+4.3 Convention backend
+Classes : 
+PascalCase
+méthodes : 
+camelCase
+variables : 
+camelCase
+constantes : 
+UPPER_SNAKE_CASE
+DTO : suffixe 
+Request
+ / 
+Response
+Controller : 
+XxxController
+Service : 
+XxxService
+Repository : 
+XxxRepository
+Mapper : 
+XxxMapper
+Exceptions : 
+XxxException
+Exemples :
+EvenementController
+EvenementService
+EvenementRepository
+EvenementCreateRequest
+EvenementResponse
+EvenementMapper
+4.4 Convention frontend
+composants : 
+kebab-case
+classes TypeScript : 
+PascalCase
+méthodes : 
+camelCase
+interfaces modèles : nom métier clair
+services : suffixe 
+.service.ts
+guards : suffixe 
+.guard.ts
+interceptors : suffixe 
+.interceptor.ts
+Exemples :
+evenement-list.component.ts
+evenement.service.ts
+auth.guard.ts
+error.interceptor.ts
+4.5 Convention SQL
+Tables en 
+snake_case
+ :
+utilisateur
+role
+permission
+utilisateur_role
+role_permission
+actualite
+evenement
+formation
+session_formation
+inscription
+presence
+projet
+ressource
+devoir
+notification
+message_contact
+proposition
+PK :
+id BIGSERIAL
+FK :
+utilisateur_id BIGINT NOT NULL
+Contraintes à prévoir :
+PK
+FK
+UNIQUE email
+UNIQUE 
+(membre_id, evenement_id)
+ si inscription événement matérialisée ainsi
+UNIQUE 
+(membre_id, session_formation_id)
+ pour les formations
+CHECK sur capacités positives
+CHECK sur les états quand stable
+4.6 Definition of Done
+Une tâche est terminée uniquement lorsque :
+le code compile sans erreur ;
+le formatage et les conventions passent ;
+les DTO sont documentés ;
+la validation d’entrée est présente ;
+la gestion d’erreur est raccordée ;
+l’autorisation serveur est définie ;
+les tests unitaires associés passent ;
+les tests d’intégration nécessaires passent ;
+l’interface Angular utilise le service API correspondant ;
+l’UX gère succès, chargement et erreur ;
+les migrations SQL nécessaires sont présentes ;
+aucune Entity n’est renvoyée directement ;
+Swagger décrit le nouvel endpoint ;
+aucun secret n’est commité ;
+la branche est à jour avec 
+develop
+ ;
+la Pull Request contient une description du changement ;
+la CI est verte ;
+les scénarios critiques ne régressent pas.
+Critères de qualité globaux
+couverture cible > 80 % sur les unités ;
+parcours critiques couverts en intégration ;
+Playwright pour les parcours navigateur essentiels ;
+scan OWASP ZAP ;
+test JMeter ;
+vérification Chrome, Firefox, Edge ;
+vérification responsive mobile/tablette/desktop.
+SECTION 5 — CHRONOGRAMME ET FEUILLE DE ROUTE D’EXÉCUTION
+Le cahier des charges prévoit 20 semaines et sept phases : analyse, conception, design/UI, développement, tests, déploiement, livraison/clôture.
+5.1 Ordre absolu recommandé
+Étape 1 — Semaine 1
+Tous :
+lecture finale des trois sources ;
+gel du périmètre V1 ;
+validation des écarts du modèle ;
+validation de la nomenclature.
+OUARE :
+initialiser dépôt ;
+main
+ et 
+develop
+ ;
+GitHub Actions minimal ;
+squelette Angular et Spring Boot ;
+PostgreSQL local.
+PAMOUSSO :
+spécification auth/RBAC.
+BONSA :
+spécification événement/inscription.
+SALOU :
+spécification formation/session/présence.
+KI :
+spécification actualité/projet/contact.
+ZONGO :
+spécification notification/dashboard.
+Étape 2 — Semaines 2-3
+PAMOUSSO :
+Utilisateur
+, rôles, permissions, sécurité de base.
+OUARE :
+migrations de base et seed initial.
+BONSA :
+Evenement
+ + lecture publique.
+SALOU :
+Formation
+ + 
+SessionFormation
+.
+KI :
+Actualite
+ + lecture publique.
+ZONGO :
+Notification
+ + lecture personnelle.
+Tous :
+DTO et conventions figés.
+Étape 3 — Semaines 4-5
+PAMOUSSO :
+inscription/connexion/reset/2FA.
+BONSA :
+CRUD événement + inscription.
+SALOU :
+inscription formation + capacité.
+KI :
+projet + validation.
+ZONGO :
+notifications déclenchées.
+OUARE :
+tests d’intégration et base SQL complète des modules disponibles.
+Étape 4 — Semaines 6-8
+Angular :
+écrans publics.
+écrans authentifiés.
+écrans d’administration.
+Priorité UI :
+auth ;
+actualités ;
+événements ;
+formations ;
+projets ;
+notifications ;
+administration.
+OUARE :
+E2E Playwright ;
+tests navigateurs ;
+responsive.
+Étape 5 — Semaines 9-12
+Objectif : obtenir la démo intermédiaire exigée par le cahier des charges :
+inscription ;
+connexion ;
+consultation.
+Puis :
+inscription événement ;
+inscription formation ;
+publication d’actualité ;
+soumission/validation projet ;
+notifications.
+Étape 6 — Semaines 13-14
+Compléter :
+présences ;
+devoirs ;
+ressources ;
+contact ;
+propositions ;
+RBAC fin ;
+tableau de bord.
+OUARE :
+brancher tous les tests.
+Étape 7 — Semaines 15-16
+Tests :
+JUnit 5 ;
+Mockito ;
+tests API ;
+Playwright ;
+ZAP ;
+JMeter ;
+responsive ;
+accessibilité ;
+tests de capacité.
+Objectif :
+couverture > 80 % ;
+zéro anomalie bloquante ;
+zéro endpoint critique non testé.
+Étape 8 — Semaines 17-18
+OUARE :
+serveur ;
+Nginx ;
+TLS ;
+base production ;
+sauvegardes ;
+monitoring ;
+déploiement 
+rc1
+.
+Tous :
+smoke tests.
+Puis :
+tag 
+v1.0.0
+.
+Étape 9 — Semaines 19-20
+Swagger final.
+guide installation.
+guide utilisateur.
+guide administration.
+procédure backup/restore.
+procédure incident.
+archivage.
+démonstration finale.
+5.2 Matrice de priorité individuelle
+Semaine
+PAMOUSSO
+BONSA
+SALOU
+KI
+ZONGO
+OUARE
+1
+Auth/RBAC
+Événements
+Formations
+Actualités/Projets
+Notifications
+Repo/CI
+2
+Utilisateur
+Evenement
+Formation
+Actualite
+Notification
+DB
+3
+Register/Login
+CRUD
+Sessions
+Projet
+Notification
+Tests
+4
+Reset/2FA
+Inscription
+Inscription
+Validation projet
+Déclencheurs
+Intégration
+5
+Guards
+Front events
+Front formations
+Front news/project
+Front notifications
+E2E
+6
+Profil
+Calendrier
+Présence
+Contact
+Dashboard
+Responsive
+7
+Admin users
+Admin events
+Devoirs/Ressources
+Admin projects
+Broadcast
+E2E
+8
+Mes données
+Tests events
+Tests formations
+Tests projets
+Tests notif
+CI
+9
+Sécurité
+Corrections
+Corrections
+Corrections
+Corrections
+Integration
+10
+RBAC
+Capacité
+Capacité
+États
+Batch notif
+API tests
+11
+2FA
+Inscription
+Inscription
+Publication
+Lecture
+Perf
+12
+Stabilisation
+Stabilisation
+Stabilisation
+Stabilisation
+Stabilisation
+Démo
+13
+Fine RBAC
+Améliorations
+Présence
+Propositions
+Dashboard
+Sécurité
+14
+Fine profil
+Finalisation
+Ressources
+Contact
+Finalisation
+Release candidate
+15
+Tests
+Tests
+Tests
+Tests
+Tests
+ZAP/JMeter
+16
+Corrections
+Corrections
+Corrections
+Corrections
+Corrections
+Coverage
+17
+Smoke
+Smoke
+Smoke
+Smoke
+Smoke
+Production
+18
+Validation
+Validation
+Validation
+Validation
+Validation
+v1.0.0
+19
+Documentation
+Documentation
+Documentation
+Documentation
+Documentation
+Exploitation
+20
+Livraison
+Livraison
+Livraison
+Livraison
+Livraison
+Clôture
+5.3 Dépendances critiques
+Chemin critique 1 — Authentification
+PostgreSQL
+   ↓
+Utilisateur / Role / Permission
+   ↓
+AuthService + SecurityConfig
+   ↓
+Auth API
+   ↓
+Angular AuthService
+   ↓
+Guards / Interceptor
+   ↓
+Tous les écrans authentifiés
+Chemin critique 2 — Inscription
+Utilisateur/Membre
+   ↓
+Evenement ou Formation
+   ↓
+InscriptionRepository
+   ↓
+InscriptionService
+   ↓
+NotificationService
+   ↓
+Confirmation utilisateur
+Chemin critique 3 — Projet
+Membre
+   ↓
+Projet EN_ATTENTE
+   ↓
+Responsable autorisé
+   ↓
+VALIDE / REFUSE
+   ↓
+Notification du membre
+Chemin critique 4 — Livraison
+Code
+ ↓
+Build
+ ↓
+Tests
+ ↓
+Security scan
+ ↓
+Performance
+ ↓
+Release candidate
+ ↓
+Production
+ ↓
+Smoke tests
+ ↓
+v1.0.0
+5.4 Risques d’intégration et mesures
+Risque
+Impact
+Mesure
+Contrats API changés tardivement
+élevé
+DTO contractuels figés en semaine 2
+Modèle SQL divergeant des Entity
+élevé
+migrations versionnées
+Auth non disponible
+bloquant
+prioriser PAMOUSSO + OUARE
+Notification attendue avant service prêt
+moyen
+interface 
+NotificationChannel
+Capacité dépassée en inscription
+élevé
+transaction + contrainte
+Champs cahier des charges absents UML
+élevé
+formaliser extension avant semaine 2
+Front développé avec données fictives trop longtemps
+moyen
+mock JSON aligné sur DTO réels
+Absence de tests E2E
+élevé
+Playwright dès semaine 5
+Secrets committés
+critique
+variables d’environnement + secret scanning
+Déploiement retardé
+élevé
+staging avant semaine 16
+5.5 Checklist de démarrage du codage
+Backend
+[ ] Spring Boot créé.
+[ ] Maven configuré.
+[ ] PostgreSQL disponible.
+[ ] profile 
+dev
+.
+[ ] profile 
+test
+.
+[ ] 
+GlobalExceptionHandler
+.
+[ ] 
+ErrorResponse
+.
+[ ] OpenAPI.
+[ ] MapStruct.
+[ ] Spring Security.
+[ ] BCrypt.
+[ ] structure de packages.
+Frontend
+[ ] Angular créé.
+[ ] npm lockfile.
+[ ] routing.
+[ ] 
+core
+.
+[ ] 
+shared
+.
+[ ] feature modules.
+[ ] HTTP interceptor.
+[ ] Auth service.
+[ ] global error handling.
+[ ] breakpoints.
+Base de données
+[ ] migration 001 utilisateur.
+[ ] migration 002 rôles/permissions.
+[ ] migration 003 actualités.
+[ ] migration 004 événements.
+[ ] migration 005 formations.
+[ ] migration 006 sessions.
+[ ] migration 007 inscriptions.
+[ ] migration 008 présences.
+[ ] migration 009 projets.
+[ ] migration 010 ressources.
+[ ] migration 011 devoirs.
+[ ] migration 012 notifications.
+[ ] migration 013 contact.
+[ ] migration 014 propositions.
+[ ] index.
+[ ] contraintes.
+[ ] seed des rôles/permissions.
+CI
+[ ] build backend.
+[ ] build frontend.
+[ ] tests unitaires.
+[ ] tests intégration.
+[ ] couverture.
+[ ] Playwright.
+[ ] artefacts de rapport.
+[ ] secret scan.
+5.6 Definition of Done de release V1
+La version 
+v1.0.0
+ n’est considérée livrable que lorsque :
+les parcours SD01 à SD06 sont fonctionnels ;
+les Must Have du cahier des charges sont couverts ;
+les endpoints critiques sont documentés ;
+RBAC est actif ;
+2FA est actif pour les comptes concernés ;
+les mots de passe sont hashés avec BCrypt ;
+le responsive est vérifié ;
+les tests critiques sont verts ;
+la couverture cible est atteinte ;
+le scan de sécurité est réalisé ;
+le test de charge est réalisé ;
+les sauvegardes sont configurées ;
+une restauration a été testée ;
+le déploiement HTTPS fonctionne ;
+le tag 
+v1.0.0
+ existe ;
+les guides sont livrés.
+ANNEXE A — TRAÇABILITÉ UML → CODE
+Flux UML
+Backend principal
+Frontend principal
+Test E2E
+SD01 Authentification/inscription
+AuthController/AuthService
+pages auth
+register/login
+SD02 Inscription formation
+FormationController + InscriptionService
+formations
+formation registration
+SD03 Inscription événement
+EvenementController + InscriptionService
+événements
+event registration
+SD04 Soumission/validation projet
+ProjetController/ProjetService
+projets
+project workflow
+SD05 Publication actualité
+ActualiteController/ActualiteService
+actualités
+publication
+SD06 Notifications
+NotificationController/NotificationService
+notifications
+read/mark-read
+ANNEXE B — RÈGLES DE STATUTS
+Actualite
+BROUILLON -> PUBLIEE -> ARCHIVEE
+Projet
+EN_ATTENTE -> VALIDE
+EN_ATTENTE -> REFUSE
+Inscription
+EN_ATTENTE -> CONFIRMEE
+EN_ATTENTE -> ANNULEE
+Evenement
+PLANIFIE -> ANNULE
+Formation
+BROUILLON -> PUBLIEE
+SessionFormation
+PLANIFIEE -> ANNULEE
+Les valeurs exactes doivent rester centralisées sous forme d’enums Java quand elles sont stabilisées.
+ANNEXE C — RÈGLES D’INTÉGRATION ENTRE MEMBRES
+Un contrat DTO consommé par un autre module ne doit pas être modifié sans Pull Request de coordination.
+Une migration qui ajoute/modifie une FK doit être validée avec le module propriétaire de la table référencée.
+Un endpoint protégé doit documenter la permission attendue.
+Les composants frontend communs doivent rester dans 
+shared/
+.
+Les fonctions transverses doivent rester dans 
+core/
+.
+Les notifications inter-modules doivent passer par 
+NotificationService
+, jamais par insertion SQL directe dans les autres services.
+Les tests des parcours critiques doivent être exécutables sur une base de test reproductible.
+Toute modification du modèle UML après le début du codage doit être accompagnée du changement SQL et DTO correspondant.
+Conclusion opérationnelle
+Le projet peut démarrer le codage sur cette base en conservant les classes et flux fournis, tout en traitant explicitement les écarts fonctionnels : notamment les données de profil demandées par le cahier des charges mais absentes de 
+Utilisateur
+, ainsi que la notion de proposition absente du diagramme de classes.
+L’ordre de démarrage recommandé est :
+1. OUARE : squelette dépôt / CI / PostgreSQL
+2. PAMOUSSO : Utilisateur / Role / Permission / Security
+3. BONSA + SALOU : événements / formations / inscriptions
+4. KI : actualités / projets / contact
+5. ZONGO : notifications / dashboard
+6. Tous : frontend, intégration, tests
+7. OUARE : sécurité, performance, déploiement
+Cette séquence minimise les blocages tout en conservant des branches fonctionnelles indépendantes et des contrats d’API suffisamment stables pour permettre un développement parallèle.
