@@ -1,0 +1,19 @@
+# ===================================================================
+# Railway Configuration — Backend Spring Boot
+# ===================================================================
+# This file instructs Railway to build and start the backend service.
+# Railway auto-detects the Dockerfile in this directory.
+
+[build]
+# Use the Dockerfile in this directory (multi-stage Maven build)
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+# Health check for Railway to know when the app is ready
+healthcheckPath = "/api/actuator/health"
+healthcheckTimeout = 180
+
+# Restart policy
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5

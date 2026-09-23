@@ -1,12 +1,21 @@
 # ===================================================================
-# Club Informatique IST — Profil PROD
+# Club Informatique IST — Profil PROD (Railway)
 # ===================================================================
+#
+# Variable support (par ordre de priorité) :
+#  1. SPRING_DATASOURCE_URL (jdbc:postgresql://...) — recommandé
+#  2. DB_URL (jdbc:postgresql://...) — alias
+#  3. DB_HOST / DB_PORT / DB_NAME — variables individuelles
+#
+# Railway injecte aussi DATABASE_URL (format postgresql://) ;
+# Il faut utiliser SPRING_DATASOURCE_URL dans le tableau de bord Railway
+# avec le format jdbc:postgresql:// (voir GUIDE_DEPLOIEMENT_RAILWAY.md).
 
 spring:
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL:${DB_URL:jdbc:postgresql://${DB_HOST}:${DB_PORT:5432}/${DB_NAME}?sslmode=require}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DB_USERNAME:${DB_USER:${PGUSER}}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DB_PASSWORD:${PGPASSWORD}}}
     driver-class-name: org.postgresql.Driver
     hikari:
       maximum-pool-size: 20
@@ -24,18 +33,18 @@ spring:
     clean-disabled: true
 
   mail:
-    host: ${MAIL_HOST}
+    host: ${MAIL_HOST:localhost}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${MAIL_SMTP_AUTH:true}
           starttls:
-            enable: true
+            enable: ${MAIL_SMTP_STARTTLS:true}
 
-# Logging — structured, minimal
+# Logging — structured JSON, minimal
 logging:
   level:
     root: WARN
