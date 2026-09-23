@@ -24,15 +24,13 @@ FROM nginx:alpine AS runtime
 # Remove default nginx config
 RUN rm -f /etc/nginx/conf.d/default.conf
 
-# Copy Nginx template and entrypoint script
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Copy built Angular static assets to Nginx html folder
 COPY --from=builder /app/dist/club-informatique-frontend/browser /usr/share/nginx/html
 
-# Expose port (overridden at runtime by $PORT)
+# Expose port 80
 EXPOSE 80
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["nginx", "-g", "daemon off;"]
