@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { Evenement, PageResponse } from '../../../core/models';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination';
+import { BadgeComponent } from '../../../shared/components/badge/badge';
 
 @Component({
   selector: 'app-evenements-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent],
+  imports: [CommonModule, RouterLink, PaginationComponent, BadgeComponent],
   template: `
     <div class="evenements-page">
       <!-- Header -->
@@ -38,24 +39,24 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
                 </div>
               }
             </div>
-          } @else {
+          } @else if (evenements()?.content && evenements()!.content.length > 0) {
             <div class="grid-layout">
               @for (ev of evenements()?.content; track ev.id) {
                 <div class="glass-card event-card">
                   <div class="event-image-wrap">
                     <img [src]="ev.imageUrl || 'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=800&auto=format&fit=crop&q=80'" [alt]="ev.titre" class="event-image" />
-                    <span class="date-badge">
-                      {{ ev.dateDebut | date:'dd MMM yyyy' }}
-                    </span>
+                    <div class="date-badge-wrap">
+                      <app-badge type="evenement" [label]="(ev.dateDebut | date:'dd MMM yyyy') || ''" icon="calendar" />
+                    </div>
                   </div>
                   <div class="event-body">
                     <div class="event-meta">
                       <span class="meta-item">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
                         {{ ev.lieu }}
                       </span>
                       <span class="meta-item">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         {{ ev.nbInscrits }} / {{ ev.capaciteMax }} inscrits
                       </span>
                     </div>
@@ -69,7 +70,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
                     <div class="event-footer">
                       <a [routerLink]="['/evenements', ev.id]" class="btn btn-outline btn-sm">
                         Détails & Inscription
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                       </a>
                     </div>
                   </div>
@@ -84,6 +85,24 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
                 (pageChanged)="onPageChange($event)"
               />
             }
+          } @else {
+            <div class="events-empty-state glass-card text-center">
+              <div class="empty-icon-box">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+              </div>
+              <h2>Aucun événement planifié pour le moment</h2>
+              <p>
+                Le calendrier des hackathons, conférences tech et meetups de la saison est en cours de validation par le bureau exécutif.
+              </p>
+              <div class="empty-actions">
+                <a routerLink="/auth/register" class="btn btn-primary">
+                  Rejoindre le club
+                </a>
+                <a routerLink="/contact" class="btn btn-outline">
+                  Proposer un événement
+                </a>
+              </div>
+            </div>
           }
         </div>
       </section>
@@ -116,6 +135,13 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
       display: flex;
       flex-direction: column;
       border-radius: 20px;
+      border: 1px solid var(--border-color);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s;
+    }
+    .event-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(245, 166, 35, 0.4);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
     }
     .event-image-wrap {
       position: relative;
@@ -128,23 +154,16 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.4s ease;
+      transition: transform 0.5s ease;
     }
     .event-card:hover .event-image {
-      transform: scale(1.05);
+      transform: scale(1.06);
     }
-    .date-badge {
+    .date-badge-wrap {
       position: absolute;
       top: 1rem;
       right: 1rem;
-      background: rgba(10, 14, 26, 0.85);
-      backdrop-filter: blur(8px);
-      color: var(--color-amber-tech);
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 0.35rem 0.85rem;
-      border-radius: 9999px;
-      border: 1px solid rgba(245, 166, 35, 0.3);
+      z-index: 2;
     }
     .event-body {
       padding: 1.5rem;
@@ -163,7 +182,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
     .meta-item {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.4rem;
     }
     .event-title {
       font-size: 1.25rem;
@@ -204,6 +223,46 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
     .title-sk { height: 24px; width: 75%; }
     .line-sk { height: 16px; width: 100%; }
     .text-center { text-align: center; }
+    .events-empty-state {
+      max-width: 650px;
+      margin: 2rem auto;
+      padding: 3.5rem 2rem;
+      border-radius: 24px;
+      border: 1.5px dashed var(--border-color);
+      background: var(--bg-card);
+    }
+    .empty-icon-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: rgba(27, 58, 140, 0.08);
+      color: var(--color-bleu-royal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    [data-theme="dark"] .empty-icon-box {
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--color-amber-tech);
+    }
+    .events-empty-state h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .events-empty-state p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .empty-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
   `]
 })
 export class EvenementsListComponent implements OnInit {
@@ -230,3 +289,4 @@ export class EvenementsListComponent implements OnInit {
     window.scrollTo({ top: 300, behavior: 'smooth' });
   }
 }
+

@@ -4,11 +4,12 @@ import { RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { Formation, PageResponse } from '../../../core/models';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination';
+import { BadgeComponent } from '../../../shared/components/badge/badge';
 
 @Component({
   selector: 'app-formations-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, PaginationComponent],
+  imports: [CommonModule, RouterLink, PaginationComponent, BadgeComponent],
   template: `
     <div class="formations-page">
       <!-- Header -->
@@ -79,14 +80,14 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
                 <div class="glass-card formation-card">
                   <div class="card-img-wrap">
                     <img [src]="f.imageUrl || 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80'" [alt]="f.titre" class="card-img" />
-                    <span class="level-badge" [class]="'level-' + f.niveau.toLowerCase()">
-                      {{ f.niveau }}
-                    </span>
+                    <div class="level-badge-wrap">
+                      <app-badge type="formation" [label]="f.niveau" icon="book" />
+                    </div>
                   </div>
 
                   <div class="card-body">
                     <div class="duration-meta">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                       {{ f.dureeHeures }} Heures de formation
                     </div>
 

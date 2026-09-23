@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../../../core/services/api.service';
 import { Actualite } from '../../../core/models';
+import { BadgeComponent } from '../../../shared/components/badge/badge';
 
 @Component({
   selector: 'app-actualites-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, BadgeComponent],
   template: `
     <div class="actu-detail-page">
       @if (loading()) {
@@ -18,12 +19,12 @@ import { Actualite } from '../../../core/models';
         <section class="detail-hero">
           <div class="container-app">
             <a routerLink="/actualites" class="back-link">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
               Retour aux actualités
             </a>
 
             <div class="hero-header text-center">
-              <span class="badge badge-amber">Communiqué Officiel</span>
+              <app-badge type="evenement" label="Communiqué Officiel" icon="sparkles" />
               <h1 class="hero-title mt-4">{{ a.titre }}</h1>
               <div class="meta-row mt-3">
                 <span>Par {{ a.auteur.prenom }} {{ a.auteur.nom }}</span>

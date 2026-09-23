@@ -1,16 +1,18 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { BadgeComponent } from '../../../shared/components/badge/badge';
 
 @Component({
   selector: 'app-actualites-list',
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink, BadgeComponent],
   template: `
     <section class="page-hero">
-      <div class="container-app">
+      <div class="container-app text-center">
         <span class="section-label">Blog & Actualités</span>
-        <h1 class="section-title">Actualités du Club</h1>
-        <p class="section-subtitle">Restez informés des dernières nouvelles et annonces du Club Informatique.</p>
+        <h1 class="page-title">Actualités du Club</h1>
+        <p class="page-subtitle">Restez informés des dernières nouvelles, ateliers et annonces du Club Informatique.</p>
       </div>
     </section>
 
@@ -19,7 +21,7 @@ import { RouterLink } from '@angular/router';
         <!-- Filters -->
         <div class="filters">
           <div class="search-box">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input type="text" placeholder="Rechercher une actualité..." class="form-control search-input">
           </div>
           <div class="filter-tags">
@@ -38,7 +40,7 @@ import { RouterLink } from '@angular/router';
               <div class="article-img" [style.background]="article.gradient"></div>
               <div class="article-body">
                 <div class="article-meta">
-                  <span class="badge badge-primary">{{ article.categorie }}</span>
+                  <app-badge type="formation" [label]="article.categorie" icon="sparkles" />
                   <span class="article-date">{{ article.date }}</span>
                 </div>
                 <h3 class="article-title">{{ article.titre }}</h3>
@@ -49,7 +51,8 @@ import { RouterLink } from '@angular/router';
                     <span>{{ article.auteur }}</span>
                   </div>
                   <a [routerLink]="['/actualites', article.id]" class="article-read-more">
-                    Lire →
+                    Lire
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                   </a>
                 </div>
               </div>

@@ -51,24 +51,30 @@ Thumbs.db
 desktop.ini
 
 # ========================================================
-# Strict Exclusions — Internal Working Documents (Do NOT push)
+# Strict Exclusions — Internal Working Documents (Root only)
 # ========================================================
-Brochure_recto.jpeg
-Brochure_verso.jpeg
-Cahier_des_charges_Club_Informatique.md
-Charte_Graphique_DesignSystem_ClubInformatique_IST.pdf
-club_informatique_diagramme_classes.drawio
-club_informatique_diagrammes_sequence.drawio
-Creative_Portfolio_Website_Design_Inspiration___Modern_Web_Designer_UI_UX_Portfolio.jpg
-Creative Portfolio Website Design Inspiration _ Modern Web Designer UI UX Portfolio.jpg
-*Creative*Portfolio*
-jpge.jpg
-logo.jpeg
-uc-general-club-informatique.puml
-use-cases.md
+/Brochure_recto.jpeg
+/Brochure_verso.jpeg
+/Cahier_des_charges_Club_Informatique.md
+/Charte_Graphique_DesignSystem_ClubInformatique_IST.pdf
+/club_informatique_diagramme_classes.drawio
+/club_informatique_diagrammes_sequence.drawio
+/Creative_Portfolio_Website_Design_Inspiration___Modern_Web_Designer_UI_UX_Portfolio.jpg
+/Creative Portfolio Website Design Inspiration _ Modern Web Designer UI UX Portfolio.jpg
+/*Creative*Portfolio*
+/jpge.jpg
+/logo.jpeg
+/uc-general-club-informatique.puml
+/use-cases.md
 
 # ========================================================
 # Strictly Local Guides (Do NOT push to GitHub)
 # ========================================================
-GUIDE_TEST_LOCAL.md
-GUIDE_DEPLOIEMENT_RAILWAY.md
+/GUIDE_TEST_LOCAL.md
+/GUIDE_DEPLOIEMENT_RAILWAY.md
+
+# ========================================================
+# Production Assets Inclusions (MUST be tracked in Git)
+# ========================================================
+!club-informatique-frontend/public/**
+!club-informatique-frontend/src/assets/**
