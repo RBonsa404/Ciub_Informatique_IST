@@ -1,0 +1,12 @@
+# ===================================================================
+# Railway Root Configuration — Backend Spring Boot
+# ===================================================================
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+healthcheckPath = "/api/actuator/health/liveness"
+healthcheckTimeout = 180
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
