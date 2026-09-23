@@ -43,6 +43,10 @@ spring:
           starttls:
             enable: ${MAIL_SMTP_STARTTLS:false}
 
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://istclubinformatique.up.railway.app,http://localhost:4200}
+
 # Logging — structured JSON, minimal
 logging:
   level:
@@ -52,4 +56,3 @@ logging:
     org.hibernate: WARN
   pattern:
     console: '{"timestamp":"%d{yyyy-MM-dd HH:mm:ss.SSS}","level":"%level","logger":"%logger{36}","message":"%msg"}%n'
-

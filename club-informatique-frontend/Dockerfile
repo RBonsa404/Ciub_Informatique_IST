@@ -15,23 +15,24 @@ RUN npm ci --legacy-peer-deps
 # Copy full frontend source code
 COPY . .
 
-# Build production Angular bundle
+# Build production Angular bundle with environment.prod.ts
 RUN npm run build
 
 # ── Stage 2: Serve static files with Nginx ──────────────────────────
 FROM nginx:alpine AS runtime
 
 # Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+RUN rm -f /etc/nginx/conf.d/default.conf
 
-# Copy custom Nginx config (listens on port 80)
-COPY nginx.conf.template /etc/nginx/conf.d/default.conf
+# Copy Nginx template and entrypoint script
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
 
 # Copy built Angular static assets to Nginx html folder
-# Note: @angular/build:application outputs to dist/club-informatique-frontend/browser
 COPY --from=builder /app/dist/club-informatique-frontend/browser /usr/share/nginx/html
 
-# Expose port 80
+# Expose port (overridden at runtime by $PORT)
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
