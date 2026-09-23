@@ -10,8 +10,8 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-# Health check for Railway to know when the app is ready
-healthcheckPath = "/api/actuator/health"
+# Health check for Railway (liveness probe doesn't fail if DB is connecting)
+healthcheckPath = "/api/actuator/health/liveness"
 healthcheckTimeout = 180
 
 # Restart policy
