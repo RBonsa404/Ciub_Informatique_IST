@@ -68,6 +68,10 @@ public class SecurityConfig {
                             "/v3/api-docs/**",
                             "/swagger-resources/**"
                     ).permitAll()
+                    // Actuator (healthcheck Railway, monitoring)
+                    .requestMatchers("/actuator/**").permitAll()
+                    // H2 Console (profil h2 local uniquement)
+                    .requestMatchers("/h2-console/**").permitAll()
                     // Tout le reste nécessite une authentification
                     .anyRequest().authenticated()
             )
