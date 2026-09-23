@@ -133,10 +133,10 @@ INSERT INTO utilisateur (
 -- Attribution des rôles au Super Admin initial
 INSERT INTO utilisateur_role (utilisateur_id, role_id) VALUES
 (1, 1), -- ROLE_MEMBRE
-(2, 2), -- ROLE_FORMATEUR
-(3, 3), -- ROLE_RESPONSABLE_CLUB
-(4, 4), -- ROLE_ADMIN
-(5, 5)  -- ROLE_SUPER_ADMIN
+(1, 2), -- ROLE_FORMATEUR
+(1, 3), -- ROLE_RESPONSABLE_CLUB
+(1, 4), -- ROLE_ADMIN
+(1, 5)  -- ROLE_SUPER_ADMIN
 ON CONFLICT DO NOTHING;
 
 -- Reset sequence IDs
