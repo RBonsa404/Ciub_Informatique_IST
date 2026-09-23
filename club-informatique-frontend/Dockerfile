@@ -21,11 +21,14 @@ RUN npm run build
 # ── Stage 2: Serve static files with Nginx ──────────────────────────
 FROM nginx:alpine AS runtime
 
+# Install gettext for envsubst
+RUN apk add --no-cache gettext
+
 # Remove default nginx config
 RUN rm -f /etc/nginx/conf.d/default.conf
 
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx config template (BACKEND_URL will be substituted at startup)
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
 
 # Copy built Angular static assets to Nginx html folder
 COPY --from=builder /app/dist/club-informatique-frontend/browser /usr/share/nginx/html
@@ -33,4 +36,5 @@ COPY --from=builder /app/dist/club-informatique-frontend/browser /usr/share/ngin
 # Expose port 80
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# At startup: substitute BACKEND_URL env var into nginx config, then launch nginx
+CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
