@@ -4,9 +4,9 @@
 
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/club_informatique_dev}
-    username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:postgres}
+    url: ${DB_URL:${SPRING_DATASOURCE_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:club_informatique_dev}}}
+    username: ${DB_USER:${DB_USERNAME:${SPRING_DATASOURCE_USERNAME:postgres}}}
+    password: ${DB_PASSWORD:${SPRING_DATASOURCE_PASSWORD:postgres}}
     driver-class-name: org.postgresql.Driver
 
   jpa:

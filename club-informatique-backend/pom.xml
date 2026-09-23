@@ -144,11 +144,10 @@
             <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
-        <!-- H2 for lightweight unit tests -->
+        <!-- H2 for lightweight local testing -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
