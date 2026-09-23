@@ -21,14 +21,18 @@ RUN npm run build
 # ── Stage 2: Serve static files with Nginx ──────────────────────────
 FROM nginx:alpine AS runtime
 
-# Copy Nginx template for Railway dynamic $PORT substitution
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+# Install envsubst (part of gettext, usually already in nginx:alpine)
+RUN apk add --no-cache gettext
+
+# Copy the Nginx config template
+COPY nginx.conf.template /etc/nginx/nginx.conf.template
 
 # Copy built Angular static assets to Nginx html folder
 # Note: @angular/build:application outputs to dist/club-informatique-frontend/browser
 COPY --from=builder /app/dist/club-informatique-frontend/browser /usr/share/nginx/html
 
-# Expose port (Railway injects $PORT at runtime)
+# Expose default port
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# Substitute $PORT at startup then launch Nginx
+CMD ["sh", "-c", "envsubst '$PORT' < /etc/nginx/nginx.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
