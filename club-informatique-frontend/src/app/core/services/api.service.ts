@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, of } from 'rxjs';
+import { environment } from '../../../environments/environment';
 import {
   Actualite,
   Evenement,
@@ -8,6 +9,7 @@ import {
   Projet,
   Ressource,
   Statistiques,
+  StatistiquesPubliques,
   PageResponse,
   ApiResponse,
   User,
@@ -25,7 +27,7 @@ import {
 })
 export class ApiService {
   private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'http://localhost:8080/api/v1';
+  private readonly baseUrl = environment.apiUrl;
 
   /* ── Public & Actualités ── */
   getActualites(page = 0, size = 10, search?: string): Observable<PageResponse<Actualite>> {
@@ -143,18 +145,29 @@ export class ApiService {
   }
 
   /* ── Statistiques ── */
-  getStatistiques(): Observable<Statistiques> {
-    return this.http.get<Statistiques>(`${this.baseUrl}/statistiques`).pipe(
+  getStatistiquesPubliques(): Observable<StatistiquesPubliques> {
+    return this.http.get<StatistiquesPubliques>(`${this.baseUrl}/statistiques/publiques`).pipe(
       catchError(() => of({
-        totalMembres: 342,
-        totalFormations: 28,
-        totalEvenements: 19,
-        totalProjets: 45,
-        totalInscriptions: 820,
-        membresActifs: 295,
-        formationsEnCours: 6,
-        evenementsAVenir: 4,
-        projetsEnCours: 14
+        totalMembres: 1,
+        totalFormations: 0,
+        totalProjets: 0,
+        totalEvenements: 0
+      }))
+    );
+  }
+
+  getStatistiques(): Observable<Statistiques> {
+    return this.http.get<Statistiques>(`${this.baseUrl}/admin/statistiques`).pipe(
+      catchError(() => of({
+        totalMembres: 1,
+        totalFormations: 0,
+        totalEvenements: 0,
+        totalProjets: 0,
+        totalInscriptions: 0,
+        membresActifs: 1,
+        formationsEnCours: 0,
+        evenementsAVenir: 0,
+        projetsEnCours: 0
       }))
     );
   }
@@ -341,64 +354,12 @@ Rejoignez-nous dès maintenant et devenez acteur du numérique à l'IST !
   }
 
   private getMockFormationsPage(page: number, size: number): PageResponse<Formation> {
-    const list: Formation[] = [
-      {
-        id: 1,
-        titre: 'Fullstack Moderne : Angular 22 & Spring Boot 4',
-        slug: 'fullstack-moderne-angular-spring-boot',
-        description: 'Maîtrisez le développement d’applications professionnelles de bout en bout avec JWT, Clean Architecture et Tailwind CSS.',
-        objectifs: 'Créer une API REST robuste avec Spring Boot, concevoir une interface moderne et réactive avec Angular et déployer sur le Cloud.',
-        prerequis: 'Bases en Java, TypeScript et HTML/CSS.',
-        niveau: 'INTERMEDIAIRE',
-        dureeHeures: 36,
-        imageUrl: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&auto=format&fit=crop&q=80',
-        publie: true,
-        formateur: { id: 10, nom: 'Compaore', prenom: 'David', photoUrl: '' },
-        sessions: [
-          { id: 101, titre: 'Session Octobre 2026', dateDebut: '2026-10-05T18:00:00Z', dateFin: '2026-11-15T20:00:00Z', lieu: 'En ligne (Google Meet) & Lab IST', capaciteMax: 30, nbInscrits: 22, formationId: 1 }
-        ],
-        createdAt: '2026-09-01T10:00:00Z'
-      },
-      {
-        id: 2,
-        titre: 'Initiation à l\'Intelligence Artificielle & Python pour la Data',
-        slug: 'initiation-ia-python-data',
-        description: 'Apprenez à manipuler les données, entraîner vos premiers modèles de Machine Learning et intégrer des LLMs dans vos apps.',
-        objectifs: 'Comprendre Pandas, NumPy, Scikit-Learn et l’API OpenAI/Gemini pour des cas d’usage réels.',
-        prerequis: 'Curiosité scientifique et bases de programmation.',
-        niveau: 'DEBUTANT',
-        dureeHeures: 24,
-        imageUrl: 'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop&q=80',
-        publie: true,
-        formateur: { id: 11, nom: 'Nikiema', prenom: 'Fatou', photoUrl: '' },
-        sessions: [
-          { id: 102, titre: 'Session Automne 2026', dateDebut: '2026-10-12T16:00:00Z', dateFin: '2026-11-20T18:00:00Z', lieu: 'Lab IA - IST', capaciteMax: 25, nbInscrits: 25, formationId: 2 }
-        ],
-        createdAt: '2026-09-05T10:00:00Z'
-      },
-      {
-        id: 3,
-        titre: 'Cybersécurité Offensive & Tests d\'Intrusion (Pentest)',
-        slug: 'cybersecurite-offensive-pentest',
-        description: 'Découvrez les techniques d’audit de sécurité, l’exploitation de vulnérabilités web (OWASP Top 10) et la rédaction de rapports.',
-        objectifs: 'Savoir sécuriser un réseau et tester la résilience des serveurs web en toute légalité.',
-        prerequis: 'Bases solides en réseaux (TCP/IP) et système Linux.',
-        niveau: 'AVANCE',
-        dureeHeures: 40,
-        imageUrl: 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=800&auto=format&fit=crop&q=80',
-        publie: true,
-        formateur: { id: 12, nom: 'Zongo', prenom: 'Stephane', photoUrl: '' },
-        sessions: [
-          { id: 103, titre: 'Session Spéciale Pentest', dateDebut: '2026-11-02T18:00:00Z', dateFin: '2026-12-18T20:00:00Z', lieu: 'Lab Sécurité', capaciteMax: 20, nbInscrits: 14, formationId: 3 }
-        ],
-        createdAt: '2026-09-07T10:00:00Z'
-      }
-    ];
+    const list: Formation[] = [];
 
     return {
       content: list,
-      totalElements: list.length,
-      totalPages: 1,
+      totalElements: 0,
+      totalPages: 0,
       size,
       number: page,
       first: true,

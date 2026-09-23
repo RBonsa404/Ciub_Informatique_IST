@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { TwoFactorSetupResponse } from '../../../core/models';
 
 @Component({
   selector: 'app-membre-profil',
@@ -13,13 +12,13 @@ import { TwoFactorSetupResponse } from '../../../core/models';
     <div class="profil-page">
       <div class="page-title-box">
         <h1>Mon Profil Utilisateur</h1>
-        <p>Gérez vos coordonnées personnelles, vos paramètres de sécurité et votre authentification à 2 facteurs (2FA).</p>
+        <p>Gérez vos coordonnées personnelles, vos informations académiques et la sécurité de votre compte.</p>
       </div>
 
       <div class="profil-grid">
         <!-- Informations personnelles -->
         <div class="glass-card profil-card">
-          <h2>Informations Personnelles</h2>
+          <h2>Informations Personnelles & Académiques</h2>
           <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="mt-4 form-stack">
             <div class="form-row">
               <div class="form-group">
@@ -50,18 +49,18 @@ import { TwoFactorSetupResponse } from '../../../core/models';
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label" for="filiere">Filière</label>
-                <input id="filiere" type="text" formControlName="filiere" class="form-control" />
+                <label class="form-label" for="filiere">Filière / Spécialité</label>
+                <input id="filiere" type="text" formControlName="filiere" class="form-control" placeholder="Ex: Génie Logiciel" />
               </div>
               <div class="form-group">
                 <label class="form-label" for="anneeEtude">Année d'étude (1 à 5)</label>
-                <input id="anneeEtude" type="number" formControlName="anneeEtude" class="form-control" />
+                <input id="anneeEtude" type="number" formControlName="anneeEtude" class="form-control" min="1" max="5" />
               </div>
             </div>
 
             <div class="form-group">
               <label class="form-label" for="biographie">Biographie / Centres d'intérêt</label>
-              <textarea id="biographie" formControlName="biographie" class="form-control" rows="3"></textarea>
+              <textarea id="biographie" formControlName="biographie" class="form-control" rows="3" placeholder="Parlez-nous de vos passions technologiques..."></textarea>
             </div>
 
             <div class="text-right">
@@ -72,11 +71,12 @@ import { TwoFactorSetupResponse } from '../../../core/models';
           </form>
         </div>
 
-        <!-- Colonne droite : Sécurité & 2FA -->
+        <!-- Colonne droite : Sécurité du compte -->
         <div class="security-col">
           <!-- Changement de mot de passe -->
           <div class="glass-card profil-card">
             <h2>Sécurité du Compte</h2>
+            <p class="text-sm text-secondary mt-1">Modifiez régulièrement votre mot de passe pour garantir la protection de votre compte.</p>
             <form [formGroup]="passwordForm" (ngSubmit)="changePassword()" class="mt-4 form-stack">
               <div class="form-group">
                 <label class="form-label" for="currentPassword">Mot de passe actuel</label>
@@ -98,97 +98,34 @@ import { TwoFactorSetupResponse } from '../../../core/models';
               </button>
             </form>
           </div>
-
-          <!-- Double facteur 2FA -->
-          <div class="glass-card profil-card mt-6">
-            <div class="twofa-head">
-              <h2>Authentification 2FA</h2>
-              <span class="badge" [class.badge-success]="auth.currentUser()?.twoFactorEnabled" [class.badge-warning]="!auth.currentUser()?.twoFactorEnabled">
-                {{ auth.currentUser()?.twoFactorEnabled ? 'Activée' : 'Désactivée' }}
-              </span>
-            </div>
-
-            <p class="text-sm text-secondary mt-2">
-              Protégez votre compte étudiant en exigeant un code unique lors de chaque connexion.
-            </p>
-
-            @if (twoFaSetup()) {
-              <div class="twofa-setup-box mt-4">
-                <div class="qr-placeholder">
-                  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                  <span>QR Code Démo</span>
-                </div>
-                <div class="secret-text">
-                  <span class="lbl">Clé secrète :</span>
-                  <code>{{ twoFaSetup()?.secretKey }}</code>
-                </div>
-                <button type="button" class="btn btn-success btn-sm w-full mt-3" (click)="confirm2FA()">
-                  Confirmer et Activer la 2FA
-                </button>
-              </div>
-            } @else {
-              <div class="mt-4">
-                @if (auth.currentUser()?.twoFactorEnabled) {
-                  <button type="button" class="btn btn-danger btn-sm w-full" (click)="disable2FA()">
-                    Désactiver l'authentification 2FA
-                  </button>
-                } @else {
-                  <button type="button" class="btn btn-secondary btn-sm w-full" (click)="enable2FA()">
-                    Configurer la 2FA (Google Authenticator)
-                  </button>
-                }
-              </div>
-            }
-          </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
     .profil-page { display: flex; flex-direction: column; gap: 2rem; }
-    .page-title-box h1 { font-size: 1.85rem; margin-bottom: 0.35rem; }
+    .page-title-box h1 { font-size: 1.85rem; font-weight: 800; margin-bottom: 0.35rem; }
     .page-title-box p { color: var(--text-secondary); font-size: 0.95rem; }
     .profil-grid {
       display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      gap: 1.5rem;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 1.75rem;
     }
-    .profil-card { padding: 2rem; border-radius: 20px; }
-    .profil-card h2 { font-size: 1.25rem; font-weight: 700; margin: 0; }
-    .form-stack { display: flex; flex-direction: column; gap: 1.1rem; }
+    .profil-card {
+      padding: 2.25rem;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+    }
+    .profil-card h2 { font-size: 1.25rem; font-weight: 700; margin: 0; color: var(--text-primary); }
+    .form-stack { display: flex; flex-direction: column; gap: 1.15rem; }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .text-right { text-align: right; }
-    .twofa-head { display: flex; align-items: center; justify-content: space-between; }
-    .twofa-setup-box {
-      padding: 1.25rem;
-      border-radius: 12px;
-      background: rgba(0, 0, 0, 0.03);
-      border: 1px dashed var(--border-color);
-      text-align: center;
-    }
-    .qr-placeholder {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-      color: var(--color-bleu-royal);
-    }
-    [data-theme="dark"] .qr-placeholder { color: var(--color-amber-tech); }
-    .secret-text { font-size: 0.82rem; }
-    .secret-text code {
-      font-weight: 700;
-      background: rgba(0,0,0,0.06);
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      margin-left: 0.5rem;
-    }
     .w-full { width: 100%; }
-    .mt-2 { margin-top: 0.5rem; }
-    .mt-3 { margin-top: 0.75rem; }
-    .mt-4 { margin-top: 1rem; }
-    .mt-6 { margin-top: 1.5rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-4 { margin-top: 1.25rem; }
     .text-sm { font-size: 0.85rem; }
+    .text-secondary { color: var(--text-secondary); }
     @media (max-width: 900px) {
       .profil-grid { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
@@ -202,7 +139,6 @@ export class MembreProfilComponent implements OnInit {
 
   readonly savingProfile = signal(false);
   readonly savingPassword = signal(false);
-  readonly twoFaSetup = signal<TwoFactorSetupResponse | null>(null);
 
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
@@ -210,14 +146,14 @@ export class MembreProfilComponent implements OnInit {
   ngOnInit(): void {
     const u = this.auth.currentUser();
     this.profileForm = this.fb.group({
-      prenom: [u?.prenom || 'Moussa', Validators.required],
-      nom: [u?.nom || 'Ouédraogo', Validators.required],
-      email: [u?.email || 'moussa@ist.bf'],
-      telephone: [u?.telephone || '+226 70 00 00 01'],
-      ville: [u?.ville || 'Ouagadougou'],
-      filiere: [u?.filiere || 'Génie Logiciel'],
-      anneeEtude: [u?.anneeEtude || 3],
-      biographie: [u?.biographie || 'Passionné de développement web, Spring Boot et Cloud.']
+      prenom: [u?.prenom || '', Validators.required],
+      nom: [u?.nom || '', Validators.required],
+      email: [u?.email || ''],
+      telephone: [u?.telephone || ''],
+      ville: [u?.ville || ''],
+      filiere: [u?.filiere || ''],
+      anneeEtude: [u?.anneeEtude || null],
+      biographie: [u?.biographie || '']
     });
 
     this.passwordForm = this.fb.group({
@@ -235,7 +171,7 @@ export class MembreProfilComponent implements OnInit {
     setTimeout(() => {
       this.savingProfile.set(false);
       this.toast.success('Vos informations personnelles ont été mises à jour avec succès.');
-    }, 600);
+    }, 500);
   }
 
   changePassword(): void {
@@ -245,33 +181,6 @@ export class MembreProfilComponent implements OnInit {
       this.savingPassword.set(false);
       this.passwordForm.reset();
       this.toast.success('Votre mot de passe a été modifié avec succès.');
-    }, 600);
-  }
-
-  enable2FA(): void {
-    this.auth.setup2FA().subscribe({
-      next: (res) => this.twoFaSetup.set(res),
-      error: () => this.twoFaSetup.set({ secretKey: 'IST-CLUB-2FA-DEMO-KEY', qrCodeUri: '' })
-    });
-  }
-
-  confirm2FA(): void {
-    this.auth.verify2FA('123456').subscribe({
-      next: () => {
-        this.twoFaSetup.set(null);
-        this.toast.success('L\'authentification 2FA est maintenant activée sur votre compte.');
-      },
-      error: () => {
-        this.twoFaSetup.set(null);
-        this.toast.success('L\'authentification 2FA est maintenant activée sur votre compte. (Simulation)');
-      }
-    });
-  }
-
-  disable2FA(): void {
-    this.auth.disable2FA('123456').subscribe({
-      next: () => this.toast.info('L\'authentification 2FA a été désactivée.'),
-      error: () => this.toast.info('L\'authentification 2FA a été désactivée.')
-    });
+    }, 500);
   }
 }

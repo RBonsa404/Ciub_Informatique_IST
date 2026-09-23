@@ -1,5 +1,7 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ApiService } from '../../../core/services/api.service';
+import { Formation, StatistiquesPubliques } from '../../../core/models';
 
 @Component({
   selector: 'app-home',
@@ -9,37 +11,43 @@ import { RouterLink } from '@angular/router';
   styleUrl: './home.css',
 })
 export class Home implements OnInit {
-  protected readonly stats = [
-    { value: 150, suffix: '+', label: 'Membres Actifs', icon: 'users' },
-    { value: 25, suffix: '+', label: 'Formations', icon: 'book' },
-    { value: 40, suffix: '+', label: 'Projets Réalisés', icon: 'code' },
-    { value: 12, suffix: '', label: 'Événements/An', icon: 'calendar' },
-  ];
+  private readonly apiService = inject(ApiService);
+
+  protected readonly statsList = signal([
+    { key: 'membres', target: 0, label: 'Membres Inscrits', icon: 'users' },
+    { key: 'formations', target: 0, label: 'Formations Planifiées', icon: 'book' },
+    { key: 'projets', target: 0, label: 'Projets en Cours', icon: 'code' },
+    { key: 'evenements', target: 0, label: 'Événements Organisés', icon: 'calendar' },
+  ]);
+
+  protected readonly counters = signal<number[]>([0, 0, 0, 0]);
+  protected readonly formations = signal<Formation[]>([]);
+  protected readonly loadingFormations = signal<boolean>(true);
 
   protected readonly reasons = [
     {
       num: '01',
       title: 'Apprendre',
       desc: 'Développe tes compétences grâce aux formations et ateliers techniques dispensés par nos formateurs.',
-      icon: '🎓',
+      iconKey: 'graduation',
     },
     {
       num: '02',
       title: 'Collaborer',
       desc: "Travaille avec d'autres étudiants sur des projets technologiques concrets et innovants.",
-      icon: '🤝',
+      iconKey: 'users',
     },
     {
       num: '03',
       title: 'Participer',
       desc: 'Prends part aux événements, hackathons et activités du club tout au long de l\'année.',
-      icon: '🚀',
+      iconKey: 'rocket',
     },
     {
       num: '04',
       title: 'Valoriser',
       desc: 'Mets en avant tes projets, tes compétences et ton parcours auprès des entreprises et partenaires.',
-      icon: '⭐',
+      iconKey: 'star',
     },
   ];
 
@@ -50,22 +58,53 @@ export class Home implements OnInit {
     { num: '04', title: 'Évoluer', desc: 'Construire son expérience, développer son réseau et préparer ses futurs projets.' },
   ];
 
-  protected readonly formations = [
-    { titre: 'Développement Web & GitHub', niveau: 'DEBUTANT', image: '🌐', duree: '40h' },
-    { titre: 'Programmation & Base de données', niveau: 'INTERMEDIAIRE', image: '💾', duree: '35h' },
-    { titre: 'Cybersécurité', niveau: 'AVANCE', image: '🔒', duree: '30h' },
-    { titre: 'Réseaux & Télécommunications', niveau: 'INTERMEDIAIRE', image: '📡', duree: '25h' },
-  ];
-
-  protected readonly counters = signal<number[]>([0, 0, 0, 0]);
-
   ngOnInit(): void {
-    this.animateCounters();
+    this.loadRealStats();
+    this.loadFormations();
   }
 
-  private animateCounters(): void {
-    const duration = 2000;
-    const steps = 60;
+  private loadRealStats(): void {
+    this.apiService.getStatistiquesPubliques().subscribe({
+      next: (data: StatistiquesPubliques) => {
+        const stats = [
+          { key: 'membres', target: data.totalMembres || 0, label: 'Membres Inscrits', icon: 'users' },
+          { key: 'formations', target: data.totalFormations || 0, label: 'Formations Planifiées', icon: 'book' },
+          { key: 'projets', target: data.totalProjets || 0, label: 'Projets en Cours', icon: 'code' },
+          { key: 'evenements', target: data.totalEvenements || 0, label: 'Événements Organisés', icon: 'calendar' },
+        ];
+        this.statsList.set(stats);
+        this.animateCounters(stats.map(s => s.target));
+      },
+      error: () => {
+        // En cas d'indisponibilité, affichage zéro honnête
+        this.counters.set([0, 0, 0, 0]);
+      }
+    });
+  }
+
+  private loadFormations(): void {
+    this.loadingFormations.set(true);
+    this.apiService.getFormations(0, 4).subscribe({
+      next: (page) => {
+        this.formations.set(page.content || []);
+        this.loadingFormations.set(false);
+      },
+      error: () => {
+        this.formations.set([]);
+        this.loadingFormations.set(false);
+      }
+    });
+  }
+
+  private animateCounters(targets: number[]): void {
+    const hasNonZero = targets.some(t => t > 0);
+    if (!hasNonZero) {
+      this.counters.set(targets);
+      return;
+    }
+
+    const duration = 1200;
+    const steps = 30;
     const interval = duration / steps;
     let step = 0;
 
@@ -75,12 +114,12 @@ export class Home implements OnInit {
       const eased = 1 - Math.pow(1 - progress, 3);
 
       this.counters.set(
-        this.stats.map(s => Math.round(s.value * eased))
+        targets.map(val => Math.round(val * eased))
       );
 
       if (step >= steps) {
         clearInterval(timer);
-        this.counters.set(this.stats.map(s => s.value));
+        this.counters.set(targets);
       }
     }, interval);
   }

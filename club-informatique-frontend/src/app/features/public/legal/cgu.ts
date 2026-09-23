@@ -44,7 +44,7 @@ import { CommonModule } from '@angular/common';
           <section class="legal-sec">
             <h2>5. Contact</h2>
             <p>
-              Pour toute question relative aux présentes conditions, vous pouvez contacter le Bureau Exécutif via la page de contact ou à l'adresse officielle : <a href="mailto:contact@clubinfo-ist.bf">contact@clubinfo-ist.bf</a>.
+              Pour toute question relative aux présentes conditions, vous pouvez contacter le Bureau Exécutif via la page de contact ou à l'adresse officielle : <a href="mailto:clubinformatique.ist@gmail.com">clubinformatique.ist&#64;gmail.com</a>.
             </p>
           </section>
         </div>

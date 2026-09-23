@@ -7,7 +7,7 @@ interface MembreBureau {
   role: string;
   filiere: string;
   annee: string;
-  image: string;
+  initiales: string;
   bio: string;
   linkedin?: string;
   github?: string;
@@ -37,7 +37,9 @@ interface MembreBureau {
             @for (membre of membres; track membre.nom) {
               <div class="glass-card membre-card">
                 <div class="card-avatar-wrapper">
-                  <img [src]="membre.image" [alt]="membre.nom" class="membre-avatar" />
+                  <div class="initials-avatar">
+                    <span class="avatar-text">{{ membre.initiales }}</span>
+                  </div>
                   <span class="role-badge">{{ membre.role }}</span>
                 </div>
                 <div class="card-content">
@@ -47,12 +49,12 @@ interface MembreBureau {
                   <div class="membre-socials">
                     @if (membre.linkedin) {
                       <a [href]="membre.linkedin" target="_blank" rel="noopener" class="social-btn" aria-label="LinkedIn">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
                       </a>
                     }
                     @if (membre.github) {
                       <a [href]="membre.github" target="_blank" rel="noopener" class="social-btn" aria-label="GitHub">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
                       </a>
                     }
                   </div>
@@ -102,35 +104,62 @@ interface MembreBureau {
       display: flex;
       flex-direction: column;
       border-radius: 20px;
+      border: 1px solid var(--border-color);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .membre-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(245, 166, 35, 0.4);
+      box-shadow: 0 15px 35px rgba(27, 58, 140, 0.1);
+    }
+    [data-theme="dark"] .membre-card:hover {
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
     }
     .card-avatar-wrapper {
       position: relative;
       width: 100%;
-      height: 240px;
-      background: var(--color-bleu-royal-dark);
+      height: 180px;
+      background: linear-gradient(135deg, #0A0E1A 0%, #1B3A8C 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       overflow: hidden;
     }
-    .membre-avatar {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.4s ease;
+    .initials-avatar {
+      width: 88px;
+      height: 88px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, rgba(245, 166, 35, 0.25), rgba(27, 58, 140, 0.6));
+      border: 2px solid rgba(245, 166, 35, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
     }
-    .membre-card:hover .membre-avatar {
-      transform: scale(1.05);
+    .membre-card:hover .initials-avatar {
+      transform: scale(1.08);
+      border-color: var(--color-amber-tech);
+    }
+    .avatar-text {
+      font-family: var(--font-poppins);
+      font-weight: 800;
+      font-size: 2rem;
+      color: #FFFFFF;
+      letter-spacing: 0.05em;
     }
     .role-badge {
       position: absolute;
-      bottom: 1rem;
+      bottom: 0.75rem;
       left: 1rem;
       background: rgba(10, 14, 26, 0.85);
       backdrop-filter: blur(8px);
       color: var(--color-amber-tech);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       font-weight: 600;
-      padding: 0.4rem 0.85rem;
+      padding: 0.35rem 0.8rem;
       border-radius: 9999px;
-      border: 1px solid rgba(245, 166, 35, 0.3);
+      border: 1px solid rgba(245, 166, 35, 0.35);
     }
     .card-content {
       padding: 1.5rem;
@@ -139,7 +168,7 @@ interface MembreBureau {
       flex-direction: column;
     }
     .membre-nom {
-      font-size: 1.35rem;
+      font-size: 1.3rem;
       font-weight: 700;
       margin-bottom: 0.25rem;
       color: var(--text-primary);
@@ -156,7 +185,7 @@ interface MembreBureau {
     .membre-bio {
       font-size: 0.9rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.55;
       margin-bottom: 1.25rem;
       flex: 1;
     }
@@ -213,7 +242,7 @@ export class BureauComponent {
       role: 'Président du Club',
       filiere: 'Génie Logiciel',
       annee: 'Master 1',
-      image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=600&auto=format&fit=crop&q=80',
+      initiales: 'MO',
       bio: 'Passionné de Cloud Computing et d’architecture logicielle. Pilote les grandes orientations stratégiques et partenariats du Club.',
       linkedin: 'https://linkedin.com',
       github: 'https://github.com'
@@ -223,7 +252,7 @@ export class BureauComponent {
       role: 'Vice-Présidente',
       filiere: 'Systèmes d’Information',
       annee: 'Licence 3',
-      image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=600&auto=format&fit=crop&q=80',
+      initiales: 'AS',
       bio: 'Spécialiste de la gestion de projets agiles et du design UI/UX. Supervise la coordination interne et la vie associative.',
       linkedin: 'https://linkedin.com'
     },
@@ -232,7 +261,7 @@ export class BureauComponent {
       role: 'Responsable Pôle Formations',
       filiere: 'Génie Logiciel',
       annee: 'Master 1',
-      image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&auto=format&fit=crop&q=80',
+      initiales: 'DC',
       bio: 'Développeur Fullstack Angular & Spring Boot. Conçoit les programmes de formation, devoirs et ateliers certifiants.',
       linkedin: 'https://linkedin.com',
       github: 'https://github.com'
@@ -242,7 +271,7 @@ export class BureauComponent {
       role: 'Secrétaire Générale',
       filiere: 'Réseaux & Télécoms',
       annee: 'Licence 3',
-      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=600&auto=format&fit=crop&q=80',
+      initiales: 'MT',
       bio: 'Gère les registres, procès-verbaux, adhésions et correspondances administratives de l’association.',
       linkedin: 'https://linkedin.com'
     },
@@ -251,7 +280,7 @@ export class BureauComponent {
       role: 'Responsable Pôle Projets & Hackathons',
       filiere: 'Sécurité Informatique',
       annee: 'Master 1',
-      image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&auto=format&fit=crop&q=80',
+      initiales: 'SZ',
       bio: 'Enthousiaste de cybersécurité et de solutions open-source. Encadre les projets techniques et organise les hackathons.',
       github: 'https://github.com'
     },
@@ -260,7 +289,7 @@ export class BureauComponent {
       role: 'Trésorière Générale',
       filiere: 'Audit & Gestion Informatique',
       annee: 'Licence 3',
-      image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=600&auto=format&fit=crop&q=80',
+      initiales: 'FN',
       bio: 'Assure la gestion budgétaire, le suivi financier des cotisations et la transparence des comptes du Club.',
       linkedin: 'https://linkedin.com'
     }

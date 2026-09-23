@@ -61,6 +61,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/projets/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/ressources/publiques/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/statistiques/publiques").permitAll()
                     // Swagger
                     .requestMatchers(
                             "/swagger-ui/**",

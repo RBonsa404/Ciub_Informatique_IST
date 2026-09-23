@@ -50,14 +50,7 @@ import { ToastService } from '../../../core/services/toast.service';
           <div class="form-row">
             <div class="form-group">
               <label class="form-label" for="filiere">Filière / Spécialité</label>
-              <select id="filiere" formControlName="filiere" class="form-control">
-                <option value="">Sélectionnez votre filière</option>
-                <option value="Génie Logiciel">Génie Logiciel</option>
-                <option value="Réseaux & Télécoms">Réseaux & Télécoms</option>
-                <option value="Systèmes d'Information">Systèmes d'Information</option>
-                <option value="Cybersécurité">Cybersécurité</option>
-                <option value="Autre">Autre</option>
-              </select>
+              <input id="filiere" type="text" formControlName="filiere" class="form-control" placeholder="Ex: Génie Logiciel, Réseaux & Télécoms..." />
             </div>
 
             <div class="form-group">
@@ -212,13 +205,13 @@ export class RegisterComponent {
     prenom: ['', Validators.required],
     nom: ['', Validators.required],
     email: ['', [Validators.required, Validators.email]],
-    filiere: ['Génie Logiciel'],
-    anneeEtude: [3],
-    telephone: ['+226 70 00 00 00'],
-    ville: ['Ouagadougou'],
-    password: ['Password123!', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['Password123!', Validators.required],
-    acceptCgu: [true, Validators.requiredTrue]
+    filiere: [''],
+    anneeEtude: [null],
+    telephone: [''],
+    ville: [''],
+    password: ['', [Validators.required, Validators.minLength(8)]],
+    confirmPassword: ['', Validators.required],
+    acceptCgu: [false, Validators.requiredTrue]
   }, {
     validators: (form) => {
       const p = form.get('password')?.value;

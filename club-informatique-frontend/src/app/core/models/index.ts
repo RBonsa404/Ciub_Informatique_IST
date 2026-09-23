@@ -265,6 +265,13 @@ export interface PageInfo {
   updatedAt: string;
 }
 
+export interface StatistiquesPubliques {
+  totalMembres: number;
+  totalFormations: number;
+  totalProjets: number;
+  totalEvenements: number;
+}
+
 export interface Statistiques {
   totalMembres: number;
   totalFormations: number;

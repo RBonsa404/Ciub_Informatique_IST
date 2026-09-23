@@ -2,23 +2,23 @@
 <section class="hero">
   <div class="hero-bg">
     <!-- Animated Circuit Board Pattern -->
-    <svg class="circuit-svg" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+    <svg class="circuit-svg" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
       <defs>
         <linearGradient id="circuitGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#1B3A8C;stop-opacity:0.3" />
-          <stop offset="100%" style="stop-color:#F5A623;stop-opacity:0.2" />
+          <stop offset="0%" style="stop-color:#1B3A8C;stop-opacity:0.35" />
+          <stop offset="100%" style="stop-color:#F5A623;stop-opacity:0.25" />
         </linearGradient>
       </defs>
       <!-- Horizontal lines -->
-      <line x1="0" y1="100" x2="400" y2="100" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line"/>
-      <line x1="300" y1="200" x2="800" y2="200" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line delay-1"/>
-      <line x1="500" y1="300" x2="1200" y2="300" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line delay-2"/>
-      <line x1="100" y1="400" x2="600" y2="400" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line delay-3"/>
-      <line x1="700" y1="500" x2="1100" y2="500" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line delay-1"/>
+      <line x1="0" y1="100" x2="400" y2="100" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line"/>
+      <line x1="300" y1="200" x2="800" y2="200" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line delay-1"/>
+      <line x1="500" y1="300" x2="1200" y2="300" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line delay-2"/>
+      <line x1="100" y1="400" x2="600" y2="400" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line delay-3"/>
+      <line x1="700" y1="500" x2="1100" y2="500" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line delay-1"/>
       <!-- Vertical lines -->
-      <line x1="200" y1="50" x2="200" y2="350" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line delay-2"/>
-      <line x1="600" y1="100" x2="600" y2="500" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line delay-3"/>
-      <line x1="900" y1="0" x2="900" y2="400" stroke="url(#circuitGrad)" stroke-width="1" class="circuit-line"/>
+      <line x1="200" y1="50" x2="200" y2="350" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line delay-2"/>
+      <line x1="600" y1="100" x2="600" y2="500" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line delay-3"/>
+      <line x1="900" y1="0" x2="900" y2="400" stroke="url(#circuitGrad)" stroke-width="1.5" class="circuit-line"/>
       <!-- Circuit nodes -->
       <circle cx="200" cy="100" r="4" fill="#F5A623" class="circuit-node"/>
       <circle cx="600" cy="200" r="4" fill="#F5A623" class="circuit-node delay-1"/>
@@ -34,12 +34,11 @@
   <div class="hero-content container-app">
     <div class="hero-badge">
       <span class="hero-badge-dot"></span>
-      La technologie nous réunit
+      <span>La technologie nous réunit</span>
     </div>
     <h1 class="hero-title">
       Club <span class="hero-accent">Informatique</span>
-      <br>
-      de l'IST
+      <span class="hero-title-sub">de l'IST</span>
     </h1>
     <p class="hero-subtitle">
       Une communauté dynamique d'étudiants passionnés par l'informatique, la technologie et l'innovation. Ensemble, construisons le numérique de demain.
@@ -47,25 +46,36 @@
     <div class="hero-actions">
       <a routerLink="/auth/register" class="btn btn-primary btn-lg hero-btn-primary">
         Rejoins-nous
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
       <a routerLink="/presentation" class="btn btn-outline btn-lg hero-btn-outline">
         Découvrir le club
       </a>
     </div>
     <div class="hero-logo-wrapper">
-      <img src="logo.jpeg" alt="Club Informatique IST" class="hero-logo-img">
+      <img src="/logo.jpeg" alt="Club Informatique IST" class="hero-logo-img">
     </div>
   </div>
 </section>
 
-<!-- ═══ STATS SECTION ═══ -->
+<!-- ═══ STATS SECTION (DONNÉES RÉELLES) ═══ -->
 <section class="stats-section">
   <div class="container-app">
     <div class="stats-grid">
-      @for (stat of stats; track stat.label; let i = $index) {
+      @for (stat of statsList(); track stat.key; let i = $index) {
         <div class="stat-card glass-card">
-          <span class="stat-value">{{ counters()[i] }}{{ stat.suffix }}</span>
+          <div class="stat-header">
+            @if (stat.icon === 'users') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            } @else if (stat.icon === 'book') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-2.5-2.5Z"/><path d="M6 6h10"/><path d="M6 10h10"/></svg>
+            } @else if (stat.icon === 'code') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="stat-icon"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+            }
+          </div>
+          <span class="stat-value">{{ counters()[i] }}</span>
           <span class="stat-label">{{ stat.label }}</span>
         </div>
       }
@@ -73,22 +83,32 @@
   </div>
 </section>
 
-<!-- ═══ POURQUOI NOUS REJOINDRE ═══ -->
+<!-- ═══ POURQUOI NOUS REJOINDRE (ICÔNES LUCIDE VECTORIELLES) ═══ -->
 <section class="reasons-section section-padding">
   <div class="container-app">
     <div class="section-header">
       <span class="section-label">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
         Pourquoi nous rejoindre ?
       </span>
-      <h2 class="section-title">Quatre raisons de faire partie de l'aventure</h2>
+      <h2 class="section-title">Quatre piliers pour développer ton potentiel</h2>
       <p class="section-subtitle">Le Club Informatique accompagne une génération d'étudiants capables d'imaginer, de créer et d'innover.</p>
     </div>
     <div class="reasons-grid">
       @for (reason of reasons; track reason.num) {
         <div class="reason-card glass-card">
           <span class="reason-num">{{ reason.num }}</span>
-          <span class="reason-icon">{{ reason.icon }}</span>
+          <div class="reason-icon-wrapper">
+            @if (reason.iconKey === 'graduation') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+            } @else if (reason.iconKey === 'users') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            } @else if (reason.iconKey === 'rocket') {
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+            } @else {
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            }
+          </div>
           <h3 class="reason-title">{{ reason.title }}</h3>
           <p class="reason-desc">{{ reason.desc }}</p>
         </div>
@@ -102,7 +122,7 @@
   <div class="container-app">
     <div class="section-header">
       <span class="section-label">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
         Ton parcours au club
       </span>
       <h2 class="section-title">Comment ça marche</h2>
@@ -110,7 +130,7 @@
     </div>
     <div class="parcours-grid">
       @for (step of parcours; track step.num) {
-        <div class="parcours-card">
+        <div class="parcours-card glass-card">
           <div class="parcours-num">{{ step.num }}</div>
           <h3 class="parcours-title">{{ step.title }}</h3>
           <p class="parcours-desc">{{ step.desc }}</p>
@@ -120,35 +140,63 @@
   </div>
 </section>
 
-<!-- ═══ FORMATIONS PHARES ═══ -->
+<!-- ═══ SECTION FORMATIONS (ÉTAT VIDE HONNÊTE OU FORMATIONS RÉELLES) ═══ -->
 <section class="formations-section section-padding">
   <div class="container-app">
     <div class="section-header">
       <span class="section-label">
-        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
         Formations & Ateliers
       </span>
-      <h2 class="section-title">Nos formations phares</h2>
-      <p class="section-subtitle">Des formations et ateliers techniques pour développer vos compétences.</p>
+      <h2 class="section-title">Formations et Ateliers Techniques</h2>
+      <p class="section-subtitle">Des formations pratiques dispensées par nos formateurs pour développer vos compétences.</p>
     </div>
-    <div class="formations-grid">
-      @for (formation of formations; track formation.titre) {
-        <div class="formation-card glass-card">
-          <div class="formation-icon">{{ formation.image }}</div>
-          <h3 class="formation-title">{{ formation.titre }}</h3>
-          <div class="formation-meta">
-            <span class="badge badge-primary">{{ formation.niveau }}</span>
-            <span class="formation-duree">{{ formation.duree }}</span>
+
+    @if (formations().length > 0) {
+      <div class="formations-grid">
+        @for (formation of formations(); track formation.id) {
+          <div class="formation-card glass-card">
+            <div class="formation-badge-wrap">
+              <span class="badge badge-primary">{{ formation.niveau }}</span>
+              <span class="formation-duree">{{ formation.dureeHeures }}h</span>
+            </div>
+            <h3 class="formation-title">{{ formation.titre }}</h3>
+            <p class="formation-desc">{{ formation.description }}</p>
+            <div class="formation-footer">
+              <a [routerLink]="['/formations', formation.id]" class="btn btn-sm btn-outline">
+                Consulter
+              </a>
+            </div>
           </div>
+        }
+      </div>
+      <div class="section-cta">
+        <a routerLink="/formations" class="btn btn-outline">
+          Voir toutes les formations
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    } @else {
+      <!-- État vide honnête & soigné -->
+      <div class="formations-empty glass-card">
+        <div class="empty-icon-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="empty-icon"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
         </div>
-      }
-    </div>
-    <div class="section-cta">
-      <a routerLink="/formations" class="btn btn-outline">
-        Voir toutes les formations
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-      </a>
-    </div>
+        <h3 class="empty-title">Aucune formation programmée pour le moment</h3>
+        <p class="empty-desc">
+          Le programme des prochaines sessions de formation technique et ateliers certifiants est actuellement en cours de finalisation par le bureau exécutif et l'équipe des formateurs.
+        </p>
+        <div class="empty-actions">
+          <a routerLink="/auth/register" class="btn btn-primary">
+            Rejoindre le club pour être notifié
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a routerLink="/contact" class="btn btn-outline">
+            Suggérer une thématique
+          </a>
+        </div>
+      </div>
+    }
   </div>
 </section>
 
@@ -162,9 +210,9 @@
         <div class="cta-actions">
           <a routerLink="/auth/register" class="btn btn-secondary btn-lg">
             Commencer maintenant
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
-          <a routerLink="/contact" class="btn btn-outline btn-lg" style="color:#fff;border-color:rgba(255,255,255,0.3)">
+          <a routerLink="/contact" class="btn btn-outline btn-lg cta-btn-contact">
             Nous contacter
           </a>
         </div>

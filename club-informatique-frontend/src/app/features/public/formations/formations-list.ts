@@ -73,7 +73,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
                 </div>
               }
             </div>
-          } @else {
+          } @else if (formations()?.content && formations()!.content.length > 0) {
             <div class="grid-layout">
               @for (f of formations()?.content; track f.id) {
                 <div class="glass-card formation-card">
@@ -120,6 +120,25 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
                 (pageChanged)="onPageChange($event)"
               />
             }
+          } @else {
+            <!-- État vide honnête & soigné -->
+            <div class="formations-empty-state glass-card text-center">
+              <div class="empty-icon-box">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="m9 16 2 2 4-4"/></svg>
+              </div>
+              <h2>Aucune formation programmée pour le moment</h2>
+              <p>
+                Le calendrier des prochaines formations techniques et ateliers certifiants est actuellement en cours d'élaboration par l'équipe pédagogique et le bureau exécutif.
+              </p>
+              <div class="empty-actions">
+                <a routerLink="/auth/register" class="btn btn-primary">
+                  Rejoindre le club pour être notifié
+                </a>
+                <a routerLink="/contact" class="btn btn-outline">
+                  Suggérer une formation
+                </a>
+              </div>
+            </div>
           }
         </div>
       </section>
@@ -283,6 +302,46 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
     .title-sk { height: 24px; width: 75%; }
     .line-sk { height: 16px; width: 100%; }
     .text-center { text-align: center; }
+    .formations-empty-state {
+      max-width: 650px;
+      margin: 2rem auto;
+      padding: 3.5rem 2rem;
+      border-radius: 24px;
+      border: 1.5px dashed var(--border-color);
+      background: var(--bg-card);
+    }
+    .empty-icon-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      background: rgba(27, 58, 140, 0.08);
+      color: var(--color-bleu-royal);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.5rem;
+    }
+    [data-theme="dark"] .empty-icon-box {
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--color-amber-tech);
+    }
+    .formations-empty-state h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.75rem;
+    }
+    .formations-empty-state p {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    .empty-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
   `]
 })
 export class FormationsListComponent implements OnInit {

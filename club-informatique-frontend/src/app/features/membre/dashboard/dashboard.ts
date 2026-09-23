@@ -15,7 +15,7 @@ import { Inscription, Devoir, Notification } from '../../../core/models';
       <div class="glass-card welcome-banner">
         <div class="welcome-text">
           <span class="user-role-badge">Espace Membre</span>
-          <h1>Ravi de vous revoir, {{ auth.currentUser()?.prenom }} 👋</h1>
+          <h1>Ravi de vous revoir, {{ auth.currentUser()?.prenom }}</h1>
           <p>Voici un aperçu de vos activités, formations en cours et prochains événements à l'IST.</p>
         </div>
         <div class="banner-quick-actions">
@@ -152,20 +152,26 @@ import { Inscription, Devoir, Notification } from '../../../core/models';
             </div>
           </div>
 
-          <!-- Badges & Gamification -->
+          <!-- Badges & Certificats -->
           <div class="glass-card content-card mt-6">
             <h3>Mes Badges & Certificats</h3>
             <div class="badges-flex mt-4">
               <div class="badge-item" title="Membre Actif 2026">
-                <div class="badge-icon">🌟</div>
+                <div class="badge-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
                 <span>Pionnier 26</span>
               </div>
               <div class="badge-item" title="Hackathon Finisher">
-                <div class="badge-icon">🚀</div>
+                <div class="badge-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                </div>
                 <span>Hackathon</span>
               </div>
               <div class="badge-item" title="Assiduité Parfaite">
-                <div class="badge-icon">🎓</div>
+                <div class="badge-icon">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                </div>
                 <span>Assidu</span>
               </div>
             </div>
