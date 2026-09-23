@@ -1,0 +1,74 @@
+# ========================================================
+# CLUB INFORMATIQUE IST — Root .gitignore
+# ========================================================
+
+# --- Environment & Secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Dependencies & Package Managers ---
+node_modules/
+/.pnp
+.pnp.js
+
+# --- Build Outputs ---
+dist/
+build/
+target/
+*.jar
+*.war
+*.ear
+
+# --- Framework-specific ---
+.angular/
+.gradle/
+
+# --- Logs & Runtime ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- IDE & Editor files ---
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.settings/
+
+# --- Operating System Files ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ========================================================
+# Strict Exclusions — Internal Working Documents (Do NOT push)
+# ========================================================
+Brochure_recto.jpeg
+Brochure_verso.jpeg
+Cahier_des_charges_Club_Informatique.md
+Charte_Graphique_DesignSystem_ClubInformatique_IST.pdf
+club_informatique_diagramme_classes.drawio
+club_informatique_diagrammes_sequence.drawio
+Creative_Portfolio_Website_Design_Inspiration___Modern_Web_Designer_UI_UX_Portfolio.jpg
+Creative Portfolio Website Design Inspiration _ Modern Web Designer UI UX Portfolio.jpg
+*Creative*Portfolio*
+jpge.jpg
+logo.jpeg
+uc-general-club-informatique.puml
+use-cases.md
+
+# ========================================================
+# Strictly Local Guides (Do NOT push to GitHub)
+# ========================================================
+GUIDE_TEST_LOCAL.md
+GUIDE_DEPLOIEMENT_RAILWAY.md

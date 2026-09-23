@@ -1,0 +1,34 @@
+# ===================================================================
+# Club Informatique IST — Profil TEST
+# ===================================================================
+
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:16-alpine:///club_informatique_test
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+  jpa:
+    show-sql: false
+
+  flyway:
+    clean-disabled: false
+
+  mail:
+    host: localhost
+    port: 1025
+
+app:
+  jwt:
+    secret: test-secret-key-that-is-long-enough-for-hs512-algorithm-testing-purposes-only
+    access-token-expiration-ms: 60000
+    refresh-token-expiration-ms: 120000
+
+  security:
+    bcrypt-strength: 4
+    max-login-attempts: 3
+    lock-duration-minutes: 1
+
+logging:
+  level:
+    root: WARN
+    com.clubinfo.ist: INFO
