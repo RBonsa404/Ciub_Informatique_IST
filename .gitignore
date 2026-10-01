@@ -78,3 +78,11 @@ desktop.ini
 # ========================================================
 !club-informatique-frontend/public/**
 !club-informatique-frontend/src/assets/**
+
+# --- Captures de reference de la maquette (volumineuses, regenerables) ---
+/docs/maquette-ref/**/*.png
+
+# --- Rapports de tests locaux ---
+playwright-report/
+test-results/
+coverage/
