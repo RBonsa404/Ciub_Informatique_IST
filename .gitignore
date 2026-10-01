@@ -86,3 +86,6 @@ desktop.ini
 playwright-report/
 test-results/
 coverage/
+
+# --- Captures de recette des pages (regenerables par e2e/recette-page.mjs) ---
+/docs/recette/**/*.png

@@ -239,6 +239,14 @@ Mineurs et conception :
 28. B-28. Changement de mot de passe sans révocation des sessions.
 29. B-29. Profil `h2` sans données de référence ; console H2 autorisée dans tous les profils.
 
+Constatés à l'exécution sur PostgreSQL 16 le 1er octobre 2026 (base vierge, backend démarré localement, voir `club-informatique-frontend/e2e/backend-recette.sh`) :
+
+30. B-30 (critique). Toutes les listes publiques à recherche facultative répondent 500 lorsque le paramètre `search` est absent : `GET /actualites`, `/evenements`, `/formations`, `/projets`, `/ressources/publiques`. Cause : `LOWER(CONCAT('%', :search, '%'))` avec un paramètre nul, que PostgreSQL type en `bytea` (« function lower(bytea) does not exist »). Avec `?search=a`, la réponse est 200. Les tests unitaires à doublures ne pouvaient pas le détecter.
+31. B-31 (critique). Le compte Super Admin créé par la migration V2 ne peut pas se connecter (réponse 401 avec le mot de passe documenté) : l'empreinte insérée n'est pas celle du mot de passe annoncé. Une base neuve ne possède donc aucun administrateur utilisable. Ce constat précise B-01 : le risque n'est pas un mot de passe connu, mais l'absence d'administration et un compte résiduel à neutraliser.
+32. B-32 (majeur). Un secret JWT qui n'est pas du base64 valide (par exemple contenant un tiret) provoque une erreur 500 à l'inscription et à la connexion : `JwtProvider.getSigningKey` n'intercepte que `IllegalArgumentException`, alors que le décodeur lève `DecodingException`.
+33. B-33 (mineur). Une route inexistante répond 500 au lieu de 404 (exemple : `POST /auth/verification`) : le gestionnaire générique absorbe l'exception « ressource introuvable ».
+34. B-34 (mineur). La limitation de débit de 5 requêtes par quart d'heure s'applique par adresse IP et par chemin, connexions réussies comprises : plusieurs utilisateurs derrière une même adresse (réseau de l'établissement) se bloquent mutuellement.
+
 ## G.9. Lenteur de connexion et de chargement : causes probables
 
 | Cause | Constat | Vérification prévue en Phase 3 |

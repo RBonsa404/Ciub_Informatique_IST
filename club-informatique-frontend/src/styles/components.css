@@ -364,6 +364,55 @@
     cursor: pointer;
     flex-shrink: 0;
   }
+  /* Champ avec icône (écrans 18 à 21) */
+  .input-group {
+    position: relative;
+    display: block;
+  }
+  .input-group .form-input {
+    padding-left: 2.8rem;
+  }
+  .input-group.has-suffix .form-input {
+    padding-right: 2.75rem;
+  }
+  .input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    display: flex;
+    pointer-events: none;
+  }
+  .input-suffix {
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+  }
+  .input-action {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+  }
+  .input-action:hover {
+    color: var(--text-primary);
+  }
+  .input-valid {
+    color: var(--badge-success-text);
+    display: flex;
+    padding-right: 0.5rem;
+  }
+
   /* Interrupteur (dérivé des cases à cocher et des jetons) */
   .switch {
     position: relative;

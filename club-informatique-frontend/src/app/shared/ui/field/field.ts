@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, Directive, ElementRef, computed, inject, input, signal } from '@angular/core';
-import { NgControl, ValidationErrors } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, DestroyRef, Directive, ElementRef, OnInit, computed, inject, input, signal } from '@angular/core';
+import { AbstractControl, NgControl, ValidationErrors } from '@angular/forms';
 
 let nextId = 0;
 
@@ -23,7 +23,7 @@ const DEFAULT_MESSAGES: Record<string, (params: Record<string, unknown>) => stri
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'form-group' },
   template: `
-    <label class="form-label" [attr.for]="controlId">
+    <label [class]="labelHidden() ? 'sr-only' : 'form-label'" [attr.for]="controlId">
       {{ label() }}
       @if (required()) {
         <span class="form-required" aria-hidden="true">*</span>
@@ -33,12 +33,14 @@ const DEFAULT_MESSAGES: Record<string, (params: Record<string, unknown>) => stri
     @if (hint()) {
       <span class="form-hint" [id]="hintId">{{ hint() }}</span>
     }
-    <span class="form-error" [id]="errorId" aria-live="polite">{{ errorMessage() }}</span>
+    <span class="form-error empty:hidden" [id]="errorId" aria-live="polite">{{ errorMessage() }}</span>
   `,
 })
 export class Field {
   readonly label = input.required<string>();
   readonly hint = input<string>();
+  /** Libellé réservé aux lecteurs d'écran (champs à texte indicatif de la maquette). */
+  readonly labelHidden = input(false);
   readonly required = input(false);
   /** Messages propres au champ, par clé de validation. */
   readonly messages = input<Record<string, string>>({});
@@ -93,19 +95,34 @@ export class Field {
     '(change)': 'refresh()',
   },
 })
-export class FieldControl {
+export class FieldControl implements OnInit {
   protected readonly field = inject(Field);
   private readonly control = inject(NgControl, { optional: true, self: true });
   private readonly element = inject<ElementRef<HTMLElement>>(ElementRef);
 
   protected readonly cssClass = { select: 'form-select', textarea: 'form-textarea' }[this.element.nativeElement.tagName.toLowerCase()] ?? 'form-input';
 
-  constructor() {
-    this.control?.statusChanges?.subscribe(() => this.refresh());
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** Le contrôle d'un formControlName n'est attaché qu'après le constructeur : l'abonnement se fait à l'initialisation. */
+  ngOnInit(): void {
+    const subscription = this.control?.statusChanges?.subscribe(() => this.refresh());
+    this.destroyRef.onDestroy(() => subscription?.unsubscribe());
   }
 
   /** Force l'affichage des erreurs (soumission d'un formulaire incomplet). */
   refresh(): void {
     this.field.sync(this.control?.errors ?? null, this.control?.touched ?? false);
   }
+}
+
+/** Révèle toutes les erreurs d'un formulaire soumis incomplet (les champs se resynchronisent sur statusChanges). */
+export function revealErrors(form: AbstractControl): void {
+  form.markAllAsTouched();
+  const walk = (control: AbstractControl): void => {
+    const children = (control as { controls?: Record<string, AbstractControl> | AbstractControl[] }).controls;
+    if (children) for (const child of Object.values(children)) walk(child);
+    control.updateValueAndValidity({ onlySelf: true });
+  };
+  walk(form);
 }

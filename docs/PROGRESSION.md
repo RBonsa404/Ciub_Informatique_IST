@@ -31,11 +31,11 @@ Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.
 | ID | Page | Route | Rôles | Thème clair | Thème sombre | Responsive | États | Anti-stats | A11y | Tests | Recette visuelle | Backend relié | Visible en navigation | Statut |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
 | S0 | Socle, en-tête, pied de page, /__design | `/__design` | — | fait | fait | fait (7 largeurs, 0 débordement) | composants fournis | verte | axe : 0 violation | 32 verts | `docs/recette/socle/journal.md` | sans objet | sans objet | terminé, en attente de validation (point d'arrêt 2) |
-| 18 | Inscription | `/inscription` | V | | | | | | | | | | | à faire |
-| 19 | Connexion | `/connexion` | V | | | | | | | | | | | à faire |
-| 20 | Mot de passe oublié | `/mot-de-passe-oublie` | V | | | | | | | | | | | à faire |
-| 21 | Réinitialisation | `/reinitialisation` | V | | | | | | | | | | | à faire |
-| D2 | Vérification de l'adresse | `/verification-adresse` | V | | | | | | | | | | | à faire |
+| 18 | Inscription | `/inscription` | V | fait | fait | fait (7 largeurs) | initial, validation, attente, erreur, succès | verte | axe : 0 | verts | docs/recette/18-inscription | existant (inscription réelle prouvée) ; vérification d'adresse à créer | oui (en-tête, module authentification) | terminé (Phase 1) |
+| 19 | Connexion | `/connexion` | V | fait | fait | fait (7 largeurs) | initial, validation, attente, échec, session expirée, succès | verte | axe : 0 | verts | docs/recette/19-connexion | existant (connexion et refus réels prouvés) ; cookie de rafraîchissement à créer | oui (en-tête, module authentification) | terminé (Phase 1) |
+| 20 | Mot de passe oublié | `/mot-de-passe-oublie` | V | fait | fait | fait (7 largeurs) | initial, attente, envoyé, erreur | verte | axe : 0 | verts | docs/recette/20-mot-de-passe-oublie | existant mais simulé (aucun courriel) | depuis la connexion | terminé (Phase 1) |
+| 21 | Réinitialisation | `/reinitialisation` | V | fait | fait | fait (7 largeurs) | initial, robustesse, jeton refusé, lien incomplet | verte | axe : 0 | verts | docs/recette/21-reinitialisation | existant mais simulé (jeton en mémoire) | contextuel (lien reçu par courriel) | terminé (Phase 1) |
+| D2 | Vérification de l'adresse | `/verification-adresse` | V | fait | fait | fait (7 largeurs) | chargement, succès, lien invalide, erreur | verte | axe : 0 | couvert par la recette | docs/recette/D2-verification-adresse | à créer (POST /auth/verification) | contextuel (lien reçu par courriel) | terminé (Phase 1) |
 | 01 | Accueil | `/` | tous | | | | | | | | | | | à faire |
 | 02 | Présentation | `/presentation` | tous | | | | | | | | | | | à faire |
 | 03 | Bureau | `/bureau` | tous | | | | | | | | | | | à faire |
