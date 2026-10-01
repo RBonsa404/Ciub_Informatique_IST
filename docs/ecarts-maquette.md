@@ -45,6 +45,8 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-36 | Espace Formateur : compteurs fixes (« 3 modules actifs », « 32 inscrits », « 94.5% »), devoirs rendus à noter, QR Code, export PDF, signature certifiée, code de module, barème | écrans 35 à 40 | Valeurs réelles renvoyées par le serveur ou retrait ; remise et notation hors périmètre (D-03) ; champs de cours selon D-05 | retrait et dérivation (section 1) |
 | E-37 | Dépôt de fichier (syllabus, sujet de devoir, support) | écrans 37, 40 | Adresse web du document, validée ; le dépôt de fichier dépend d'un stockage à créer (besoin à arbitrer en Phase 2) | retrait provisoire |
 | E-38 | Salle et capacité saisies sur le cours | écran 37 | Saisies par séance dans le détail du cours (une formation, plusieurs séances) ; planification et suppression de séance dans l'écran 38 | assumé |
+| E-39 | Gestion des événements : calendrier figé, compteur « (24) », cases « Inscription ouverte » et « Liste d'attente activée », formulaire permanent | écran 45 | Calendrier du mois courant alimenté par les événements réels, avec navigation ; nombre réel d'inscrits ; interrupteur de publication ; formulaire ouvert à la demande, complété par les champs obligatoires du modèle | assumé (section 1, UC-19) |
+| E-40 | Inscriptions : compteurs fixes, export inactif, promotion « automatique » | écran 48 | Effectifs réels de l'activité choisie, export CSV réel des inscrits (D-06), promotion manuelle d'un membre en liste d'attente | assumé (UC-21) |
 
 ## 2. Données d'illustration non reprises
 

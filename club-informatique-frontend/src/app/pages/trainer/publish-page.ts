@@ -10,13 +10,13 @@ import { normalizeSpaces } from '../../core/auth/password-policy';
 import { toApiError } from '../../core/http/problem';
 import { BreadcrumbService } from '../../core/navigation/breadcrumb.service';
 import { SeoService } from '../../core/seo/seo.service';
+import { toApiDateTime } from '../../shared/format/format';
 import { Button } from '../../shared/ui/button/button';
 import { Field, FieldControl, revealErrors } from '../../shared/ui/field/field';
 import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { Checkbox } from '../../shared/ui/toggle/toggle';
-import { toApiDateTime } from './trainer-model';
 
 type ItemType = 'DEVOIR' | TypeRessource;
 

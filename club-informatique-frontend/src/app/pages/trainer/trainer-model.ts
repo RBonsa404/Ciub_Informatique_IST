@@ -48,11 +48,6 @@ export function upcomingSessions(formations: readonly Formation[], limit: number
     .slice(0, limit);
 }
 
-/** Valeur d'un champ « datetime-local » (heure d'Ouagadougou, UTC) au format attendu par l'API. */
-export function toApiDateTime(local: string): string {
-  return local.length === 16 ? `${local}:00` : local;
-}
-
 /** Libellé d'un nombre réel d'inscrits ; vide si le serveur ne le fournit pas. */
 export function enrolledLabel(count: number | null | undefined): string {
   if (count === null || count === undefined) return '';

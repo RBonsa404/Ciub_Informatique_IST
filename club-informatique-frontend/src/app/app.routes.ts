@@ -113,6 +113,25 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'gestion',
+        canMatch: [featureGuard('gestion-club')],
+        canActivate: [roleGuard('RESPONSABLE_CLUB')],
+        children: [
+          {
+            path: 'evenements',
+            canMatch: [featureGuard('evenements')],
+            data: { fil: [{ label: 'Gestion des événements' }] },
+            loadComponent: () => import('./pages/management/events-page').then((m) => m.EventsManagementPage),
+          },
+          {
+            path: 'inscriptions',
+            canMatch: [featureGuard('inscriptions')],
+            data: { fil: [{ label: 'Inscriptions et listes d’attente' }] },
+            loadComponent: () => import('./pages/management/registrations-page').then((m) => m.RegistrationsPage),
+          },
+        ],
+      },
+      {
         path: 'profil',
         canMatch: [featureGuard('profil')],
         data: { fil: [{ label: 'Mon profil' }] },

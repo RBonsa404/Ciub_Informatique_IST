@@ -9,7 +9,7 @@ import { TrainerApi } from '../../core/api/trainer.api';
 import { toApiError } from '../../core/http/problem';
 import { BreadcrumbService } from '../../core/navigation/breadcrumb.service';
 import { SeoService } from '../../core/seo/seo.service';
-import { FrDatePipe, FrNumberPipe, formatTimeRange, safeUrl } from '../../shared/format/format';
+import { FrDatePipe, FrNumberPipe, formatTimeRange, safeUrl, toApiDateTime } from '../../shared/format/format';
 import { BadgeVariant, Badge } from '../../shared/ui/card/card';
 import { Button } from '../../shared/ui/button/button';
 import { DialogService } from '../../shared/ui/dialog/confirm-dialog';
@@ -18,7 +18,7 @@ import { Icon } from '../../shared/ui/icon/icon';
 import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
-import { enrolledLabel, enrolledOf, sessionsOf, toApiDateTime } from './trainer-model';
+import { enrolledLabel, enrolledOf, sessionsOf } from './trainer-model';
 
 interface Materials {
   readonly ressources: readonly Ressource[];

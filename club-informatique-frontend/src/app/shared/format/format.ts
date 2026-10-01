@@ -96,3 +96,35 @@ export function toBlocks(text: string | null | undefined): TextBlock[] {
 export function safeUrl(value: string | null | undefined): string | null {
   return value && /^https?:\/\//i.test(value.trim()) ? value.trim() : null;
 }
+
+/** Valeur d'un champ « datetime-local » (heure d'Ouagadougou, UTC) au format attendu par l'API. */
+export function toApiDateTime(local: string): string {
+  return local.length === 16 ? `${local}:00` : local;
+}
+
+/** Date d'API ramenée à la valeur d'un champ « datetime-local ». */
+export function toLocalInput(value: string | null | undefined): string {
+  return value ? value.slice(0, 16) : '';
+}
+
+/**
+ * Tableau au format CSV (séparateur point-virgule, lisible par un tableur en français).
+ * Une cellule commençant par un caractère de formule est neutralisée par une apostrophe.
+ */
+export function toCsv(rows: readonly (readonly string[])[]): string {
+  const cell = (value: string) => {
+    const safe = /^[=+\-@\t\r]/.test(value) ? `'${value}` : value;
+    return `"${safe.replace(/"/g, '""')}"`;
+  };
+  return rows.map((row) => row.map(cell).join(';')).join('\r\n');
+}
+
+/** Propose l'enregistrement d'un fichier texte produit dans le navigateur. */
+export function downloadText(filename: string, content: string, mime: string): void {
+  const url = URL.createObjectURL(new Blob(['\uFEFF' + content], { type: `${mime};charset=utf-8` }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+}

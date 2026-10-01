@@ -11,7 +11,8 @@ import { CourseDetailPage } from './course-detail-page';
 import { CourseFormPage, CoursesListPage } from './courses-pages';
 import { PublishPage, webUrlValidator } from './publish-page';
 import { TrainerDashboardPage } from './trainer-dashboard-page';
-import { enrolledLabel, enrolledOf, ownedBy, progressOf, toApiDateTime, upcomingSessions } from './trainer-model';
+import { toApiDateTime } from '../../shared/format/format';
+import { enrolledLabel, enrolledOf, ownedBy, progressOf, upcomingSessions } from './trainer-model';
 
 const DAY = 86_400_000;
 const iso = (offset: number) => new Date(Date.now() + offset).toISOString().slice(0, 19);

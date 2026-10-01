@@ -152,6 +152,7 @@ export interface Inscription {
   /** Renseignés dans les listes de gestion (inscrits d'une session ou d'un événement). */
   readonly utilisateurId?: number | null;
   readonly utilisateurNom?: string | null;
+  readonly utilisateurEmail?: string | null;
   readonly utilisateurFiliere?: string | null;
   readonly evenementId?: number | null;
   readonly evenementTitre?: string | null;
@@ -191,6 +192,17 @@ export interface FormationPayload {
   readonly niveau: NiveauFormation;
   readonly prerequis: string;
   readonly objectifs: string;
+  readonly categorieId: number | null;
+  readonly publie: boolean;
+}
+
+export interface EvenementPayload {
+  readonly titre: string;
+  readonly description: string;
+  readonly dateDebut: string;
+  readonly dateFin: string;
+  readonly lieu: string;
+  readonly capaciteMax: number | null;
   readonly categorieId: number | null;
   readonly publie: boolean;
 }
