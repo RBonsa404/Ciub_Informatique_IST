@@ -20,7 +20,27 @@ export interface Actualite {
   readonly auteurNom?: string | null;
   readonly categorieId?: number | null;
   readonly categorieNom?: string | null;
+  /** Diffusion : site public ou membres connectés seulement (champ à créer côté serveur). */
+  readonly visibilite?: VisibiliteActualite | null;
   readonly createdAt?: string;
+}
+
+export type VisibiliteActualite = 'PUBLIC' | 'MEMBRES';
+
+export interface ActualitePayload {
+  readonly titre: string;
+  readonly contenu: string;
+  readonly resume: string;
+  readonly image: string | null;
+  readonly categorieId: number | null;
+  readonly publie: boolean;
+  readonly visibilite: VisibiliteActualite;
+}
+
+export interface NotificationGlobalePayload {
+  readonly titre: string;
+  readonly message: string;
+  readonly lien: string | null;
 }
 
 export interface Evenement {
@@ -291,6 +311,14 @@ export interface NotificationItem {
 export interface PreferencesCompte {
   readonly notificationsCourriel: boolean;
 }
+
+export const TYPE_NOTIFICATION_LABELS: Record<TypeNotification, string> = {
+  MESSAGE_GLOBAL: 'Annonces',
+  INSCRIPTION: 'Inscriptions',
+  VALIDATION_PROJET: 'Projets',
+  RAPPEL_SESSION: 'Rappels',
+  SYSTEME: 'Système',
+};
 
 export const STATUT_COMPTE_LABELS: Record<StatutCompte, string> = {
   ACTIF: 'Compte actif',

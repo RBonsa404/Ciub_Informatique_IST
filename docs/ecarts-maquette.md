@@ -47,6 +47,10 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-38 | Salle et capacité saisies sur le cours | écran 37 | Saisies par séance dans le détail du cours (une formation, plusieurs séances) ; planification et suppression de séance dans l'écran 38 | assumé |
 | E-39 | Gestion des événements : calendrier figé, compteur « (24) », cases « Inscription ouverte » et « Liste d'attente activée », formulaire permanent | écran 45 | Calendrier du mois courant alimenté par les événements réels, avec navigation ; nombre réel d'inscrits ; interrupteur de publication ; formulaire ouvert à la demande, complété par les champs obligatoires du modèle | assumé (section 1, UC-19) |
 | E-40 | Inscriptions : compteurs fixes, export inactif, promotion « automatique » | écran 48 | Effectifs réels de l'activité choisie, export CSV réel des inscrits (D-06), promotion manuelle d'un membre en liste d'attente | assumé (UC-21) |
+| E-41 | Centre de notifications : compteurs fixes, filtre « Mentionnés », dates relatives, incitation aux notifications poussées | écran 33 | Nombre réel de non lues, types du modèle, date réelle, actions « Marquer comme lue » et « Ouvrir » ; mention retirée | assumé et retrait (section 1, D-01) |
+| E-42 | Fil social (réactions, commentaires, partage, publications connexes) | écrans 23, 24 | Annonces internes en lecture seule, réservées aux membres | dérivation (D-01) |
+| E-43 | Éditeur par blocs glisser-déposer, date de publication, épinglage | écran 44 | Texte structuré (paragraphe, titre de section, citation insérés d'un clic), image de couverture par adresse web, résumé, catégorie réelle, visibilité | dérivation (D-02) |
+| E-44 | Notification globale : type, audience à effectifs fixes, programmation | écran 49 | Envoi immédiat à tous les membres actifs, lien interne facultatif, confirmation avant envoi, aperçu en direct conservé | retrait (section 1, UC-22) |
 
 ## 2. Données d'illustration non reprises
 

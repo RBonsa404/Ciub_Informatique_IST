@@ -780,6 +780,8 @@
 
   /* --- Tableaux --- */
   .table-responsive {
+    /* Positionné : les textes réservés aux lecteurs d'écran restent dans la zone défilante. */
+    position: relative;
     width: 100%;
     overflow-x: auto;
     border-radius: var(--radius-md);
@@ -805,7 +807,7 @@
     color: var(--text-primary);
   }
   .data-table tbody tr:hover td {
-    background: var(--bg-surface-hover);
+    background: color-mix(in srgb, var(--bg-surface-hover) 45%, transparent);
   }
 
   /* --- État vide et état d'erreur --- */

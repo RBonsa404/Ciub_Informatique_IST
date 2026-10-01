@@ -2,10 +2,15 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, forkJoin, map, of, switchMap } from 'rxjs';
 import { ApiError } from '../http/problem';
 import { ApiClient, Page, PageRequest } from './api-client';
-import { Devoir, Formation, Inscription, NotificationItem, PreferencesCompte, Profil, ProfilUpdate, Ressource, SupportsFormation } from './models';
+import { Actualite, Devoir, Formation, Inscription, NotificationItem, PreferencesCompte, Profil, ProfilUpdate, Ressource, SupportsFormation, TypeNotification } from './models';
 import { toPage } from './public.api';
 
 export type TypeInscription = 'FORMATION' | 'EVENEMENT';
+
+export interface NotificationsQuery extends PageRequest {
+  readonly type?: TypeNotification | null;
+  readonly lue?: boolean | null;
+}
 
 export interface InscriptionsQuery extends PageRequest {
   readonly type?: TypeInscription | null;
@@ -93,8 +98,27 @@ export class MemberApi {
     );
   }
 
-  notifications(query: PageRequest = {}): Observable<Page<NotificationItem>> {
+  /** Les filtres type et lue sont à ajouter côté serveur. */
+  notifications(query: NotificationsQuery = {}): Observable<Page<NotificationItem>> {
     return this.api.get<unknown>('/notifications', { ...query }).pipe(map(toPage<NotificationItem>));
+  }
+
+  marquerLue(notificationId: number): Observable<void> {
+    return this.api.put<unknown>(`/notifications/${notificationId}/lue`, null).pipe(map(() => undefined));
+  }
+
+  toutMarquerLu(): Observable<void> {
+    return this.api.put<unknown>('/notifications/lire-toutes', null).pipe(map(() => undefined));
+  }
+
+  /** Point d'accès à créer : annonces publiées réservées aux membres connectés. */
+  publications(query: PageRequest = {}): Observable<Page<Actualite>> {
+    return this.api.get<unknown>('/publications', { ...query }, { silent: true }).pipe(map(toPage<Actualite>));
+  }
+
+  /** Point d'accès à créer. */
+  publication(slug: string): Observable<Actualite> {
+    return this.api.get<Actualite>(`/publications/slug/${encodeURIComponent(slug)}`, undefined, { silent: true });
   }
 
   notificationsNonLues(): Observable<number> {

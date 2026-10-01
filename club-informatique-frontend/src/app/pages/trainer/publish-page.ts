@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, signal } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
-import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Observable, map } from 'rxjs';
 import { Formation, TYPE_RESSOURCE_LABELS, TypeRessource } from '../../core/api/models';
@@ -17,6 +17,7 @@ import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { Checkbox } from '../../shared/ui/toggle/toggle';
+import { webUrlValidator } from '../../shared/validators';
 
 type ItemType = 'DEVOIR' | TypeRessource;
 
@@ -30,12 +31,6 @@ const TYPES: readonly { value: ItemType; label: string }[] = [
 ];
 
 const URL_MAX = 500;
-
-/** Adresse web complète (http ou https). */
-export function webUrlValidator(control: AbstractControl): ValidationErrors | null {
-  const value = String(control.value ?? '').trim();
-  return value === '' || /^https?:\/\/\S+$/i.test(value) ? null : { adresse: true };
-}
 
 /** Publication d'un devoir ou d'une ressource (écran 40) pour un cours du formateur. */
 @Component({

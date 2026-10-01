@@ -14,6 +14,10 @@ const profile = () => import('./pages/member/profile-pages');
 const supports = () => import('./pages/member/supports-pages');
 
 const courses = () => import('./pages/trainer/courses-pages');
+const news = () => import('./pages/management/news-pages');
+const publications = () => import('./pages/member/publications-pages');
+
+const NEWS_CRUMB = { label: 'Actualités', route: '/espace/gestion/actualites' };
 
 const COURSES_CRUMB = { label: 'Mes cours', route: '/espace/formateur/cours' };
 const SUPPORTS_CRUMB = { label: 'Supports et devoirs', route: '/espace/supports' };
@@ -118,6 +122,30 @@ export const routes: Routes = [
         canActivate: [roleGuard('RESPONSABLE_CLUB')],
         children: [
           {
+            path: 'actualites',
+            canMatch: [featureGuard('actualites')],
+            data: { fil: [{ label: 'Gestion des actualités' }] },
+            loadComponent: () => news().then((m) => m.NewsListPage),
+          },
+          {
+            path: 'actualites/nouvelle',
+            canMatch: [featureGuard('actualites')],
+            data: { fil: [NEWS_CRUMB, { label: 'Nouvelle actualité' }] },
+            loadComponent: () => news().then((m) => m.NewsEditorPage),
+          },
+          {
+            path: 'actualites/:id/modifier',
+            canMatch: [featureGuard('actualites')],
+            data: { fil: [NEWS_CRUMB, { label: 'Modification' }] },
+            loadComponent: () => news().then((m) => m.NewsEditorPage),
+          },
+          {
+            path: 'notifications',
+            canMatch: [featureGuard('notifications')],
+            data: { fil: [{ label: 'Notification globale' }] },
+            loadComponent: () => import('./pages/management/broadcast-page').then((m) => m.BroadcastPage),
+          },
+          {
             path: 'evenements',
             canMatch: [featureGuard('evenements')],
             data: { fil: [{ label: 'Gestion des événements' }] },
@@ -130,6 +158,26 @@ export const routes: Routes = [
             loadComponent: () => import('./pages/management/registrations-page').then((m) => m.RegistrationsPage),
           },
         ],
+      },
+      {
+        path: 'notifications',
+        canMatch: [featureGuard('notifications')],
+        data: { fil: [{ label: 'Notifications' }] },
+        loadComponent: () => import('./pages/member/notifications-page').then((m) => m.NotificationsPage),
+      },
+      {
+        path: 'publications',
+        canMatch: [featureGuard('publications-membres')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { fil: [{ label: 'Publications' }] },
+        loadComponent: () => publications().then((m) => m.PublicationsListPage),
+      },
+      {
+        path: 'publications/:slug',
+        canMatch: [featureGuard('publications-membres')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { fil: [{ label: 'Publications', route: '/espace/publications' }, { label: 'Publication' }] },
+        loadComponent: () => publications().then((m) => m.PublicationDetailPage),
       },
       {
         path: 'profil',

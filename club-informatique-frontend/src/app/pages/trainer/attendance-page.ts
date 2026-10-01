@@ -80,7 +80,7 @@ const BADGES: Record<StatutPresence, BadgeVariant> = { PRESENT: 'success', ABSEN
       white-space: normal;
     }
     tbody tr:hover th {
-      background: var(--bg-surface-hover);
+      background: color-mix(in srgb, var(--bg-surface-hover) 45%, transparent);
     }
     .footer {
       margin-top: 1.5rem;

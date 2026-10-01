@@ -61,8 +61,12 @@ export async function aller(page, chemin, attendreReseau = true) {
     window.history.pushState({}, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
   }, chemin);
-  if (attendreReseau) await page.waitForLoadState('networkidle');
-  else await page.waitForTimeout(700);
+  // L'état « networkidle » est déjà atteint après une navigation interne : on attend la fin des zones en chargement.
+  await page.waitForTimeout(attendreReseau ? 300 : 700);
+  if (attendreReseau) {
+    await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), null, { timeout: 15000 });
+    await page.waitForLoadState('networkidle');
+  }
 }
 
 /** Jeton d'un compte de recette, pour lire sur le backend réel l'identifiant d'un élément à afficher. */
