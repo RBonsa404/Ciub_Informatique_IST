@@ -22,12 +22,15 @@ Dernière mise à jour : 1er octobre 2026
 | Tests du backend existant | `mvn -B test` : 17 tests, 0 échec ; couverture 12,9 % des lignes |
 | Livrables | `inventaire-pages.md`, `architecture-navigation.md`, `audit-backend.md`, `ecarts-maquette.md`, `decisions.md`, `informations-a-fournir.md` |
 
+## Preuves du socle (Phase 1)
+Voir `docs/recette/socle/journal.md` et `docs/recette/socle/rapport.json`.
+
 ## Pages
 Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.md`.
 
 | ID | Page | Route | Rôles | Thème clair | Thème sombre | Responsive | États | Anti-stats | A11y | Tests | Recette visuelle | Backend relié | Visible en navigation | Statut |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| S0 | Socle, en-tête, pied de page, /__design | `/__design` | — | | | | | | | | | | | à faire |
+| S0 | Socle, en-tête, pied de page, /__design | `/__design` | — | fait | fait | fait (7 largeurs, 0 débordement) | composants fournis | verte | axe : 0 violation | 32 verts | `docs/recette/socle/journal.md` | sans objet | sans objet | terminé, en attente de validation (point d'arrêt 2) |
 | 18 | Inscription | `/inscription` | V | | | | | | | | | | | à faire |
 | 19 | Connexion | `/connexion` | V | | | | | | | | | | | à faire |
 | 20 | Mot de passe oublié | `/mot-de-passe-oublie` | V | | | | | | | | | | | à faire |
@@ -111,4 +114,5 @@ D-01 à D-13 : propositions appliquées par défaut depuis la validation de la P
 
 ## Blocages
 - Mesures de la section 6.12 (crochet `commit-msg`, exclusions locales, attribution) non automatisées : opération refusée par le contrôle d'autorisations de l'environnement. Mesure compensatoire : contrôle manuel à chaque commit (`docs/decisions.md`, section 6).
+- Lot initial du frontend à 323,81 kio bruts : avertissement du budget de 300 kio (non bloquant), à réduire lors de la passe de performance.
 - GitHub CLI absent du poste (nécessaire pour la pull request en Phase 6, ou ouverture depuis l'interface web).

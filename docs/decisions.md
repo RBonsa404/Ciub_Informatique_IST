@@ -48,11 +48,16 @@ Aucune consigne du README n'entre en conflit avec le cadrage du projet.
 |---|---|---|
 | T-01 | Angular 22 (dernière version stable : 22.2.1) | compatible avec Node 24 ; version à confirmer par `ng version` à l'initialisation |
 | T-02 | Tailwind CSS 4 (4.3.3), jetons dans `@theme`, valeurs exactes de `tokens.css` | section 5.2 |
-| T-03 | Icônes : les pictogrammes au trait de la maquette sont de style Feather. Famille retenue : Lucide (continuation de Feather, mêmes grille et épaisseur, licence ISC), importée icône par icône sous forme de sprite SVG ; marques par Simple Icons | section 7.6.1 : la maquette fait référence ; une famille unique couvre aussi les remplacements d'emoji |
+| T-03 | Icônes : famille Feather (licence MIT), importée icône par icône dans un sprite SVG local généré par script. La comparaison des tracés a reconnu 40 pictogrammes de la maquette comme strictement identiques à Feather ; deux pictogrammes absents de Feather (toque, journal) sont repris tels quels de la maquette. Marques : Simple Icons pour WhatsApp, Facebook et TikTok ; le glyphe LinkedIn, retiré de la version courante de Simple Icons, est repris de sa dernière version publiée sous licence CC0 | section 7.6.1 : reproduction à l'identique ; une famille unique couvre aussi les remplacements d'emoji |
 | T-04 | Logo : `maquette-html/assets/img/logo.png` (1 254 × 1 254 px, opaque sur fond blanc), copié sous `logo.png` ; `logo.jpeg` ignoré | résolution suffisante pour l'icône de 512 px ; affiché dans un conteneur blanc comme dans la maquette |
 | T-05 | Même origine : le conteneur frontend sert l'application et relaie `/api` | section 5.6 ; supprime les pré-vérifications CORS |
 | T-06 | Captures de référence dans `docs/maquette-ref/` : 204 images (67 écrans et le sommaire, deux thèmes à 1 440 px, thème sombre à 390 px), 64 Mo | volume important : versionnement à confirmer (D-10) |
 | T-07 | Base de données : PostgreSQL (moteur déjà en place) ; version des routes sous `/api/v1` | section 9.3 ; à confirmer en Phase 2 |
+| T-09 | Angular 22.2 sans `zone.js` (mode sans zone, valeur par défaut de la version) ; `OnPush` et signaux partout ; tests unitaires avec Vitest (exécuteur par défaut du CLI) | section 5.1 ; toutes les dépendances (CDK compris) fonctionnent sans zone |
+| T-10 | Rendu : application servie côté client pour le socle ; le pré-rendu statique des routes publiques sera ajouté et mesuré lors de la construction des pages publiques | section 5.8 : décision à fonder sur une mesure |
+| T-11 | Script de thème externe (`theme-init.js`) chargé avant le rendu | évite le scintillement et reste compatible avec une politique CSP sans script en ligne |
+| T-12 | Logo d'interface servi en 88 et 176 px générés par script à partir de `branding/logo.png` (original de 1,15 Mo non servi) | performance ; le logo n'est ni redessiné ni recadré |
+| T-13 | Polices : fichiers woff2 (latin et latin étendu) copiés par script dans `public/fonts` avec des noms stables, pour permettre le préchargement des deux polices critiques | section 5.5 |
 | T-08 | Référence visuelle des modales, onglets et notifications : valeurs de `main.css` lignes 943 à 1 104 | défaut de la maquette (E-07) |
 
 Vérifications en ligne reportées à la phase qui les utilise : textes de la loi n° 001-2021/AN et autorité de contrôle (Phase 1, pages légales) ; offres gratuites des fournisseurs de courriel transactionnel (Phase 3) ; mode zoneless et rendu pré-généré d'Angular 22 (Phase 1).

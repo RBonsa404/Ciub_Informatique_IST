@@ -1,0 +1,51 @@
+{
+  "name": "club-informatique-frontend",
+  "version": "0.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "build:dev": "ng build --configuration development",
+    "test": "ng test --watch=false",
+    "assets:icons": "node scripts/generate-icons.mjs",
+    "assets:sprite": "node scripts/generate-icon-sprite.mjs",
+    "assets:fonts": "node scripts/sync-fonts.mjs",
+    "check:stats": "node scripts/check-no-hardcoded-stats.mjs",
+    "check:casse": "node scripts/check-asset-case.mjs",
+    "check": "npm run check:stats && npm run check:casse"
+  },
+  "private": true,
+  "packageManager": "npm@11.16.0",
+  "dependencies": {
+    "@angular/cdk": "^22.2.1",
+    "@angular/common": "^22.2.0",
+    "@angular/compiler": "^22.2.0",
+    "@angular/core": "^22.2.0",
+    "@angular/forms": "^22.2.0",
+    "@angular/platform-browser": "^22.2.0",
+    "@angular/router": "^22.2.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/poppins": "^5.3.0",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.2.1",
+    "@angular/cli": "^22.2.1",
+    "@angular/compiler-cli": "^22.2.0",
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "feather-icons": "^4.29.2",
+    "jsdom": "^30.0.0",
+    "png-to-ico": "^3.0.2",
+    "postcss": "^8.5.28",
+    "prettier": "^3.8.1",
+    "sharp": "^0.35.5",
+    "simple-icons": "^16.33.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "~6.0.2",
+    "vitest": "^5.0.0"
+  }
+}

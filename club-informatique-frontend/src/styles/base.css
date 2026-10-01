@@ -1,0 +1,111 @@
+/* Base : transposition de la section « RESET & BASE » de la maquette. */
+
+@layer base {
+  html {
+    font-size: 16px;
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--bg-app);
+    color: var(--text-primary);
+    min-height: 100vh;
+    line-height: 1.6;
+    position: relative;
+    overflow-x: hidden;
+    transition:
+      background-color var(--transition-normal),
+      color var(--transition-normal);
+  }
+
+  /* Motif circuit : SVG en mosaïque, teinté par le jeton du thème au moyen d'un masque. */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-color: var(--circuit-stroke);
+    -webkit-mask-image: url('/img/circuit-pattern.svg');
+    mask-image: url('/img/circuit-pattern.svg');
+    -webkit-mask-repeat: repeat;
+    mask-repeat: repeat;
+    -webkit-mask-size: 180px 180px;
+    mask-size: 180px 180px;
+    opacity: var(--circuit-opacity);
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity var(--transition-normal);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.25;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    letter-spacing: -0.02em;
+  }
+  h2 {
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+  }
+  h4 {
+    font-size: 1.15rem;
+  }
+
+  p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+  }
+
+  a {
+    color: var(--accent-glow);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+  }
+
+  /* La maquette emploie l'ambre de la charte ; le jeton d'accent ambre du thème garantit le contraste en thème clair. */
+  a:hover {
+    color: var(--accent-amber);
+  }
+
+  code,
+  pre {
+    font-family: var(--font-mono);
+  }
+
+  /* Focus visible dans les deux thèmes */
+  :focus-visible {
+    outline: 2px solid var(--focus-outline);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: rgba(56, 189, 248, 0.35);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
