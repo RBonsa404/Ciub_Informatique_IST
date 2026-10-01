@@ -28,6 +28,15 @@ export class ResourceState<T> {
     private readonly isEmpty: (value: T) => boolean = defaultIsEmpty,
   ) {}
 
+  /** Recharge sans repasser par l’état de chargement : le contenu affiché est remplacé à l’arrivée de la réponse. */
+  refresh(): void {
+    this.subscription?.unsubscribe();
+    this.subscription = this.source().subscribe({
+      next: (value) => this.value.set(value),
+      error: () => {},
+    });
+  }
+
   load(): void {
     this.subscription?.unsubscribe();
     this.pending.set(true);

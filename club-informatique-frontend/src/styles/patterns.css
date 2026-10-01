@@ -1,0 +1,273 @@
+/* Motifs de page repris des styles en ligne de la maquette (écrans 01 à 17). */
+
+@layer components {
+  .page-section {
+    padding: 3.5rem 0;
+  }
+  .page-title {
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    margin-bottom: 0.75rem;
+  }
+  .page-lead {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    margin-bottom: 2.5rem;
+    max-width: 640px;
+  }
+  /* Accent ambre : grands titres (contraste des grands textes) ; .accent-small pour les petits textes. */
+  .accent {
+    color: var(--accent-amber);
+  }
+  .accent-small {
+    color: var(--accent-amber-text);
+  }
+  .accent-cyan {
+    color: var(--accent-active);
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    min-height: 24px;
+  }
+  .pill {
+    display: inline-block;
+    background: rgba(29, 78, 216, 0.2);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    border-radius: 999px;
+    padding: 0.3rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--accent-amber-text);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  [data-theme='light'] .pill {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+  }
+
+  /* Barre de filtres (écran 04) */
+  .filter-bar {
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filter-search {
+    flex: 1;
+    min-width: 250px;
+  }
+  .filter-chips {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* Grilles de cartes */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: 1.5rem;
+  }
+  .media-card {
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .media-visual {
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #38bdf8;
+    background: linear-gradient(135deg, #1d4ed8, #0b1e3f);
+    position: relative;
+    overflow: hidden;
+  }
+  .media-visual.v2 {
+    background: linear-gradient(135deg, #0b1e3f, #1e40af);
+    color: #fbbf24;
+  }
+  .media-visual.v3 {
+    background: linear-gradient(135deg, #1d4ed8, #38bdf8);
+    color: #ffffff;
+  }
+  .media-visual img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .media-body {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .media-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+  }
+  .media-title {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+  }
+  .media-title a {
+    color: var(--accent-glow);
+  }
+  /* Toute la carte est cliquable par le lien du titre. */
+  .media-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .media-text {
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+
+  /* Pastille de date (écrans 01 et 06) */
+  .date-card {
+    display: flex;
+    gap: 1.25rem;
+    padding: 1.25rem;
+    border-left: 4px solid var(--color-blue-royal);
+  }
+  .date-chip {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    align-self: flex-start;
+    background: var(--color-blue-royal);
+    color: #fff;
+    border-radius: 12px;
+    padding: 0.6rem 0.9rem;
+    min-width: 55px;
+    font-family: var(--font-heading);
+  }
+  .date-chip-day {
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+  .date-chip-month {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .date-card.alt {
+    border-left-color: var(--color-amber-tech);
+  }
+  .date-card.alt .date-chip {
+    background: var(--color-amber-tech);
+    color: #0f172a;
+  }
+  .meta-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  /* Texte long (articles, pages d'information, pages légales) */
+  .prose {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+  }
+  .prose p {
+    margin-bottom: 1.25rem;
+    font-size: inherit;
+    white-space: pre-line;
+  }
+  .prose h2 {
+    font-size: 1.3rem;
+    margin: 1.75rem 0 0.75rem;
+  }
+  .prose blockquote {
+    border-left: 4px solid var(--color-amber-tech);
+    padding: 1rem 1.5rem;
+    background: var(--glass-bg-subtle);
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    margin: 1.5rem 0;
+    font-style: italic;
+    white-space: pre-line;
+  }
+
+  /* Barre de progression (écran 09) : la largeur vient d'une valeur d'API. */
+  .progress {
+    width: 100%;
+    height: 10px;
+    background: var(--bg-surface-hover);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress > span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-blue-royal), var(--color-cyan-circuit));
+    border-radius: 999px;
+  }
+
+  .icon-disc {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: rgba(29, 78, 216, 0.2);
+    border: 1px solid rgba(56, 189, 248, 0.3);
+    color: var(--accent-active);
+  }
+  .icon-disc.amber {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.3);
+    color: var(--accent-amber-text);
+  }
+
+  .two-cols {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+  }
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+
+  @media (max-width: 1024px) {
+    .two-cols,
+    .split {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+  @media (max-width: 768px) {
+    .page-section {
+      padding: 2rem 0;
+    }
+    .split-decor {
+      display: none;
+    }
+  }
+}

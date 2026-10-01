@@ -30,7 +30,15 @@ export class ApiError extends Error {
   }
 
   fieldMessage(field: string): string | null {
-    return this.problem?.errors?.find((e) => e.field === field)?.message ?? null;
+    return this.fieldMessages()[field] ?? null;
+  }
+
+  /** Premier message par champ. Accepte le format cible (errors) et celui du backend existant (fieldErrors). */
+  fieldMessages(): Record<string, string> {
+    const result: Record<string, string> = {};
+    const legacy = (this.problem as { fieldErrors?: readonly FieldProblem[] } | null)?.fieldErrors;
+    for (const item of this.problem?.errors ?? legacy ?? []) result[item.field] ??= item.message;
+    return result;
   }
 }
 

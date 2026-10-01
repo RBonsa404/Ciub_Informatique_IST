@@ -36,25 +36,25 @@ Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.
 | 20 | Mot de passe oublié | `/mot-de-passe-oublie` | V | fait | fait | fait (7 largeurs) | initial, attente, envoyé, erreur | verte | axe : 0 | verts | docs/recette/20-mot-de-passe-oublie | existant mais simulé (aucun courriel) | depuis la connexion | terminé (Phase 1) |
 | 21 | Réinitialisation | `/reinitialisation` | V | fait | fait | fait (7 largeurs) | initial, robustesse, jeton refusé, lien incomplet | verte | axe : 0 | verts | docs/recette/21-reinitialisation | existant mais simulé (jeton en mémoire) | contextuel (lien reçu par courriel) | terminé (Phase 1) |
 | D2 | Vérification de l'adresse | `/verification-adresse` | V | fait | fait | fait (7 largeurs) | chargement, succès, lien invalide, erreur | verte | axe : 0 | couvert par la recette | docs/recette/D2-verification-adresse | à créer (POST /auth/verification) | contextuel (lien reçu par courriel) | terminé (Phase 1) |
-| 01 | Accueil | `/` | tous | | | | | | | | | | | à faire |
-| 02 | Présentation | `/presentation` | tous | | | | | | | | | | | à faire |
-| 03 | Bureau | `/bureau` | tous | | | | | | | | | | | à faire |
-| 04 | Actualités, liste | `/actualites` | tous | | | | | | | | | | | à faire |
-| 05 | Actualité, détail | `/actualites/:slug` | tous | | | | | | | | | | | à faire |
-| 06 | Événements, liste | `/evenements` | tous | | | | | | | | | | | à faire |
-| 07 | Événement, détail | `/evenements/:slug` | tous | | | | | | | | | | | à faire |
-| 08 | Projets, vitrine | `/projets` | tous | | | | | | | | | | | à faire |
-| 09 | Projet, détail | `/projets/:slug` | tous | | | | | | | | | | | à faire |
-| 10 | Formations, liste | `/formations` | tous | | | | | | | | | | | à faire |
-| 11 | Formation, détail | `/formations/:slug` | tous | | | | | | | | | | | à faire |
-| 12 | Ressources publiques | `/ressources` | tous | | | | | | | | | | | à faire |
-| 13 | Contact | `/contact` | tous | | | | | | | | | | | à faire |
-| 14 | Conditions d'utilisation | `/conditions-utilisation` | tous | | | | | | | | | | | à faire |
-| 15 | Confidentialité | `/confidentialite` | tous | | | | | | | | | | | à faire |
-| D1 | Mentions légales | `/mentions-legales` | tous | | | | | | | | | | | à faire |
-| 16 | Erreur 404 | `**` | tous | | | | | | | | | | | à faire |
-| 17 | Erreur générique | `état` | tous | | | | | | | | | | | à faire |
-| D3 | Accès refusé | `état` | tous | | | | | | | | | | | à faire |
+| 01 | Accueil | `/` | tous | fait | fait | fait (7 largeurs) | chargement, vide et erreur (sections masquées), contenu | verte | axe : 0 | verts | docs/recette/01-accueil | existant ; contenu réel vu (contournement B-30 côté outil de recette) | oui | terminé (Phase 1) |
+| 02 | Présentation | `/presentation` | tous | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | verts | docs/recette/02-presentation | existant (contenu amorcé à purger) | oui | terminé (Phase 1) |
+| 03 | Bureau | `/bureau` | tous | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | couvert par la recette | docs/recette/03-bureau | à créer (GET /bureau) | pied de page et page Présentation | terminé (Phase 1) |
+| 04 | Actualités, liste | `/actualites` | tous | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu, recherche sans résultat | verte | axe : 0 | verts | docs/recette/04-actualites-liste | existant, en erreur sans paramètre de recherche (B-30) | oui | terminé (Phase 1) |
+| 05 | Actualité, détail | `/actualites/:slug` | tous | fait | fait | fait (7 largeurs) | chargement, introuvable, erreur, contenu | verte | axe : 0 | couvert par la recette | docs/recette/05-actualite-detail | existant (brouillons exposés, B-08) | depuis la liste | terminé (Phase 1) |
+| 06 | Événements, liste | `/evenements` | tous | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | couvert par la recette | docs/recette/06-evenements-liste | existant, B-30 | oui | terminé (Phase 1) |
+| 07 | Événement, détail | `/evenements/:slug` | tous | fait | fait | fait (7 largeurs) | chargement, introuvable, erreur, contenu ; inscription et annulation réelles | verte | axe : 0 | verts (action d'inscription) | docs/recette/07-evenement-detail | existant (inscription réelle prouvée) | depuis la liste | terminé (Phase 1) |
+| 08 | Projets, vitrine | `/projets` | tous | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | couvert par la recette | docs/recette/08-projets-vitrine | existant, B-30 | oui | terminé (Phase 1) |
+| 09 | Projet, détail | `/projets/:slug` | tous | fait | fait | fait (7 largeurs) | chargement, introuvable, erreur, contenu | verte | axe : 0 | couvert par la recette | docs/recette/09-projet-detail | existant (propositions exposées, B-08) | depuis la liste | terminé (Phase 1) |
+| 10 | Formations, liste | `/formations` | tous | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | couvert par la recette | docs/recette/10-formations-liste | existant, B-30 | oui | terminé (Phase 1) |
+| 11 | Formation, détail | `/formations/:slug` | tous | fait | fait | fait (7 largeurs) | chargement, introuvable, erreur, contenu ; sessions : chargement, vide, contenu | verte | axe : 0 | verts (action d'inscription) | docs/recette/11-formation-detail | existant | depuis la liste | terminé (Phase 1) |
+| 12 | Ressources publiques | `/ressources` | tous | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | couvert par la recette | docs/recette/12-ressources | existant (simple URL ; stockage à créer), B-30 | pied de page | terminé (Phase 1) |
+| 13 | Contact | `/contact` | tous | fait | fait | fait (7 largeurs) | initial, validation, attente, envoyé, erreur | verte | axe : 0 | verts | docs/recette/13-contact | existant (enregistrement réel prouvé) ; courriels et anti-spam à créer | oui | terminé (Phase 1) |
+| 14 | Conditions d'utilisation | `/conditions-utilisation` | tous | fait | fait | fait (7 largeurs) | statique | verte | axe : 0 | verts | docs/recette/14-conditions-utilisation | sans objet | pied de page | terminé ; relecture du club requise |
+| 15 | Confidentialité | `/confidentialite` | tous | fait | fait | fait (7 largeurs) | statique | verte | axe : 0 | verts | docs/recette/15-confidentialite | sans objet | pied de page | terminé ; relecture du club requise |
+| D1 | Mentions légales | `/mentions-legales` | tous | fait | fait | fait (7 largeurs) | statique | verte | axe : 0 | verts | docs/recette/D1-mentions-legales | sans objet | pied de page | terminé ; relecture du club requise |
+| 16 | Erreur 404 | `**` | tous | fait | fait | fait (7 largeurs) | statique | verte (code d'erreur en liste blanche) | axe : 0 | couvert par la recette | docs/recette/16-erreur-404 | sans objet | contextuel | terminé (Phase 1) |
+| 17 | Erreur générique | `état` | tous | fait | fait | fait (7 largeurs) | statique | verte | axe : 0 | couvert par la recette | docs/recette/17-erreur-service | sans objet | contextuel | terminé (Phase 1) |
+| D3 | Accès refusé | `état` | tous | fait | fait | fait (7 largeurs) | visiteur, utilisateur connecté | verte | axe : 0 | couvert par la recette | docs/recette/D3-acces-refuse | sans objet | contextuel | terminé (Phase 1) |
 | 22 | Tableau de bord Membre | `/espace/membre` | M | | | | | | | | | | | à faire |
 | 25 | Profil | `/espace/profil` | connecté | | | | | | | | | | | à faire |
 | 26 | Profil, édition | `/espace/profil/modifier` | connecté | | | | | | | | | | | à faire |

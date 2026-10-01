@@ -42,3 +42,6 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Comptes de la base locale de recette
+/e2e/.recette-comptes.json

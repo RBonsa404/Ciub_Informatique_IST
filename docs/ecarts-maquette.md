@@ -33,6 +33,10 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-24 | Navigation publique : la maquette passe en menu réduit à 768 px, largeur à laquelle sept entrées, la marque et les actions ne tiennent pas (débordement mesuré jusqu'à 1 279 px) | `rapport.json` de la recette du socle | Tiroir latéral en deçà de 1 280 px ; barre latérale de l'espace en tiroir en deçà de 1 024 px | dérivation |
 | E-25 | Classe `.container` de la maquette | — | Renommée `.page-container` (mêmes valeurs) pour éviter l'utilitaire homonyme de Tailwind | assumé, sans effet visuel |
 | E-26 | Sélecteur, case à cocher : composants natifs dans la maquette ; aucun interrupteur dessiné | écrans 27, 37 | Sélecteur et case natifs conservés ; interrupteur dérivé des jetons | dérivation (10.1.5) |
+| E-27 | Texte atténué du thème clair (`#64748B`) : contraste insuffisant sur les surfaces vitrées et les fonds à halo | mesures axe sur les pages publiques | `#566378` en thème clair ; ambre des petits textes `#92400E`, ambre des grands titres `#B45309` | correction (10.2.3) |
+| E-28 | Textes d'accroche et slogans des pages publiques (bandeau d'accueil, devise, citations, promesse de délai de réponse) | écrans 01, 02, 13, 18, 19 | Retirés tant que le club ne les a pas validés ; les phrases d'interface restantes sont factuelles | retrait (C.1) |
+| E-29 | Pages légales : trois mises en page différentes dans la maquette (14 et 15), aucune pour les mentions légales | écrans 14, 15 | Mise en page unique de l'écran 14 (sommaire collant, sections numérotées) pour les trois textes | assumé |
+| E-30 | Cartes de liste non cliquables dans la maquette ; seul le titre est un lien | écrans 04, 08, 10 | Le lien du titre couvre toute la carte (une seule cible, nom accessible égal au titre) | assumé |
 
 ## 2. Données d'illustration non reprises
 

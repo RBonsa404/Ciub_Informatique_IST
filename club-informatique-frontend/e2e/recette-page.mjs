@@ -17,7 +17,7 @@ const ids = args.filter((a, i) => !a.startsWith('--') && (baseIndex < 0 || i !==
 
 const registry = {};
 for (const file of readdirSync(join(here, 'pages'))) {
-  if (!file.endsWith('.mjs')) continue;
+  if (!file.endsWith('.mjs') || file.startsWith('_')) continue;
   const mod = await import(pathToFileURL(join(here, 'pages', file)).href);
   Object.assign(registry, mod.PAGES);
 }
@@ -61,7 +61,8 @@ for (const id of ids.length ? ids : Object.keys(registry)) {
         messages.length = 0;
         await page.unrouteAll({ behavior: 'ignoreErrors' });
         if (scenario.before) await scenario.before(page, { base, theme, width });
-        await page.goto(base + (scenario.path ?? spec.path), { waitUntil: scenario.waitUntil ?? 'networkidle' });
+        const path = typeof scenario.path === 'function' ? await scenario.path() : (scenario.path ?? spec.path);
+        await page.goto(base + path, { waitUntil: scenario.waitUntil ?? 'networkidle' });
         await page.evaluate(() => document.fonts.ready);
         if (scenario.run) await scenario.run(page, { base, theme, width });
         await page.waitForTimeout(250);

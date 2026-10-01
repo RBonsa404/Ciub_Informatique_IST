@@ -326,18 +326,11 @@ export class RegisterPage {
         error: (failure: unknown) => {
           this.pending.set(false);
           const apiError = toApiError(failure);
-          this.serverErrors.set(fieldErrors(apiError));
+          this.serverErrors.set(apiError.fieldMessages());
           this.error.set(messageFor(apiError));
         },
       });
   }
-}
-
-function fieldErrors(error: ApiError): Record<string, string> {
-  const result: Record<string, string> = {};
-  const problem = error.problem as { errors?: { field: string; message: string }[]; fieldErrors?: { field: string; message: string }[] } | null;
-  for (const item of problem?.errors ?? problem?.fieldErrors ?? []) result[item.field] ??= item.message;
-  return result;
 }
 
 function messageFor(error: ApiError): string {
