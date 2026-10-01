@@ -8,7 +8,7 @@ import { ResourceState } from '../../core/api/resource-state';
 import { FeatureService } from '../../core/config/feature.service';
 import { BreadcrumbService } from '../../core/navigation/breadcrumb.service';
 import { SeoService } from '../../core/seo/seo.service';
-import { FrDatePipe, parseApiDate, toBlocks } from '../../shared/format/format';
+import { FrDatePipe, parseApiDate, safeUrl, toBlocks } from '../../shared/format/format';
 import { Badge } from '../../shared/ui/card/card';
 import { Icon } from '../../shared/ui/icon/icon';
 import { IconName } from '../../shared/ui/icon/icon-names';
@@ -65,11 +65,6 @@ const isPast = (value: string | null | undefined): boolean => {
   const time = parseApiDate(value)?.getTime();
   return time !== undefined && time < Date.now();
 };
-
-/** Seules les adresses web sont proposées à l'ouverture. */
-export function safeUrl(value: string | null | undefined): string | null {
-  return value && /^https?:\/\//i.test(value.trim()) ? value.trim() : null;
-}
 
 /** Supports et devoirs, liste (écran 29) : documents des formations auxquelles le membre est inscrit. */
 @Component({

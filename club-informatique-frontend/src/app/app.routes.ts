@@ -13,6 +13,9 @@ const passwords = () => import('./pages/auth/password-pages');
 const profile = () => import('./pages/member/profile-pages');
 const supports = () => import('./pages/member/supports-pages');
 
+const courses = () => import('./pages/trainer/courses-pages');
+
+const COURSES_CRUMB = { label: 'Mes cours', route: '/espace/formateur/cours' };
 const SUPPORTS_CRUMB = { label: 'Supports et devoirs', route: '/espace/supports' };
 
 const AUTH_PATHS = new Set(['connexion', 'inscription', 'mot-de-passe-oublie', 'reinitialisation', 'verification-adresse']);
@@ -77,6 +80,37 @@ export const routes: Routes = [
         canActivate: [roleGuard('MEMBRE')],
         data: { kind: 'devoir', fil: [SUPPORTS_CRUMB, { label: 'Devoir' }] },
         loadComponent: () => supports().then((m) => m.SupportDetailPage),
+      },
+      {
+        path: 'formateur',
+        canMatch: [featureGuard('formations')],
+        canActivate: [roleGuard('FORMATEUR')],
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            data: { fil: [{ label: 'Tableau de bord formateur' }] },
+            loadComponent: () => import('./pages/trainer/trainer-dashboard-page').then((m) => m.TrainerDashboardPage),
+          },
+          { path: 'cours', data: { fil: [{ label: 'Mes cours' }] }, loadComponent: () => courses().then((m) => m.CoursesListPage) },
+          { path: 'cours/nouveau', data: { fil: [COURSES_CRUMB, { label: 'Création' }] }, loadComponent: () => courses().then((m) => m.CourseFormPage) },
+          { path: 'cours/:id/modifier', data: { fil: [COURSES_CRUMB, { label: 'Édition' }] }, loadComponent: () => courses().then((m) => m.CourseFormPage) },
+          {
+            path: 'cours/:id/publier',
+            data: { fil: [COURSES_CRUMB, { label: 'Publication' }] },
+            loadComponent: () => import('./pages/trainer/publish-page').then((m) => m.PublishPage),
+          },
+          {
+            path: 'cours/:id/sessions/:sessionId/presences',
+            data: { fil: [COURSES_CRUMB, { label: 'Émargement' }] },
+            loadComponent: () => import('./pages/trainer/attendance-page').then((m) => m.AttendancePage),
+          },
+          {
+            path: 'cours/:id',
+            data: { fil: [COURSES_CRUMB, { label: 'Détail' }] },
+            loadComponent: () => import('./pages/trainer/course-detail-page').then((m) => m.CourseDetailPage),
+          },
+        ],
       },
       {
         path: 'profil',

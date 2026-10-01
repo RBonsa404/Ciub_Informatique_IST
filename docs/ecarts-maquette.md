@@ -42,6 +42,9 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-33 | Paramètres du compte : progression « 66 % », notifications « push », choix de langue, visibilité des projets | écran 27 | Retirés ; panneau « Mes données » (copie des données personnelles) à la place de « Confidentialité » ; cinq panneaux numérotés | retrait et dérivation (section 1, BNF-09) |
 | E-34 | « Télécharger l'attestation », remise de devoir, champs « Difficulté », « Matière », « Niveau », poids de fichier | écrans 28, 29, 30 | Retirés : fonctions et données absentes du CDC et du modèle ; consultation seule (D-03) | retrait |
 | E-35 | Téléversement d'avatar, champs GitHub, LinkedIn et compétences | écrans 25, 26 | Retirés ; avatar à initiales (D-04) | retrait |
+| E-36 | Espace Formateur : compteurs fixes (« 3 modules actifs », « 32 inscrits », « 94.5% »), devoirs rendus à noter, QR Code, export PDF, signature certifiée, code de module, barème | écrans 35 à 40 | Valeurs réelles renvoyées par le serveur ou retrait ; remise et notation hors périmètre (D-03) ; champs de cours selon D-05 | retrait et dérivation (section 1) |
+| E-37 | Dépôt de fichier (syllabus, sujet de devoir, support) | écrans 37, 40 | Adresse web du document, validée ; le dépôt de fichier dépend d'un stockage à créer (besoin à arbitrer en Phase 2) | retrait provisoire |
+| E-38 | Salle et capacité saisies sur le cours | écran 37 | Saisies par séance dans le détail du cours (une formation, plusieurs séances) ; planification et suppression de séance dans l'écran 38 | assumé |
 
 ## 2. Données d'illustration non reprises
 

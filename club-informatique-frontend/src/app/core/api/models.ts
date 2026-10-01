@@ -149,6 +149,10 @@ export type StatutInscription = 'CONFIRMEE' | 'LISTE_ATTENTE' | 'ANNULEE';
 
 export interface Inscription {
   readonly id: number;
+  /** Renseignés dans les listes de gestion (inscrits d'une session ou d'un événement). */
+  readonly utilisateurId?: number | null;
+  readonly utilisateurNom?: string | null;
+  readonly utilisateurFiliere?: string | null;
   readonly evenementId?: number | null;
   readonly evenementTitre?: string | null;
   readonly evenementSlug?: string | null;
@@ -163,6 +167,60 @@ export interface Inscription {
   readonly statut: StatutInscription;
   readonly motifAnnulation?: string | null;
 }
+
+export type StatutPresence = 'PRESENT' | 'ABSENT' | 'EXCUSE';
+
+export interface Presence {
+  readonly id: number;
+  readonly inscriptionId: number;
+  readonly utilisateurNom?: string | null;
+  readonly sessionId: number;
+  readonly statut: StatutPresence;
+  readonly datePointage?: string | null;
+  readonly remarque?: string | null;
+}
+
+export interface PointagePayload {
+  readonly inscriptionId: number;
+  readonly statut: StatutPresence;
+}
+
+export interface FormationPayload {
+  readonly titre: string;
+  readonly description: string;
+  readonly niveau: NiveauFormation;
+  readonly prerequis: string;
+  readonly objectifs: string;
+  readonly categorieId: number | null;
+  readonly publie: boolean;
+}
+
+export interface SessionPayload {
+  readonly dateDebut: string;
+  readonly dateFin: string;
+  readonly lieu: string;
+  readonly lienVisio: string | null;
+  readonly capaciteMax: number | null;
+}
+
+export interface DevoirPayload {
+  readonly titre: string;
+  readonly description: string;
+  readonly dateLimite: string;
+  readonly fichierConsigne: string | null;
+}
+
+export interface RessourcePayload {
+  readonly titre: string;
+  readonly description: string;
+  readonly type: TypeRessource;
+  readonly urlFichier: string;
+  readonly estPublique: boolean;
+  readonly formationId: number;
+}
+
+export const STATUT_SESSION_LABELS: Record<StatutSession, string> = { PLANIFIEE: 'Planifiée', EN_COURS: 'En cours', TERMINEE: 'Terminée', ANNULEE: 'Annulée' };
+export const STATUT_PRESENCE_LABELS: Record<StatutPresence, string> = { PRESENT: 'Présent', ABSENT: 'Absent', EXCUSE: 'Excusé' };
 
 export type StatutCompte = 'ACTIF' | 'INACTIF' | 'SUSPENDU' | 'EN_ATTENTE_ACTIVATION';
 

@@ -91,3 +91,8 @@ export function toBlocks(text: string | null | undefined): TextBlock[] {
       return { kind: 'paragraph', text: chunk };
     });
 }
+
+/** Seules les adresses web (http ou https) sont proposées à l'ouverture. */
+export function safeUrl(value: string | null | undefined): string | null {
+  return value && /^https?:\/\//i.test(value.trim()) ? value.trim() : null;
+}

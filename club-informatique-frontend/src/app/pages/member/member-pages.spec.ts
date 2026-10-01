@@ -11,7 +11,8 @@ import { MemberDashboardPage, upcomingOf } from './dashboard-page';
 import { InscriptionsPage, matchesFilter } from './inscriptions-page';
 import { ProfileEditPage, ProfilePage } from './profile-pages';
 import { SettingsPage } from './settings-page';
-import { SupportsListPage, safeUrl, toSupportItems } from './supports-pages';
+import { safeUrl } from '../../shared/format/format';
+import { SupportsListPage, toSupportItems } from './supports-pages';
 
 const page = <T>(content: T[]) => ({ content, number: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
