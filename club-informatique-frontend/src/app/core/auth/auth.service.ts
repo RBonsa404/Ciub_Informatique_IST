@@ -2,7 +2,7 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, catchError, finalize, map, of, shareReplay, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { SKIP_AUTH } from '../http/http-context';
+import { SILENT_ERRORS, SKIP_AUTH } from '../http/http-context';
 import { Credentials, ROLES, Role, SessionResponse } from './auth.models';
 import { AuthStore } from './auth.store';
 
@@ -86,7 +86,7 @@ export class AuthService {
   refresh(): Observable<boolean> {
     if (!this.refreshInFlight) {
       const body = this.legacyRefreshToken ? { refreshToken: this.legacyRefreshToken } : null;
-      this.refreshInFlight = this.http.post<unknown>(`${this.base}/refresh`, body, { withCredentials: true, context: skipAuth() }).pipe(
+      this.refreshInFlight = this.http.post<unknown>(`${this.base}/refresh`, body, { withCredentials: true, context: skipAuth().set(SILENT_ERRORS, true) }).pipe(
         map((raw) => {
           this.accept(raw);
           return true;

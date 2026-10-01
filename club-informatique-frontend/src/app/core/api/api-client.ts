@@ -1,7 +1,8 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { SILENT_ERRORS } from '../http/http-context';
 
 export type QueryValue = string | number | boolean | null | undefined;
 export type Query = Record<string, QueryValue | readonly (string | number)[]>;
@@ -26,8 +27,12 @@ export interface PageRequest {
 export class ApiClient {
   private readonly http = inject(HttpClient);
 
-  get<T>(path: string, query?: Query): Observable<T> {
-    return this.http.get<T>(this.url(path), { params: toParams(query) });
+  /** silent : la requête n'émet aucune notification globale en cas d'échec (donnée d'appoint). */
+  get<T>(path: string, query?: Query, options: { silent?: boolean } = {}): Observable<T> {
+    return this.http.get<T>(this.url(path), {
+      params: toParams(query),
+      context: options.silent ? new HttpContext().set(SILENT_ERRORS, true) : undefined,
+    });
   }
 
   post<T>(path: string, body?: unknown): Observable<T> {
@@ -44,6 +49,11 @@ export class ApiClient {
 
   delete<T = void>(path: string): Observable<T> {
     return this.http.delete<T>(this.url(path));
+  }
+
+  /** Fichier renvoyé par l'API (export, pièce jointe). */
+  download(path: string): Observable<Blob> {
+    return this.http.get(this.url(path), { responseType: 'blob' });
   }
 
   private url(path: string): string {

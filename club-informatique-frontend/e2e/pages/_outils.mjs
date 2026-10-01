@@ -56,12 +56,24 @@ export async function connecter(page, base, role) {
 }
 
 /** Navigation interne sans rechargement (la session est conservée en mémoire). */
-export async function aller(page, chemin) {
+export async function aller(page, chemin, attendreReseau = true) {
   await page.evaluate((path) => {
     window.history.pushState({}, '', path);
     window.dispatchEvent(new PopStateEvent('popstate'));
   }, chemin);
-  await page.waitForLoadState('networkidle');
+  if (attendreReseau) await page.waitForLoadState('networkidle');
+  else await page.waitForTimeout(700);
+}
+
+/** Jeton d'un compte de recette, pour lire sur le backend réel l'identifiant d'un élément à afficher. */
+export async function jeton(role) {
+  const response = await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: COMPTES[role], motDePasse: PASSWORD }) });
+  return (await response.json()).accessToken;
+}
+
+export async function lire(chemin, role) {
+  const response = await fetch(API + chemin, { headers: { Authorization: `Bearer ${await jeton(role)}` } });
+  return response.json();
 }
 
 export const ECARTS_COMMUNS = [

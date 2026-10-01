@@ -271,3 +271,113 @@
     }
   }
 }
+
+/* Pages de l'espace connecté (écrans 22 à 30) */
+@layer components {
+  .space-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .space-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+  }
+  .space-lead {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+  .space-panel {
+    padding: 1.75rem;
+    border-radius: 20px;
+  }
+  .panel-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .panel-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .panel-title app-icon {
+    color: var(--accent-active);
+  }
+  .panel-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--accent-active);
+    white-space: nowrap;
+  }
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+    gap: 1.25rem;
+  }
+  .info-label {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .info-value {
+    display: block;
+    font-size: 0.92rem;
+    font-weight: 700;
+    margin-top: 0.2rem;
+    overflow-wrap: anywhere;
+  }
+  .list-row {
+    padding: 1.25rem 1.75rem;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem 1.5rem;
+    flex-wrap: wrap;
+  }
+  .chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .chip-row .btn {
+    border-radius: 999px;
+  }
+  .notif-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: var(--color-amber-tech);
+    color: #0f172a;
+    font-size: 0.7rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (max-width: 600px) {
+    .space-panel {
+      padding: 1.25rem;
+    }
+    .list-row {
+      padding: 1rem 1.25rem;
+    }
+  }
+}

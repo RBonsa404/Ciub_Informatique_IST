@@ -151,14 +151,83 @@ export interface Inscription {
   readonly id: number;
   readonly evenementId?: number | null;
   readonly evenementTitre?: string | null;
+  readonly evenementSlug?: string | null;
   readonly sessionFormationId?: number | null;
+  readonly formationId?: number | null;
+  readonly formationSlug?: string | null;
   readonly formationTitre?: string | null;
+  readonly lieu?: string | null;
   readonly dateDebut?: string | null;
   readonly dateFin?: string | null;
   readonly dateInscription: string;
   readonly statut: StatutInscription;
   readonly motifAnnulation?: string | null;
 }
+
+export type StatutCompte = 'ACTIF' | 'INACTIF' | 'SUSPENDU' | 'EN_ATTENTE_ACTIVATION';
+
+/** Profil de l'utilisateur connecté. */
+export interface Profil {
+  readonly id: number;
+  readonly nom: string;
+  readonly prenom: string;
+  readonly email: string;
+  readonly filiere?: string | null;
+  readonly biographie?: string | null;
+  readonly numeroMembre?: string | null;
+  readonly dateAdhesion?: string | null;
+  readonly statut: StatutCompte;
+}
+
+export interface ProfilUpdate {
+  readonly nom: string;
+  readonly prenom: string;
+  readonly filiere: string;
+  readonly biographie: string;
+}
+
+export interface Devoir {
+  readonly id: number;
+  readonly formationId: number;
+  readonly formationTitre?: string | null;
+  readonly titre: string;
+  readonly description?: string | null;
+  readonly dateLimite?: string | null;
+  readonly fichierConsigne?: string | null;
+  readonly createdAt?: string;
+}
+
+/** Supports et devoirs d'une formation à laquelle le membre est inscrit. */
+export interface SupportsFormation {
+  readonly formationId: number;
+  readonly formationTitre: string;
+  readonly ressources: readonly Ressource[];
+  readonly devoirs: readonly Devoir[];
+}
+
+export type TypeNotification = 'INSCRIPTION' | 'VALIDATION_PROJET' | 'RAPPEL_SESSION' | 'MESSAGE_GLOBAL' | 'SYSTEME';
+
+export interface NotificationItem {
+  readonly id: number;
+  readonly titre: string;
+  readonly message: string;
+  readonly type: TypeNotification;
+  readonly lien?: string | null;
+  readonly lue: boolean;
+  readonly createdAt: string;
+}
+
+/** Préférences du compte (point d'accès à créer). */
+export interface PreferencesCompte {
+  readonly notificationsCourriel: boolean;
+}
+
+export const STATUT_COMPTE_LABELS: Record<StatutCompte, string> = {
+  ACTIF: 'Compte actif',
+  INACTIF: 'Compte inactif',
+  SUSPENDU: 'Compte suspendu',
+  EN_ATTENTE_ACTIVATION: 'En attente d’activation',
+};
 
 export const NIVEAU_LABELS: Record<NiveauFormation, string> = { DEBUTANT: 'Débutant', INTERMEDIAIRE: 'Intermédiaire', AVANCE: 'Avancé' };
 

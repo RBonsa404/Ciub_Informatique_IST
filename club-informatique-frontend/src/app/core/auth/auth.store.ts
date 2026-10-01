@@ -44,6 +44,11 @@ export class AuthStore {
     if (remember) this.writeHint(true);
   }
 
+  /** Répercute une modification du profil (nom, prénom) sur la session en cours. */
+  patchUser(changes: Partial<Pick<CurrentUser, 'nom' | 'prenom'>>): void {
+    this.currentUser.update((user) => (user ? { ...user, ...changes } : user));
+  }
+
   clear(): void {
     this.token.set(null);
     this.currentUser.set(null);

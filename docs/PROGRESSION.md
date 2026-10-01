@@ -55,13 +55,13 @@ Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.
 | 16 | Erreur 404 | `**` | tous | fait | fait | fait (7 largeurs) | statique | verte (code d'erreur en liste blanche) | axe : 0 | couvert par la recette | docs/recette/16-erreur-404 | sans objet | contextuel | terminé (Phase 1) |
 | 17 | Erreur générique | `état` | tous | fait | fait | fait (7 largeurs) | statique | verte | axe : 0 | couvert par la recette | docs/recette/17-erreur-service | sans objet | contextuel | terminé (Phase 1) |
 | D3 | Accès refusé | `état` | tous | fait | fait | fait (7 largeurs) | visiteur, utilisateur connecté | verte | axe : 0 | couvert par la recette | docs/recette/D3-acces-refuse | sans objet | contextuel | terminé (Phase 1) |
-| 22 | Tableau de bord Membre | `/espace/membre` | M | | | | | | | | | | | à faire |
-| 25 | Profil | `/espace/profil` | connecté | | | | | | | | | | | à faire |
-| 26 | Profil, édition | `/espace/profil/modifier` | connecté | | | | | | | | | | | à faire |
-| 27 | Paramètres | `/espace/parametres` | connecté | | | | | | | | | | | à faire |
-| 28 | Mes inscriptions | `/espace/inscriptions` | M | | | | | | | | | | | à faire |
-| 29 | Supports et devoirs | `/espace/supports` | M | | | | | | | | | | | à faire |
-| 30 | Support, détail | `/espace/supports/:type/:id` | M | | | | | | | | | | | à faire |
+| 22 | Tableau de bord Membre | `/espace/membre` | M | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | verts | docs/recette/22-tdb-membre | existant (inscriptions et notifications réelles vues) ; lieu de l'activité à ajouter à l'inscription | oui (barre latérale, rôle Membre) | terminé (Phase 1) |
+| 25 | Profil | `/espace/profil` | connecté | fait | fait | fait (7 largeurs) | chargement, erreur, contenu | verte | axe : 0 | verts | docs/recette/25-profil-vue | existant (profil réel vu) | oui (barre latérale et menu du compte) | terminé (Phase 1) |
+| 26 | Profil, édition | `/espace/profil/modifier` | connecté | fait | fait | fait (7 largeurs) | chargement, erreur, validation, succès | verte | axe : 0 | verts | docs/recette/26-profil-edition | existant (enregistrement réel prouvé) | contextuel (bouton du profil) | terminé (Phase 1) |
+| 27 | Paramètres | `/espace/parametres` | connecté | fait | fait | fait (7 largeurs) | chargement, erreur, contenu, validation, confirmation | verte | axe : 0 | verts | docs/recette/27-parametres-compte | mot de passe : existant (refus réel prouvé) ; préférences, export et suppression du compte à créer | oui (barre latérale) | terminé (Phase 1) |
+| 28 | Mes inscriptions | `/espace/inscriptions` | M | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu, filtre, confirmation | verte | axe : 0 | verts | docs/recette/28-mes-inscriptions | existant (liste réelle vue) ; filtres type et statut, identifiants d'adresse et lieu à ajouter | oui (barre latérale, rôle Membre) | terminé (Phase 1) |
+| 29 | Supports et devoirs | `/espace/supports` | M | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | verts | docs/recette/29-supports-devoirs-liste | existant (contenu réel vu) ; accès à conditionner à l'inscription (B-02), formationId à ajouter à l'inscription | oui (barre latérale, rôle Membre) | terminé (Phase 1) |
+| 30 | Support, détail | `/espace/supports/:type/:id` | M | fait | fait | fait (7 largeurs) | chargement, introuvable, erreur, contenu (support, devoir) | verte | axe : 0 | couvert par la recette | docs/recette/30-supports-devoirs-detail | existant (contenu réel vu) ; contrôle d'accès et stockage de fichiers à créer | contextuel (depuis la liste) | terminé (Phase 1) |
 | 36 | Mes cours | `/espace/formateur/cours` | F | | | | | | | | | | | à faire |
 | 35 | Tableau de bord Formateur | `/espace/formateur` | F | | | | | | | | | | | à faire |
 | 37 | Cours, création et édition | `/espace/formateur/cours/nouveau` | F | | | | | | | | | | | à faire |

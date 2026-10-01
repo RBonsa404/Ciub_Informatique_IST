@@ -1,6 +1,6 @@
 import { Route, Routes, UrlSegment } from '@angular/router';
 import { environment } from '../environments/environment';
-import { featureGuard, guestGuard, spaceHomeGuard } from './core/auth/guards';
+import { authGuard, featureGuard, guestGuard, roleGuard, spaceHomeGuard } from './core/auth/guards';
 
 const publicPages = () => import('./pages/public/about-pages');
 const actualites = () => import('./pages/public/actualites-pages');
@@ -10,6 +10,10 @@ const formations = () => import('./pages/public/formations-pages');
 const legal = () => import('./pages/public/legal-pages');
 const errors = () => import('./pages/errors/error-pages');
 const passwords = () => import('./pages/auth/password-pages');
+const profile = () => import('./pages/member/profile-pages');
+const supports = () => import('./pages/member/supports-pages');
+
+const SUPPORTS_CRUMB = { label: 'Supports et devoirs', route: '/espace/supports' };
 
 const AUTH_PATHS = new Set(['connexion', 'inscription', 'mot-de-passe-oublie', 'reinitialisation', 'verification-adresse']);
 
@@ -34,6 +38,66 @@ export const routes: Routes = [
     ],
   },
   { path: 'espace', pathMatch: 'full', canActivate: [spaceHomeGuard], children: [] },
+  {
+    path: 'espace',
+    canActivate: [authGuard],
+    loadComponent: () => import('./layouts/layouts').then((m) => m.DashboardLayout),
+    children: [
+      {
+        path: 'membre',
+        canMatch: [featureGuard('inscriptions')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { fil: [{ label: 'Tableau de bord' }] },
+        loadComponent: () => import('./pages/member/dashboard-page').then((m) => m.MemberDashboardPage),
+      },
+      {
+        path: 'inscriptions',
+        canMatch: [featureGuard('inscriptions')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { fil: [{ label: 'Mes inscriptions' }] },
+        loadComponent: () => import('./pages/member/inscriptions-page').then((m) => m.InscriptionsPage),
+      },
+      {
+        path: 'supports',
+        canMatch: [featureGuard('supports')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { fil: [{ label: 'Supports et devoirs' }] },
+        loadComponent: () => supports().then((m) => m.SupportsListPage),
+      },
+      {
+        path: 'supports/ressources/:id',
+        canMatch: [featureGuard('supports')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { kind: 'ressource', fil: [SUPPORTS_CRUMB, { label: 'Support' }] },
+        loadComponent: () => supports().then((m) => m.SupportDetailPage),
+      },
+      {
+        path: 'supports/devoirs/:formationId/:devoirId',
+        canMatch: [featureGuard('supports')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { kind: 'devoir', fil: [SUPPORTS_CRUMB, { label: 'Devoir' }] },
+        loadComponent: () => supports().then((m) => m.SupportDetailPage),
+      },
+      {
+        path: 'profil',
+        canMatch: [featureGuard('profil')],
+        data: { fil: [{ label: 'Mon profil' }] },
+        loadComponent: () => profile().then((m) => m.ProfilePage),
+      },
+      {
+        path: 'profil/modifier',
+        canMatch: [featureGuard('profil')],
+        data: { fil: [{ label: 'Mon profil', route: '/espace/profil' }, { label: 'Édition' }] },
+        loadComponent: () => profile().then((m) => m.ProfileEditPage),
+      },
+      {
+        path: 'parametres',
+        canMatch: [featureGuard('profil')],
+        data: { fil: [{ label: 'Paramètres du compte' }] },
+        loadComponent: () => import('./pages/member/settings-page').then((m) => m.SettingsPage),
+      },
+    ],
+  },
   {
     path: '',
     loadComponent: () => import('./layouts/layouts').then((m) => m.PublicLayout),

@@ -37,6 +37,11 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-28 | Textes d'accroche et slogans des pages publiques (bandeau d'accueil, devise, citations, promesse de délai de réponse) | écrans 01, 02, 13, 18, 19 | Retirés tant que le club ne les a pas validés ; les phrases d'interface restantes sont factuelles | retrait (C.1) |
 | E-29 | Pages légales : trois mises en page différentes dans la maquette (14 et 15), aucune pour les mentions légales | écrans 14, 15 | Mise en page unique de l'écran 14 (sommaire collant, sections numérotées) pour les trois textes | assumé |
 | E-30 | Cartes de liste non cliquables dans la maquette ; seul le titre est un lien | écrans 04, 08, 10 | Le lien du titre couvre toute la carte (une seule cible, nom accessible égal au titre) | assumé |
+| E-31 | Barre supérieure de l'espace : recherche globale et pastille de notifications à valeur fixe | écrans 22 à 57 | Fil d'Ariane, cloche avec le nombre réel de notifications non lues (absente tant que le nombre est inconnu ou nul), thème, menu du compte ; aucune recherche globale (absente du CDC) | assumé |
+| E-32 | Panneau « Activités récentes » du tableau de bord Membre : flux social à contenu fictif | écran 22 | Remplacé par « Dernières notifications », alimenté par les notifications réelles du membre | assumé (D-01) |
+| E-33 | Paramètres du compte : progression « 66 % », notifications « push », choix de langue, visibilité des projets | écran 27 | Retirés ; panneau « Mes données » (copie des données personnelles) à la place de « Confidentialité » ; cinq panneaux numérotés | retrait et dérivation (section 1, BNF-09) |
+| E-34 | « Télécharger l'attestation », remise de devoir, champs « Difficulté », « Matière », « Niveau », poids de fichier | écrans 28, 29, 30 | Retirés : fonctions et données absentes du CDC et du modèle ; consultation seule (D-03) | retrait |
+| E-35 | Téléversement d'avatar, champs GitHub, LinkedIn et compétences | écrans 25, 26 | Retirés ; avatar à initiales (D-04) | retrait |
 
 ## 2. Données d'illustration non reprises
 

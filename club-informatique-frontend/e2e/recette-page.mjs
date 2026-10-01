@@ -8,6 +8,7 @@ import { chromium } from '@playwright/test';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { aller, connecter } from './pages/_outils.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -60,9 +61,19 @@ for (const id of ids.length ? ids : Object.keys(registry)) {
         if (!full && scenario !== spec.scenarios[0]) continue;
         messages.length = 0;
         await page.unrouteAll({ behavior: 'ignoreErrors' });
-        if (scenario.before) await scenario.before(page, { base, theme, width });
         const path = typeof scenario.path === 'function' ? await scenario.path() : (scenario.path ?? spec.path);
-        await page.goto(base + path, { waitUntil: scenario.waitUntil ?? 'networkidle' });
+        const role = scenario.role ?? spec.role;
+        if (role) {
+          // Page de l'espace connecté : connexion réelle, puis navigation interne (la session vit en mémoire).
+          await connecter(page, base, role);
+          await page.waitForLoadState('networkidle');
+          messages.length = 0;
+          if (scenario.before) await scenario.before(page, { base, theme, width });
+          await aller(page, path, (scenario.waitUntil ?? 'networkidle') === 'networkidle');
+        } else {
+          if (scenario.before) await scenario.before(page, { base, theme, width });
+          await page.goto(base + path, { waitUntil: scenario.waitUntil ?? 'networkidle' });
+        }
         await page.evaluate(() => document.fonts.ready);
         if (scenario.run) await scenario.run(page, { base, theme, width });
         await page.waitForTimeout(250);

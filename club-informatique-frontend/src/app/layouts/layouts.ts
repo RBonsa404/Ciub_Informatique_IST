@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../core/auth/auth.service';
 import { AuthStore } from '../core/auth/auth.store';
 import { BreadcrumbService } from '../core/navigation/breadcrumb.service';
 import { NavigationService } from '../core/navigation/navigation.service';
+import { NotificationsStore } from '../core/notifications/notifications.store';
 import { AccountMenu } from '../shared/layout/account-menu/account-menu';
 import { Brand } from '../shared/layout/brand/brand';
 import { PublicFooter } from '../shared/layout/public-footer/public-footer';
@@ -20,6 +21,8 @@ const GLOWS = `
   <div class="ambient-glow glow-bottom-left" aria-hidden="true"></div>
   <div class="ambient-glow glow-amber" aria-hidden="true"></div>
 `;
+
+const UNREAD_CAP = 99;
 
 const SKIP_LINK = `<app-skip-link />`;
 
@@ -174,8 +177,11 @@ export class ErrorLayout {}
             </div>
             <div class="header-actions">
               @if (nav.notificationsEnabled()) {
-                <a appBtn variant="secondary" [iconOnly]="true" routerLink="/espace/notifications" aria-label="Notifications">
+                <a appBtn variant="secondary" [iconOnly]="true" routerLink="/espace/notifications" class="relative" [attr.aria-label]="bellLabel()">
                   <app-icon name="bell" />
+                  @if (unreadBadge(); as badge) {
+                    <span class="notif-count" aria-hidden="true">{{ badge }}</span>
+                  }
                 </a>
               }
               <app-theme-toggle />
@@ -197,9 +203,21 @@ export class DashboardLayout {
   protected readonly breadcrumb = inject(BreadcrumbService);
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly notifications = inject(NotificationsStore);
   protected readonly sidebarOpen = signal(false);
 
+  /** Pastille du nombre réel de notifications non lues ; absente tant que le nombre est inconnu ou nul. */
+  protected readonly unreadBadge = computed(() => {
+    const count = this.notifications.unread();
+    return count ? (count > UNREAD_CAP ? `${UNREAD_CAP}+` : String(count)) : null;
+  });
+  protected readonly bellLabel = computed(() => {
+    const count = this.notifications.unread();
+    return count ? `Notifications, ${count} non ${count > 1 ? 'lues' : 'lue'}` : 'Notifications';
+  });
+
   constructor() {
+    if (this.nav.notificationsEnabled()) this.notifications.refresh();
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => this.sidebarOpen.set(false));
   }
 

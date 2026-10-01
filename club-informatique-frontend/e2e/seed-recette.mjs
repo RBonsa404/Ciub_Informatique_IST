@@ -144,6 +144,23 @@ if (sql('select count(*) from actualite') === '0') {
   await call('POST', '/notifications/globales', { titre: 'Annonce d’essai', message: 'Notification globale d’essai de la base de recette.' }, r);
 }
 
+// 3. Inscriptions du membre de recette, créées une seule fois par l'API réelle : un événement, une session
+//    de formation confirmée et une session complète (liste d'attente, la place étant prise par le formateur).
+const mine = await call('GET', '/inscriptions/me?size=200', undefined, tokens.membre);
+if (!mine.content.some((i) => i.statut !== 'ANNULEE')) {
+  const evenements = (await call('GET', '/evenements?search=&sort=dateDebut,asc')).content;
+  const formations = (await call('GET', '/formations?search=')).content;
+  const sessions = formations.flatMap((f) => f.sessions ?? []);
+  const ouverte = sessions.find((s) => s.capaciteMax > 1);
+  const limitee = sessions.find((s) => s.capaciteMax === 1 && s.formationId !== ouverte?.formationId) ?? sessions.find((s) => s.capaciteMax === 1);
+  if (evenements[1]) await call('POST', `/inscriptions/evenements/${evenements[1].id}`, undefined, tokens.membre);
+  if (ouverte) await call('POST', `/inscriptions/formations/${ouverte.id}`, undefined, tokens.membre);
+  if (limitee) {
+    await call('POST', `/inscriptions/formations/${limitee.id}`, undefined, tokens.formateur).catch(() => {});
+    await call('POST', `/inscriptions/formations/${limitee.id}`, undefined, tokens.membre);
+  }
+}
+
 const summary = {
   comptes: Object.fromEntries(ACCOUNTS.map((a) => [a.key, emailOf(a)])),
   actualites: Number(sql('select count(*) from actualite')),
@@ -151,6 +168,7 @@ const summary = {
   formations: Number(sql('select count(*) from formation')),
   projets: Number(sql('select count(*) from projet')),
   ressources: Number(sql('select count(*) from ressource')),
+  inscriptionsDuMembre: (await call('GET', '/inscriptions/me?size=200', undefined, tokens.membre)).content.map((i) => i.statut),
 };
 writeFileSync(join(dirname(fileURLToPath(import.meta.url)), '.recette-comptes.json'), JSON.stringify(summary.comptes, null, 2));
 console.log(JSON.stringify(summary, null, 1));
