@@ -6,9 +6,9 @@ Dernière mise à jour : 2 octobre 2026
 | Phase | Statut | Validation utilisateur |
 |---|---|---|
 | 0. Reconnaissance | terminée | validée le 1er octobre 2026 |
-| 1. Frontend d'après la maquette | terminée le 2 octobre 2026 : 61 pages construites et recettées (tableau ci-dessous), à valider au point d'arrêt 3 | point d'arrêt 2 validé |
-| 2. Analyse et besoins backend | terminée le 2 octobre 2026 : `besoins-backend.md`, `api-contract.openapi.yaml` (106 opérations, description validée), `plan-reprise-backend.md` | à valider (point d'arrêt 3) |
-| 3. Reprise du backend | à faire | |
+| 1. Frontend d'après la maquette | terminée le 2 octobre 2026 : 61 pages construites et recettées (tableau ci-dessous), validées au point d'arrêt 3 | point d'arrêt 2 validé |
+| 2. Analyse et besoins backend | terminée le 2 octobre 2026 : `besoins-backend.md`, `api-contract.openapi.yaml` (106 opérations, description validée), `plan-reprise-backend.md` | point d'arrêt 3 validé le 2 octobre 2026 |
+| 3. Reprise du backend | terminée le 2 octobre 2026 : dix lots du plan, migrations V3 à V10, 156 tests verts (36 unitaires, 120 d'intégration sur PostgreSQL réel), couverture 92 % des instructions et 74 % des branches, contrat à 107 opérations, mesures dans `performance.md`, exploitation et test de restauration dans `exploitation.md` | à valider (point d'arrêt 4) |
 | 4. Intégration | à faire | |
 | 5. Parcours utilisateur | à faire | |
 | 6. Finalisation et fusion | à faire | |
@@ -107,6 +107,7 @@ Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.
 | Notifications | fait | notifications créées par les seules annonces globales | création par les événements métier, filtres, préférence de courriel, rappels | NotificationsIT (4) | à jour | terminé |
 | Projets | fait | B-08 (projets), B-09, B-12, B-36, B-37 | proposition réservée, décision motivée et unique, mes projets, suivi, compteurs, migration V8 | ProjetsIT (5) | à jour | terminé |
 | Gestion et administration | fait | B-03, B-16, B-25, B-26 | comptes (recherche, filtres), hiérarchie des rôles, invitation, verrouillage, alertes, journal filtrable | AdministrationIT (9), ContactIT, ComptesIT | à jour | terminé |
+| Performance et exploitation | fait | coût du hachage non lu, compression inopérante, requêtes par ligne, paramètres SQL journalisés | mesures avant et après, index (V10), cache conditionnel, journaux structurés, identifiant de requête, sauvegarde et restauration testées | ExploitationIT (4), ReglesTest (36) | sans objet | terminé |
 | Tableaux de bord et statistiques | fait | B-19, B-39, B-42, B-43, B-44 | statistiques et indicateurs en SQL hors comptes de test, réglages persistants et appliqués, sauvegardes lues en base, conformité calculée, migration V9 | AdministrationIT, SystemeIT (6) | à jour | terminé |
 
 ## Décisions en attente de l'utilisateur

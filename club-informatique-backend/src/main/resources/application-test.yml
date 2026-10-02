@@ -9,6 +9,10 @@ spring:
 
   jpa:
     show-sql: false
+    properties:
+      hibernate:
+        # Compte des requêtes SQL, pour les tests qui vérifient l'absence de requête par ligne.
+        generate_statistics: true
 
   flyway:
     clean-disabled: false
@@ -38,4 +42,6 @@ app:
 logging:
   level:
     root: WARN
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: "OFF"
+    acces: WARN
     com.clubinfo.ist: INFO

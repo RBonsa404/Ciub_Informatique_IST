@@ -1,0 +1,23 @@
+# Services de développement local : base PostgreSQL et capture des courriels.
+# Les identifiants ci-dessous ne valent que pour la machine du développeur.
+services:
+  base:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: club_informatique_dev
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - base-dev:/var/lib/postgresql/data
+
+  # Mailpit reçoit tous les courriels envoyés par l'application ; ils se lisent sur http://localhost:8025.
+  courriel:
+    image: axllent/mailpit:v1.21
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  base-dev:

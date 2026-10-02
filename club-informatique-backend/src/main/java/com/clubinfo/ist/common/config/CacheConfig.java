@@ -27,7 +27,10 @@ public class CacheConfig implements WebMvcConfigurer {
 
     @Bean
     public FilterRegistrationBean<ShallowEtagHeaderFilter> etagDesContenusPublics() {
-        FilterRegistrationBean<ShallowEtagHeaderFilter> filtre = new FilterRegistrationBean<>(new ShallowEtagHeaderFilter());
+        ShallowEtagHeaderFilter etag = new ShallowEtagHeaderFilter();
+        // ETag faible : la réponse reste compressible par le serveur (un ETag fort interdit la compression).
+        etag.setWriteWeakETag(true);
+        FilterRegistrationBean<ShallowEtagHeaderFilter> filtre = new FilterRegistrationBean<>(etag);
         filtre.addUrlPatterns(CONTENUS_PUBLICS);
         filtre.setName("etagDesContenusPublics");
         return filtre;

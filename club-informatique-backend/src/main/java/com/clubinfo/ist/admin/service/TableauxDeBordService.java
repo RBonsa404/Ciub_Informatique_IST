@@ -164,7 +164,7 @@ public class TableauxDeBordService {
                         jdbc.queryForObject("SELECT COUNT(*) FROM sauvegarde WHERE statut = 'REUSSIE' AND effectuee_le > ?", Long.class, limiteDesSauvegardes) > 0),
                 new Verification("COURRIEL_CONFIGURE", "Serveur d'envoi des courriels configuré", courriel.getIfAvailable() != null));
 
-        boolean conforme = verifications.stream().allMatch(Verification::conforme);
+        boolean conforme = verifications.stream().noneMatch(verification -> !verification.conforme());
         return new Conformite(conforme ? "CONFORME" : "A_EXAMINER", version(), System.getProperty("java.version"),
                 compter("SELECT COUNT(*) FROM utilisateur WHERE deleted_at IS NULL AND NOT test AND statut = 'ACTIF'"),
                 jdbc.queryForObject("SELECT COUNT(*) FROM audit_log WHERE action = 'CONNEXION' AND statut = 'ECHEC' AND date_action > ?", Long.class,

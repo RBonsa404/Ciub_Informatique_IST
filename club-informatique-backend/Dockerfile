@@ -40,8 +40,9 @@ USER appuser
 # Expose default port (Railway injects $PORT at runtime)
 EXPOSE 8080
 
-# JVM tuning for containerized environments
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -Djava.security.egd=file:/dev/./urandom"
+# Réglages pour un petit conteneur : mémoire bornée par celle du conteneur, ramasse-miettes série (un seul processeur),
+# piles réduites, arrêt franc en cas de mémoire épuisée.
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom"
 
 # Entrypoint: Railway injects PORT and SPRING_PROFILES_ACTIVE env vars
 ENTRYPOINT ["sh", "-c", \
