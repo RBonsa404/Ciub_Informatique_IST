@@ -24,6 +24,9 @@
   .accent-cyan {
     color: var(--accent-active);
   }
+  .text-amber {
+    color: var(--accent-amber-text);
+  }
   .back-link {
     display: inline-flex;
     align-items: center;

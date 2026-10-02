@@ -51,6 +51,9 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-42 | Fil social (réactions, commentaires, partage, publications connexes) | écrans 23, 24 | Annonces internes en lecture seule, réservées aux membres | dérivation (D-01) |
 | E-43 | Éditeur par blocs glisser-déposer, date de publication, épinglage | écran 44 | Texte structuré (paragraphe, titre de section, citation insérés d'un clic), image de couverture par adresse web, résumé, catégorie réelle, visibilité | dérivation (D-02) |
 | E-44 | Notification globale : type, audience à effectifs fixes, programmation | écran 49 | Envoi immédiat à tous les membres actifs, lien interne facultatif, confirmation avant envoi, aperçu en direct conservé | retrait (section 1, UC-22) |
+| E-45 | Projets : compteurs fixes, catégories fixes, « à relancer », fichiers joints avec poids, équipe en texte libre | écrans 31, 32, 41, 46, 47 | Décomptes réels (ou absents s'ils ne peuvent pas être exacts), catégories du serveur, liens réels du projet, membres réels ; liste des projets du membre dérivée de l'écran 41 | assumé et retrait (section 1) |
+| E-46 | Décision sur un projet : action immédiate, motif facultatif | écran 47 | Motif obligatoire pour un rejet, confirmation avant toute décision, décision affichée si le projet est déjà traité | assumé (UC-20) |
+| E-47 | Suivi d'un projet par le formateur : aucun écran de saisie dans la maquette | écran 41 | Page dérivée : fiche du projet, avancement et note de suivi | dérivation (UC-17) |
 
 ## 2. Données d'illustration non reprises
 

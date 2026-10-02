@@ -16,6 +16,9 @@ const supports = () => import('./pages/member/supports-pages');
 const courses = () => import('./pages/trainer/courses-pages');
 const news = () => import('./pages/management/news-pages');
 const publications = () => import('./pages/member/publications-pages');
+const memberProjects = () => import('./pages/member/projects-pages');
+const trainerProjects = () => import('./pages/trainer/trainer-projects-pages');
+const projectsReview = () => import('./pages/management/projects-review-pages');
 
 const NEWS_CRUMB = { label: 'Actualités', route: '/espace/gestion/actualites' };
 
@@ -65,6 +68,20 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/member/inscriptions-page').then((m) => m.InscriptionsPage),
       },
       {
+        path: 'projets',
+        canMatch: [featureGuard('projets')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { fil: [{ label: 'Mes projets' }] },
+        loadComponent: () => memberProjects().then((m) => m.MyProjectsPage),
+      },
+      {
+        path: 'projets/proposer',
+        canMatch: [featureGuard('projets')],
+        canActivate: [roleGuard('MEMBRE')],
+        data: { fil: [{ label: 'Mes projets', route: '/espace/projets' }, { label: 'Proposition' }] },
+        loadComponent: () => memberProjects().then((m) => m.ProposeProjectPage),
+      },
+      {
         path: 'supports',
         canMatch: [featureGuard('supports')],
         canActivate: [roleGuard('MEMBRE')],
@@ -95,6 +112,18 @@ export const routes: Routes = [
             pathMatch: 'full',
             data: { fil: [{ label: 'Tableau de bord formateur' }] },
             loadComponent: () => import('./pages/trainer/trainer-dashboard-page').then((m) => m.TrainerDashboardPage),
+          },
+          {
+            path: 'projets',
+            canMatch: [featureGuard('projets')],
+            data: { fil: [{ label: 'Projets suivis' }] },
+            loadComponent: () => trainerProjects().then((m) => m.TrainerProjectsPage),
+          },
+          {
+            path: 'projets/:id',
+            canMatch: [featureGuard('projets')],
+            data: { fil: [{ label: 'Projets suivis', route: '/espace/formateur/projets' }, { label: 'Suivi' }] },
+            loadComponent: () => trainerProjects().then((m) => m.TrainerProjectFollowPage),
           },
           { path: 'cours', data: { fil: [{ label: 'Mes cours' }] }, loadComponent: () => courses().then((m) => m.CoursesListPage) },
           { path: 'cours/nouveau', data: { fil: [COURSES_CRUMB, { label: 'Création' }] }, loadComponent: () => courses().then((m) => m.CourseFormPage) },
@@ -144,6 +173,18 @@ export const routes: Routes = [
             canMatch: [featureGuard('notifications')],
             data: { fil: [{ label: 'Notification globale' }] },
             loadComponent: () => import('./pages/management/broadcast-page').then((m) => m.BroadcastPage),
+          },
+          {
+            path: 'projets',
+            canMatch: [featureGuard('projets')],
+            data: { fil: [{ label: 'Projets à valider' }] },
+            loadComponent: () => projectsReview().then((m) => m.ProjectsReviewListPage),
+          },
+          {
+            path: 'projets/:id',
+            canMatch: [featureGuard('projets')],
+            data: { fil: [{ label: 'Projets à valider', route: '/espace/gestion/projets' }, { label: 'Examen' }] },
+            loadComponent: () => projectsReview().then((m) => m.ProjectReviewPage),
           },
           {
             path: 'evenements',

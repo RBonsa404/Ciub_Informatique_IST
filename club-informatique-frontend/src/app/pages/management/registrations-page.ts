@@ -189,7 +189,7 @@ const STATUT_CSV: Record<string, string> = { CONFIRMEE: 'Confirmée', LISTE_ATTE
               </div>
               <div class="counter">
                 <span>En attente</span>
-                <strong class="accent-amber">{{ totals().waiting | frNumber }}</strong>
+                <strong class="text-amber">{{ totals().waiting | frNumber }}</strong>
               </div>
               <button appBtn variant="secondary" type="button" [disabled]="totals().confirmed + totals().waiting === 0" (click)="exportCsv()">
                 <app-icon name="download" [size]="16" /> Exporter en CSV

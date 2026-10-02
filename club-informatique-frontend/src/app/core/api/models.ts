@@ -113,7 +113,12 @@ export interface Projet {
   readonly depotGit?: string | null;
   readonly documentationUrl?: string | null;
   readonly statut: StatutProjet;
+  readonly porteurId?: number | null;
   readonly porteurNom?: string | null;
+  /** Filière du porteur et motif de la décision du bureau : champs à ajouter côté serveur. */
+  readonly porteurFiliere?: string | null;
+  readonly motifDecision?: string | null;
+  readonly suiviFormateur?: string | null;
   readonly avancementPourcentage?: number | null;
   readonly categorieId?: number | null;
   readonly categorieNom?: string | null;
@@ -225,6 +230,20 @@ export interface EvenementPayload {
   readonly capaciteMax: number | null;
   readonly categorieId: number | null;
   readonly publie: boolean;
+}
+
+export interface ProjetPayload {
+  readonly titre: string;
+  readonly description: string;
+  readonly objectifs: string;
+  readonly technologies: string;
+  readonly depotGit: string | null;
+  readonly categorieId: number | null;
+}
+
+export interface SuiviPayload {
+  readonly suiviFormateur: string;
+  readonly avancementPourcentage: number;
 }
 
 export interface SessionPayload {
