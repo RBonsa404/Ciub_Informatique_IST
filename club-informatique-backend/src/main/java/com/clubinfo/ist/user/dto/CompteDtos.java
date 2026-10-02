@@ -15,12 +15,14 @@ public final class CompteDtos {
     private CompteDtos() {
     }
 
+    /** « photo » est l'adresse de téléchargement contrôlé de la photo de profil, ou null. */
     public record Profil(Long id, String nom, String prenom, String email, String filiere, String biographie,
-                         String numeroMembre, LocalDate dateAdhesion, StatutUtilisateur statut) {
+                         String numeroMembre, LocalDate dateAdhesion, StatutUtilisateur statut, String photo) {
 
         public static Profil de(Utilisateur utilisateur) {
             return new Profil(utilisateur.getId(), utilisateur.getNom(), utilisateur.getPrenom(), utilisateur.getEmail(), utilisateur.getFiliere(),
-                    utilisateur.getBiographie(), utilisateur.getNumeroMembre(), utilisateur.getDateAdhesion(), utilisateur.getStatut());
+                    utilisateur.getBiographie(), utilisateur.getNumeroMembre(), utilisateur.getDateAdhesion(), utilisateur.getStatut(),
+                    utilisateur.getPhoto());
         }
     }
 

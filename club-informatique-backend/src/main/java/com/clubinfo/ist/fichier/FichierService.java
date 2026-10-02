@@ -30,6 +30,8 @@ public class FichierService {
     private static final Pattern IDENTIFIANT = Pattern.compile("[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}");
     private static final Set<String> ROLES_D_ADMINISTRATION = Set.of("ROLE_ADMIN", "ROLE_SUPER_ADMIN");
     private static final int LONGUEUR_MAXIMALE_DU_NOM = 200;
+    /** Une photo de profil est une image de taille modeste. */
+    public static final long TAILLE_MAXIMALE_PHOTO = 2L * 1024 * 1024;
 
     private final FichierRepository fichiers;
     private final StorageService stockage;
@@ -41,16 +43,28 @@ public class FichierService {
 
     @Transactional
     public Fichier deposer(MultipartFile piece, UserDetailsImpl deposant) {
+        return deposer(piece, deposant, proprietes.maxSizeBytes(), false, Fichier.Acces.PRIVE);
+    }
+
+    /** Photo de profil : une image, visible des seuls utilisateurs connectés. */
+    @Transactional
+    public Fichier deposerPhoto(MultipartFile piece, UserDetailsImpl deposant) {
+        return deposer(piece, deposant, Math.min(TAILLE_MAXIMALE_PHOTO, proprietes.maxSizeBytes()), true, Fichier.Acces.MEMBRES);
+    }
+
+    private Fichier deposer(MultipartFile piece, UserDetailsImpl deposant, long tailleMaximale, boolean imageSeulement, Fichier.Acces acces) {
         if (piece == null || piece.isEmpty()) {
             throw new BusinessException("Le fichier est vide.", HttpStatus.BAD_REQUEST, "FICHIER_VIDE");
         }
-        if (piece.getSize() > proprietes.maxSizeBytes()) {
+        if (piece.getSize() > tailleMaximale) {
             throw new BusinessException("Le fichier dépasse la taille autorisée.", HttpStatus.PAYLOAD_TOO_LARGE);
         }
         String nom = nomPropre(piece.getOriginalFilename());
         TypeDeFichier type = TypeDeFichier.reconnaitre(entete(piece), nom)
-                .orElseThrow(() -> new BusinessException(
-                        "Type de fichier refusé. Formats acceptés : PDF, PNG, JPEG, WebP, ZIP, DOCX, PPTX, XLSX.", HttpStatus.UNSUPPORTED_MEDIA_TYPE));
+                .filter(reconnu -> !imageSeulement || reconnu.estImage())
+                .orElseThrow(() -> new BusinessException(imageSeulement
+                        ? "Type de fichier refusé. Formats acceptés : PNG, JPEG, WebP."
+                        : "Type de fichier refusé. Formats acceptés : PDF, PNG, JPEG, WebP, ZIP, DOCX, PPTX, XLSX.", HttpStatus.UNSUPPORTED_MEDIA_TYPE));
 
         String id = UUID.randomUUID().toString();
         LocalDate jour = LocalDate.now();
@@ -68,6 +82,7 @@ public class FichierService {
                 .typeMime(type.typeMime())
                 .tailleOctets(piece.getSize())
                 .deposantId(deposant.getId())
+                .acces(acces)
                 .createdAt(LocalDateTime.now())
                 .build());
     }
@@ -91,6 +106,22 @@ public class FichierService {
     @Transactional
     public void ouvrirA(String id, Fichier.Acces acces) {
         fichiers.findById(id).ifPresent(fichier -> fichier.setAcces(acces));
+    }
+
+    /** Retire un fichier, contenu compris. Un identifiant inconnu est ignoré. */
+    @Transactional
+    public void supprimer(String id) {
+        if (id == null || !IDENTIFIANT.matcher(id).matches()) {
+            return;
+        }
+        fichiers.findById(id).ifPresent(fichier -> {
+            try {
+                stockage.supprimer(fichier.getCle());
+            } catch (IOException erreur) {
+                log.warn("Contenu du fichier {} non supprimé du stockage", fichier.getId());
+            }
+            fichiers.delete(fichier);
+        });
     }
 
     /** Retire les fichiers déposés par les comptes de test, contenu compris. */

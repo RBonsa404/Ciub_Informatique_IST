@@ -5,6 +5,9 @@ import com.clubinfo.ist.auth.service.SessionService;
 import com.clubinfo.ist.common.exception.BusinessException;
 import com.clubinfo.ist.common.journal.JournalService;
 import com.clubinfo.ist.common.journal.JournalService.Resultat;
+import com.clubinfo.ist.common.security.UserDetailsImpl;
+import com.clubinfo.ist.fichier.Fichier;
+import com.clubinfo.ist.fichier.FichierService;
 import com.clubinfo.ist.user.dto.CompteDtos.ChangementMotDePasse;
 import com.clubinfo.ist.user.dto.CompteDtos.Preferences;
 import com.clubinfo.ist.user.dto.CompteDtos.Profil;
@@ -14,11 +17,13 @@ import com.clubinfo.ist.user.entity.Utilisateur;
 import com.clubinfo.ist.user.repository.UtilisateurRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -37,6 +42,10 @@ public class CompteService {
     private final CourrielsDeCompte courriels;
     private final JournalService journal;
     private final JdbcTemplate jdbc;
+    private final FichierService fichiers;
+
+    @Value("${server.servlet.context-path:}")
+    private String prefixe;
 
     @Transactional(readOnly = true)
     public Profil profil(Long id) {
@@ -51,6 +60,29 @@ public class CompteService {
         compte.setFiliere(modification.filiere().trim());
         compte.setBiographie(modification.biographie() == null || modification.biographie().isBlank() ? null : modification.biographie().trim());
         return Profil.de(compte);
+    }
+
+    /** Dépose la photo de profil (image, 2 Mo au plus) ; la photo précédente est retirée du stockage. */
+    @Transactional
+    public Profil deposerPhoto(UserDetailsImpl connecte, MultipartFile piece) {
+        Utilisateur compte = compte(connecte.getId());
+        String precedente = compte.getPhoto();
+        Fichier fichier = fichiers.deposerPhoto(piece, connecte);
+        compte.setPhoto(prefixe + "/fichiers/" + fichier.getId());
+        fichiers.supprimer(identifiantDuFichier(precedente));
+        return Profil.de(compte);
+    }
+
+    @Transactional
+    public Profil retirerPhoto(Long id) {
+        Utilisateur compte = compte(id);
+        fichiers.supprimer(identifiantDuFichier(compte.getPhoto()));
+        compte.setPhoto(null);
+        return Profil.de(compte);
+    }
+
+    private static String identifiantDuFichier(String adresse) {
+        return adresse == null ? null : adresse.substring(adresse.lastIndexOf('/') + 1);
     }
 
     /** Ferme les autres sessions et lève l'obligation de changement ; la session courante reçoit un nouveau cookie. */
@@ -94,6 +126,7 @@ public class CompteService {
         profil.put("email", compte.getEmail());
         profil.put("filiere", compte.getFiliere());
         profil.put("biographie", compte.getBiographie());
+        profil.put("photo", compte.getPhoto());
         profil.put("numeroMembre", compte.getNumeroMembre());
         profil.put("dateAdhesion", compte.getDateAdhesion());
         profil.put("statut", compte.getStatut());
@@ -155,6 +188,7 @@ public class CompteService {
         compte.setDateNaissance(null);
         compte.setFiliere(null);
         compte.setAnneeEtude(null);
+        fichiers.supprimer(identifiantDuFichier(compte.getPhoto()));
         compte.setPhoto(null);
         compte.setBiographie(null);
         compte.setSpecialite(null);

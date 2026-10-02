@@ -15,14 +15,18 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -45,6 +49,18 @@ public class UserController {
     @Operation(summary = "Modifier son profil")
     public ResponseEntity<Profil> modifier(@AuthenticationPrincipal UserDetailsImpl connecte, @Valid @RequestBody ProfilMiseAJour modification) {
         return ResponseEntity.ok(comptes.modifier(connecte.getId(), modification));
+    }
+
+    @PostMapping(value = "/photo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Déposer sa photo de profil (PNG, JPEG ou WebP, 2 Mo au plus) ; remplace la précédente")
+    public ResponseEntity<Profil> deposerPhoto(@AuthenticationPrincipal UserDetailsImpl connecte, @RequestPart("fichier") MultipartFile fichier) {
+        return ResponseEntity.ok(comptes.deposerPhoto(connecte, fichier));
+    }
+
+    @DeleteMapping("/photo")
+    @Operation(summary = "Retirer sa photo de profil")
+    public ResponseEntity<Profil> retirerPhoto(@AuthenticationPrincipal UserDetailsImpl connecte) {
+        return ResponseEntity.ok(comptes.retirerPhoto(connecte.getId()));
     }
 
     @PutMapping("/password")
