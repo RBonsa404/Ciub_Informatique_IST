@@ -1,7 +1,8 @@
 package com.clubinfo.ist.admin.controller;
 
 import com.clubinfo.ist.admin.dto.ConformiteDashboardDto;
-import com.clubinfo.ist.admin.entity.AuditLog;
+import com.clubinfo.ist.common.journal.EntreeJournalDto;
+import com.clubinfo.ist.common.journal.JournalService;
 import com.clubinfo.ist.admin.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConformiteController {
 
     private final AdminService adminService;
+    private final JournalService journal;
 
     @GetMapping
     @Operation(summary = "Consulter le tableau de bord de conformité technique et sécurité (lecture seule) (UC-29)")
@@ -34,7 +37,10 @@ public class ConformiteController {
 
     @GetMapping("/logs")
     @Operation(summary = "Consulter les journaux d'audit de sécurité (lecture seule) (UC-29)")
-    public ResponseEntity<Page<AuditLog>> getAuditLogs(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(adminService.getAuditLogs(pageable));
+    public ResponseEntity<Page<EntreeJournalDto>> getAuditLogs(
+            @RequestParam(required = false) String utilisateur,
+            @RequestParam(required = false) JournalService.Resultat statut,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(journal.consulter(utilisateur, statut == null ? null : statut.name(), pageable));
     }
 }

@@ -98,6 +98,16 @@ public class Utilisateur extends BaseEntity {
     @Builder.Default
     private Boolean totpActive = false;
 
+    /** Compte de test : exclu des statistiques, annuaires et exports, retirable en une opération. */
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean test = false;
+
+    /** Le mot de passe a été attribué par un tiers : il doit être changé avant tout autre usage. */
+    @Column(name = "changement_mot_de_passe_requis", nullable = false)
+    @Builder.Default
+    private Boolean changementMotDePasseRequis = false;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "utilisateur_role",

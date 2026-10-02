@@ -124,32 +124,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @Transactional
-    public void imposer2fa(Long userId, boolean required) {
-        Utilisateur user = utilisateurRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "id", userId));
-
-        user.setTotpActive(required);
-        utilisateurRepository.save(user);
-
-        auditLogRepository.save(AuditLog.builder()
-                .action("IMPOSER_2FA")
-                .description("Modification obligation 2FA pour " + user.getEmail() + " : " + required)
-                .entiteConcernee("Utilisateur")
-                .entiteId(userId)
-                .statut("SUCCES")
-                .build());
-
-        log.info("Obligation 2FA modifiée pour {} : {}", user.getEmail(), required);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public Page<AuditLog> getAuditLogs(Pageable pageable) {
-        return auditLogRepository.findAllByOrderByDateActionDesc(pageable);
-    }
-
-    @Override
     public SystemConfigDto getSystemConfig() {
         return SystemConfigDto.builder()
                 .nomPlateforme(systemSettings.get("nomPlateforme"))

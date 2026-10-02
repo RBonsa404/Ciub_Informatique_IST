@@ -1,7 +1,8 @@
 package com.clubinfo.ist.admin.controller;
 
 import com.clubinfo.ist.admin.dto.SecurityAlertDto;
-import com.clubinfo.ist.admin.entity.AuditLog;
+import com.clubinfo.ist.common.journal.EntreeJournalDto;
+import com.clubinfo.ist.common.journal.JournalService;
 import com.clubinfo.ist.admin.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,10 +28,11 @@ import java.util.Map;
 @RequiredArgsConstructor
 @SecurityRequirement(name = "BearerAuth")
 @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
-@Tag(name = "Supervision Sécurité", description = "Endpoints d'alertes de sécurité, obligation 2FA et journaux d'audit (UC-27)")
+@Tag(name = "Supervision Sécurité", description = "Endpoints d'alertes de sécurité et journaux d'audit (UC-27)")
 public class SecurityController {
 
     private final AdminService adminService;
+    private final JournalService journal;
 
     @GetMapping("/alerts")
     @Operation(summary = "Consulter les alertes et événements de sécurité récents (UC-27)")
@@ -38,18 +40,12 @@ public class SecurityController {
         return ResponseEntity.ok(adminService.getSecurityAlerts());
     }
 
-    @PutMapping("/2fa/{userId}")
-    @Operation(summary = "Imposer ou révoquer l'obligation de la double authentification pour un compte (UC-27)")
-    public ResponseEntity<Map<String, String>> imposer2fa(
-            @PathVariable Long userId,
-            @RequestParam boolean required) {
-        adminService.imposer2fa(userId, required);
-        return ResponseEntity.ok(Map.of("message", "Paramètre 2FA mis à jour pour l'utilisateur ID " + userId));
-    }
-
     @GetMapping("/audit-logs")
     @Operation(summary = "Consulter l'historique complet du journal d'audit (UC-27)")
-    public ResponseEntity<Page<AuditLog>> getAuditLogs(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(adminService.getAuditLogs(pageable));
+    public ResponseEntity<Page<EntreeJournalDto>> getAuditLogs(
+            @RequestParam(required = false) String utilisateur,
+            @RequestParam(required = false) JournalService.Resultat statut,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return ResponseEntity.ok(journal.consulter(utilisateur, statut == null ? null : statut.name(), pageable));
     }
 }

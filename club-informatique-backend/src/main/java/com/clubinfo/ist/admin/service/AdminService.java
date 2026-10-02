@@ -17,9 +17,6 @@ public interface AdminService {
 
     List<SecurityAlertDto> getSecurityAlerts();
 
-    void imposer2fa(Long userId, boolean required);
-
-    Page<AuditLog> getAuditLogs(Pageable pageable);
 
     SystemConfigDto getSystemConfig();
 

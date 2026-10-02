@@ -44,4 +44,8 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     long countActive();
 
     Optional<Utilisateur> findByNumeroMembreAndDeletedAtIsNull(String numeroMembre);
+
+    /** Vrai si un compte réel (ni supprimé, ni de test) porte le rôle. */
+    @Query("SELECT COUNT(u) > 0 FROM Utilisateur u JOIN u.roles r WHERE u.deletedAt IS NULL AND u.test = false AND r.nom = :role")
+    boolean existeReelAvecRole(@Param("role") String role);
 }

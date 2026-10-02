@@ -76,6 +76,16 @@ app:
     lock-duration-minutes: 15
   upload:
     directory: ${UPLOAD_DIR:./uploads}
+  bootstrap:
+    # Premier Super Admin réel : créé au démarrage tant qu'aucun n'existe, mot de passe à changer à la première connexion.
+    admin-email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
+    admin-password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
+  test-accounts:
+    # Comptes d'essai (un par rôle, domaine .invalid). Jamais activés par défaut.
+    seed: ${APP_SEED_TEST_ACCOUNTS:false}
+    password: ${APP_TEST_ACCOUNTS_PASSWORD:}
+    # Retrait des comptes d'essai et de leurs données au démarrage.
+    purge: ${APP_PURGE_TEST_ACCOUNTS:false}
 
 springdoc:
   api-docs:
