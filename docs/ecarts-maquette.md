@@ -55,6 +55,10 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-46 | Décision sur un projet : action immédiate, motif facultatif | écran 47 | Motif obligatoire pour un rejet, confirmation avant toute décision, décision affichée si le projet est déjà traité | assumé (UC-20) |
 | E-47 | Suivi d'un projet par le formateur : aucun écran de saisie dans la maquette | écran 41 | Page dérivée : fiche du projet, avancement et note de suivi | dérivation (UC-17) |
 | E-48 | Tableau de bord du Responsable : compteurs fixes avec tendances, graphique à barres fixes, moyenne « 28 étudiants / session » | écran 42 | Totaux réels du serveur sans tendance ; fréquentation mensuelle réelle, graphique et tuile « Membres » retirés tant que l'indicateur n'existe pas ; moyenne retirée | assumé et retrait (section 1) |
+| E-49 | Administration : compteurs et tendances fixes, disponibilité « 99.98% », stockage « 1.4 Go », mentions de double authentification, sessions hebdomadaires, répartition par filière | écrans 50, 55 | Totaux et répartitions réels du serveur ; indicateurs non mesurés retirés ; aucune mention de double authentification (6.6) | assumé et retrait (section 1) |
+| E-50 | Comptes : rôle unique, adresse modifiable, suspension immédiate, historique fictif, invitation inactive | écrans 51, 52 | Rôles multiples réels, adresse en lecture seule, suspension confirmée et impossible sur soi-même, historique tiré du journal d'audit, invitation par lien à usage unique | assumé (UC-23, UC-24) |
+| E-51 | Matrice des permissions modifiable, sept fonctionnalités | écran 53 | Matrice en lecture seule des permissions et rôles réels | retrait (D-07) |
+| E-52 | Catégories : décomptes « 18 articles • 3 cours », « Archiver » | écran 54 | Décomptes retirés ; suppression confirmée, refusée par le serveur si la catégorie est utilisée ; couleur réelle | retrait et assumé |
 
 ## 2. Données d'illustration non reprises
 

@@ -19,6 +19,11 @@ const publications = () => import('./pages/member/publications-pages');
 const memberProjects = () => import('./pages/member/projects-pages');
 const trainerProjects = () => import('./pages/trainer/trainer-projects-pages');
 const projectsReview = () => import('./pages/management/projects-review-pages');
+const adminUsers = () => import('./pages/admin/users-pages');
+const adminReference = () => import('./pages/admin/reference-pages');
+const adminInsight = () => import('./pages/admin/insight-pages');
+
+const USERS_CRUMB = { label: 'Utilisateurs', route: '/espace/admin/utilisateurs' };
 
 const NEWS_CRUMB = { label: 'Actualités', route: '/espace/gestion/actualites' };
 
@@ -218,6 +223,31 @@ export const routes: Routes = [
         canActivate: [roleGuard('ADMIN', 'RESPONSABLE_CLUB')],
         data: { fil: [{ label: 'Messages de contact' }] },
         loadComponent: () => import('./pages/management/contact-messages-page').then((m) => m.ContactMessagesPage),
+      },
+      {
+        path: 'admin',
+        canMatch: [featureGuard('administration')],
+        canActivate: [roleGuard('ADMIN')],
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',
+            data: { fil: [{ label: 'Administration' }] },
+            loadComponent: () => import('./pages/admin/admin-dashboard-page').then((m) => m.AdminDashboardPage),
+          },
+          { path: 'utilisateurs', data: { fil: [{ label: 'Utilisateurs' }] }, loadComponent: () => adminUsers().then((m) => m.UsersListPage) },
+          { path: 'utilisateurs/:id', data: { fil: [USERS_CRUMB, { label: 'Compte' }] }, loadComponent: () => adminUsers().then((m) => m.UserDetailPage) },
+          { path: 'roles', data: { fil: [{ label: 'Rôles et permissions' }] }, loadComponent: () => adminReference().then((m) => m.RolesMatrixPage) },
+          { path: 'categories', data: { fil: [{ label: 'Catégories' }] }, loadComponent: () => adminReference().then((m) => m.CategoriesPage) },
+          {
+            path: 'statistiques',
+            canMatch: [featureGuard('statistiques')],
+            data: { fil: [{ label: 'Statistiques' }] },
+            loadComponent: () => adminInsight().then((m) => m.StatisticsPage),
+          },
+          { path: 'securite', data: { fil: [{ label: 'Sécurité des comptes' }] }, loadComponent: () => adminInsight().then((m) => m.AccountSecurityPage) },
+          { path: 'journal', data: { fil: [{ label: 'Journal d’audit' }] }, loadComponent: () => adminInsight().then((m) => m.AuditLogPage) },
+        ],
       },
       {
         path: 'notifications',
