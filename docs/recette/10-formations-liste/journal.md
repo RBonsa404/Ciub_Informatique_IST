@@ -7,7 +7,7 @@ Référence : écran `10-formations-liste` de la maquette (`maquette-sombre.png`
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (backend et base de recette) ; État vide ; Chargement ; Service injoignable ; Backend actuel sans contournement (bogue B-30 : erreur 500, état d’erreur affiché) |
+| Scénarios | Contenu réel (backend et base de recette) ; État vide ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -29,7 +29,6 @@ Aucun.
 - État vide : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
-- Backend actuel sans contournement (bogue B-30 : erreur 500, état d’erreur affiché) : `backend-actuel-sombre-1440.png`, `backend-actuel-clair-1440.png`, `backend-actuel-sombre-390.png`, `backend-actuel-clair-390.png`
 
 ## Écarts avec la maquette
 

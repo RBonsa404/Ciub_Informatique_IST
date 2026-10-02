@@ -20,7 +20,7 @@ Créer la base PostgreSQL depuis le projet. Ses variables (`PGHOST`, `PGPORT`, `
 
 ## 3. Backend
 
-Réglages du service : dossier racine `club-informatique-backend` ; construction par le `Dockerfile` ; sonde `/api/v1/actuator/health/liveness` (déclarée dans `railway.toml`) ; mise en veille désactivée (le démarrage prend 16 à 20 secondes, mesure locale : `docs/performance.md`) ; un volume persistant monté sur `/app/uploads`.
+Réglages du service : dossier racine `club-informatique-backend` ; construction par le `Dockerfile` ; sonde `/api/v1/actuator/health/liveness` (déclarée dans `railway.toml`) ; mise en veille désactivée (le démarrage prend 16 à 20 secondes ; mesure locale de l'image en profil de production dans un conteneur de 512 Mo : 16 s et 378 Mio occupés) ; un volume persistant monté sur `/app/uploads`.
 
 | Variable | Valeur |
 |---|---|
@@ -48,7 +48,7 @@ Réglages du service : dossier racine `club-informatique-frontend` ; constructio
 |---|---|
 | `API_URL` | adresse interne du backend, sans barre finale : `http://<nom du service backend>.railway.internal:8080` |
 
-`PORT` est fourni par l'hébergeur. Nginx applique : repli vers `index.html`, compression, cache d'un an pour les fichiers à empreinte, aucune mise en cache de `index.html`, en-têtes de sécurité (`deploiement/nginx.conf.template`, `deploiement/en-tetes.conf`).
+`PORT` est fourni par l'hébergeur. La construction pré-rend onze pages publiques à adresse fixe (accueil, présentation, bureau, listes, pages légales), puis inscrit dans chaque page la feuille de style et le script du thème (`deploiement/optimiser-pages.mjs`). Nginx sert ces pages telles quelles et, pour toute autre adresse, la page d'entrée de l'application ; il applique la compression, un cache d'un an pour les fichiers à empreinte, la revalidation systématique des pages, les en-têtes de sécurité, et sert `robots.txt` et `sitemap.xml` (`deploiement/nginx.conf.template`, `deploiement/en-tetes.conf`).
 
 ## 5. Ordre de mise en ligne
 
@@ -83,4 +83,4 @@ Si des comptes de test ont été créés en ligne (`APP_SEED_TEST_ACCOUNTS=true`
 
 ## 9. Retour arrière
 
-Depuis l'onglet des déploiements du service concerné, redéployer la version précédente. Les migrations de base sont additives : une version antérieure du backend fonctionne avec un schéma plus récent tant que la migration n'a retiré aucune colonne qu'elle utilise ; en cas de doute, restaurer la sauvegarde prise avant la mise en ligne (`scripts/restauration.sh`).
+Depuis l'onglet des déploiements du service concerné, redéployer la version précédente. Une version antérieure du backend fonctionne avec un schéma plus récent tant qu'aucune migration n'a retiré une colonne qu'elle utilise. Ce n'est pas le cas de la première mise en ligne de cette version (la migration V5 retire les colonnes de la double authentification) : revenir à l'ancien backend exige alors de restaurer la sauvegarde prise avant la mise en ligne (`scripts/restauration.sh`).

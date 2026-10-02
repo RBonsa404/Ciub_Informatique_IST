@@ -11,7 +11,7 @@ Dernière mise à jour : 2 octobre 2026
 | 3. Reprise du backend | terminée le 2 octobre 2026 : dix lots du plan, migrations V3 à V10, 156 tests verts (36 unitaires, 120 d'intégration sur PostgreSQL réel), couverture 92 % des instructions et 74 % des branches, contrat à 107 opérations, mesures dans `performance.md`, exploitation et test de restauration dans `exploitation.md` | à valider (point d'arrêt 4) |
 | 4. Intégration | terminée le 2 octobre 2026 : 61 pages rejouées sur la pile réelle (backend, base de recette, courriels capturés), 19 modules prouvés (`docs/recette/integration.md`) et activés, photo de profil ajoutée, image de production du frontend | point d'arrêt 4 validé le 2 octobre 2026 |
 | 5. Parcours utilisateur | terminée le 2 octobre 2026 : 11 parcours sur 11 conformes sur la pile réelle (base vierge, backend construit, frontend de production servi par Nginx), 108 étapes, rejoués intégralement après corrections (`docs/recette/parcours.md`) | sans point d'arrêt |
-| 6. Finalisation et fusion | à faire | |
+| 6. Finalisation et fusion | en cours : recette globale sur l'image de production (64 écrans conformes), parcours rejoués (11 sur 11), Lighthouse mesuré, dépendances revues, images de production construites, README et procédure de déploiement rédigés ; restent la mise en ligne sur Railway, les vérifications en ligne, la pull request et la fusion, qui demandent l'accès aux comptes du club | point d'arrêt 5 |
 
 ## Preuves de la Phase 0
 | Élément | Preuve |
@@ -21,6 +21,16 @@ Dernière mise à jour : 2 octobre 2026
 | Styles calculés | `docs/maquette-ref/styles-calcules.json` (54 sélecteurs, deux thèmes) |
 | Tests du backend existant | `mvn -B test` : 17 tests, 0 échec ; couverture 12,9 % des lignes |
 | Livrables | `inventaire-pages.md`, `architecture-navigation.md`, `audit-backend.md`, `ecarts-maquette.md`, `decisions.md`, `informations-a-fournir.md` |
+
+## Preuves de la Phase 6
+| Élément | Preuve |
+|---|---|
+| Recette globale des 64 écrans sur l'image de production (pages publiques pré-rendues), deux thèmes, sept largeurs, console et accessibilité | `docs/recette/<page>/journal.md` (option `--base` sur l'image Nginx) |
+| Parcours rejoués intégralement sur l'image finale | `docs/recette/parcours.md` : 11 sur 11 |
+| Lighthouse, pages publiques, profil mobile | `docs/recette/performance.md` : Accessibilité, Bonnes pratiques et SEO à 100 ; Performance de 85 à 94 selon la page (8 pages sur 12 à 90 ou plus) |
+| Dépendances | frontend : `npm audit`, aucune vulnérabilité ; backend : Spring Boot 3.5.16 (dernier correctif de la branche), 159 tests verts |
+| Image du backend en profil de production, conteneur limité à 512 Mo | démarrage en 16 s, 378 Mio occupés, documentation interactive fermée, journaux JSON, en-têtes de sécurité |
+| Image du frontend | `docker build` : 11 pages pré-rendues, scripts en ligne limités à deux, autorisés par empreinte |
 
 ## Preuves de la Phase 5
 | Élément | Preuve |
@@ -134,5 +144,8 @@ D-01 à D-13 : propositions appliquées par défaut depuis la validation de la P
 
 ## Blocages
 - Mesures de la section 6.12 (crochet `commit-msg`, exclusions locales, attribution) non automatisées : opération refusée par le contrôle d'autorisations de l'environnement. Mesure compensatoire : contrôle manuel à chaque commit (`docs/decisions.md`, section 6).
-- Lot initial du frontend à 357,02 kio bruts (94,89 kio transférés) : avertissement du budget de 300 kio (non bloquant), à réduire lors de la passe de performance.
-- GitHub CLI absent du poste (nécessaire pour la pull request en Phase 6, ou ouverture depuis l'interface web).
+- Lot initial du frontend à 389 kio bruts (105 kio transférés) : avertissement du budget de 300 kio (non bloquant) ; il est chargé après le premier affichage des pages pré-rendues.
+- GitHub CLI absent du poste : la pull request s'ouvre depuis l'interface web (description prête).
+- Mise en ligne sur Railway et vérifications en ligne : elles demandent l'accès au compte Railway du club (aucun outil ni identifiant sur ce poste) ; procédure complète dans `docs/deploiement.md`.
+- Analyse des dépendances Java par base de vulnérabilités : OSS Index exige un compte (réponse 401), analyse à rejouer avec un jeton.
+- Performance Lighthouse sous 90 sur quatre pages publiques en mesure locale (85 à 89) : à remesurer sur le site en ligne.

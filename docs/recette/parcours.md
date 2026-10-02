@@ -4,7 +4,7 @@ Date : 2026-10-02. Produit par `node e2e/parcours.mjs`.
 
 Pile réelle : base PostgreSQL vierge au départ (migrations appliquées au démarrage), backend construit (fichier JAR),
 courriels capturés par le serveur de test, frontend de production construit et servi par Nginx sur `http://localhost:4300` (image du déploiement).
-Démarrage du backend sur base vierge, migrations comprises : 24.0 s.
+Démarrage du backend sur base vierge, migrations comprises : 18.6 s.
 
 Chaque parcours est joué dans un navigateur neuf. Les comptes des rôles Formateur, Responsable, Administrateur et DSI sont les comptes de test
 (marqués « test », domaine `.invalid`) ; le Visiteur devient un membre réel par l’inscription ; le Super Admin est celui de l’amorçage.
@@ -52,7 +52,7 @@ Dossier : `docs/recette/parcours/visiteur/` (trace : `trace.zip`). Verdict : con
 | 1 | Accueil : la page s’affiche avec l’en-tête, le pied de page et un seul logo dans l’en-tête | conforme | `01.png` |
 | 2 | Pages publiques et légales, par les liens de l’en-tête et du pied de page | conforme : 11 pages ouvertes | `02.png` |
 | 3 | Thème : bascule, puis persistance après rechargement | conforme : thème dark conservé | `03.png` |
-| 4 | Contact : message envoyé, courriel reçu par le club, accusé de réception reçu par l’expéditeur | conforme : courriel au club « Message de contact : Demande d’information murdmk15 » ; accusé « Nous avons bien reçu votre message » | `04.png` |
+| 4 | Contact : message envoyé, courriel reçu par le club, accusé de réception reçu par l’expéditeur | conforme : courriel au club « Message de contact : Demande d’information murk3swj » ; accusé « Nous avons bien reçu votre message » | `04.png` |
 | 5 | Le message apparaît dans l’espace d’administration, à l’écran des messages de contact | conforme | `05.png` |
 | 6 | Inscription : filière en saisie libre, consentement explicite, écran « Vérifiez votre boîte de réception » | conforme | `06.png` |
 | 7 | Connexion refusée tant que l’adresse n’est pas vérifiée | conforme | `07.png` |
@@ -255,12 +255,12 @@ Un nombre affiché est admis s’il figure dans une réponse du serveur reçue p
 | `/espace/gestion/bureau` | responsable | aucun | aucun |
 | `/espace/gestion/notifications` | responsable | aucun | aucun |
 | `/espace/admin/messages` | responsable | aucun | aucun |
-| `/espace/admin` | admin | 1, 0, 2, 2026, 19, 48, 47 | aucun |
+| `/espace/admin` | admin | 1, 0, 2, 2026, 22, 50, 49 | aucun |
 | `/espace/admin/utilisateurs` | admin | 2, 10, 2026 | aucun |
 | `/espace/admin/roles` | admin | aucun | aucun |
 | `/espace/admin/categories` | admin | aucun | aucun |
 | `/espace/admin/statistiques` | admin | 1, 0 | aucun |
 | `/espace/admin/securite` | admin | aucun | aucun |
-| `/espace/admin/journal` | admin | 2, 10, 2026, 19, 48, 127, 0, 1, 47, 6 | aucun |
+| `/espace/admin/journal` | admin | 2, 10, 2026, 22, 50, 127, 0, 1, 49, 6 | aucun |
 | `/espace/systeme` | superadmin | 1, 0 | aucun |
-| `/espace/dsi` | dsi | 1, 0, 21, 12, 10, 8, 2, 2026, 19, 49, 127, 48, 47 | aucun |
+| `/espace/dsi` | dsi | 1, 0, 21, 12, 10, 8, 2, 2026, 22, 50, 127, 49 | aucun |
