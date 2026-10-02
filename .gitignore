@@ -89,3 +89,6 @@ coverage/
 
 # --- Captures de recette des pages (regenerables par e2e/recette-page.mjs) ---
 /docs/recette/**/*.png
+
+# --- Traces, captures et fichiers telecharges des parcours (regenerables par e2e/parcours.mjs) ---
+/docs/recette/parcours/

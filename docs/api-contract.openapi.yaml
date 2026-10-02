@@ -191,6 +191,50 @@ paths:
           $ref: "#/components/responses/Erreur400"
         "401":
           $ref: "#/components/responses/Erreur401"
+  "/users/me/photo":
+    post:
+      tags: [Compte]
+      summary: Déposer sa photo de profil (PNG, JPEG ou WebP, 2 Mo au plus, signature binaire contrôlée) ; elle remplace la précédente.
+      operationId: postUsersMePhoto
+      requestBody:
+        required: true
+        content:
+          "multipart/form-data":
+            schema:
+              type: object
+              required: [fichier]
+              properties:
+                fichier:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Profil"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "413":
+          $ref: "#/components/responses/Erreur413"
+        "415":
+          $ref: "#/components/responses/Erreur415"
+    delete:
+      tags: [Compte]
+      summary: Retirer sa photo de profil.
+      operationId: deleteUsersMePhoto
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Profil"
+        "401":
+          $ref: "#/components/responses/Erreur401"
   "/users/me/password":
     put:
       tags: [Compte]
@@ -2886,6 +2930,7 @@ components:
       enum: [ACTIF, INACTIF, SUSPENDU, EN_ATTENTE_ACTIVATION]
     Profil:
       type: object
+      description: "« photo » : adresse de téléchargement contrôlé de la photo de profil (GET /fichiers/{id}), réservée aux utilisateurs connectés."
       required: [id, nom, prenom, email, statut]
       properties:
         id:
@@ -2909,6 +2954,8 @@ components:
           format: date
         statut:
           $ref: "#/components/schemas/StatutCompte"
+        photo:
+          type: [string, "null"]
     ProfilMiseAJour:
       type: object
       required: [nom, prenom, filiere]

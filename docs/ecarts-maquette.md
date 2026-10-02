@@ -41,9 +41,9 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-32 | Panneau « Activités récentes » du tableau de bord Membre : flux social à contenu fictif | écran 22 | Remplacé par « Dernières notifications », alimenté par les notifications réelles du membre | assumé (D-01) |
 | E-33 | Paramètres du compte : progression « 66 % », notifications « push », choix de langue, visibilité des projets | écran 27 | Retirés ; panneau « Mes données » (copie des données personnelles) à la place de « Confidentialité » ; cinq panneaux numérotés | retrait et dérivation (section 1, BNF-09) |
 | E-34 | « Télécharger l'attestation », remise de devoir, champs « Difficulté », « Matière », « Niveau », poids de fichier | écrans 28, 29, 30 | Retirés : fonctions et données absentes du CDC et du modèle ; consultation seule (D-03) | retrait |
-| E-35 | Téléversement d'avatar, champs GitHub, LinkedIn et compétences | écrans 25, 26 | Retirés ; avatar à initiales (D-04) | retrait |
+| E-35 | Téléversement d'avatar, champs GitHub, LinkedIn et compétences | écrans 25, 26 | « Changer la photo » rétabli en Phase 4 (PNG, JPG ou WebP, 2 Mo au plus ; initiales à défaut de photo) ; champs GitHub, LinkedIn et compétences retirés (D-04) | écart levé pour la photo ; retrait pour les champs |
 | E-36 | Espace Formateur : compteurs fixes (« 3 modules actifs », « 32 inscrits », « 94.5% »), devoirs rendus à noter, QR Code, export PDF, signature certifiée, code de module, barème | écrans 35 à 40 | Valeurs réelles renvoyées par le serveur ou retrait ; remise et notation hors périmètre (D-03) ; champs de cours selon D-05 | retrait et dérivation (section 1) |
-| E-37 | Dépôt de fichier (syllabus, sujet de devoir, support) | écrans 37, 40 | Adresse web du document, validée ; le dépôt de fichier dépend d'un stockage à créer (besoin à arbitrer en Phase 2) | retrait provisoire |
+| E-37 | Dépôt de fichier (syllabus, sujet de devoir, support) | écrans 37, 40, 44 | Zone de dépôt rétablie en Phase 4 (10 Mo au plus, type vérifié par le serveur sur le contenu), ou adresse web du document ; le syllabus se dépose comme support du cours | écart levé |
 | E-38 | Salle et capacité saisies sur le cours | écran 37 | Saisies par séance dans le détail du cours (une formation, plusieurs séances) ; planification et suppression de séance dans l'écran 38 | assumé |
 | E-39 | Gestion des événements : calendrier figé, compteur « (24) », cases « Inscription ouverte » et « Liste d'attente activée », formulaire permanent | écran 45 | Calendrier du mois courant alimenté par les événements réels, avec navigation ; nombre réel d'inscrits ; interrupteur de publication ; formulaire ouvert à la demande, complété par les champs obligatoires du modèle | assumé (section 1, UC-19) |
 | E-40 | Inscriptions : compteurs fixes, export inactif, promotion « automatique » | écran 48 | Effectifs réels de l'activité choisie, export CSV réel des inscrits (D-06), promotion manuelle d'un membre en liste d'attente | assumé (UC-21) |
@@ -74,7 +74,7 @@ Aucun des contenus suivants n'entre dans le produit : noms de personnes, intitul
 | Compteurs de téléchargements | 12 | non mesuré | retrait |
 | Liste de tâches et progression d'un projet | 09 | tâches non modélisées ; seul un pourcentage d'avancement saisi par le formateur existe | pourcentage réel affiché, liste retirée |
 | Programme horaire, intervenants, tarif | 07 | non modélisés | retrait ; description libre de l'événement |
-| « Ajouter au calendrier » | 06, 07 | réalisable sans donnée inventée (fichier iCalendar généré) | conservé si validé (D-06) |
+| « Ajouter au calendrier » | 06, 07 | réalisable sans donnée inventée (fichier iCalendar généré) | conservé : lien vers le fichier iCalendar du serveur (D-06) |
 | « Télécharger l'attestation » | 28 | non prévu au CDC | retrait |
 | Remise et évaluation de devoirs | 29, 30, 35 | le CDC prévoit la consultation des devoirs, non leur remise | à décider (D-03) |
 | QR code d'émargement, export PDF | 39 | non prévus au CDC | retrait |

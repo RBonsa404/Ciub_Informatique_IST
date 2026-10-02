@@ -12,7 +12,7 @@ Node.js 24 (LTS) et npm 11.
 |---|---|
 | `npm ci` | installer les dépendances |
 | `npm start` | serveur de développement sur `http://localhost:4200` (tous les modules visibles, page `/__design` disponible) |
-| `npm run build` | construction de production dans `dist/` (aucun module exposé tant que son intégration n'est pas validée) |
+| `npm run build` | construction de production dans `dist/` |
 | `npm test` | tests unitaires |
 | `npm run check` | gardes : aucun littéral numérique affiché, casse des fichiers |
 | `npm run assets:icons` | favicon, icônes, manifeste et image de partage à partir de `branding/logo.png` |
