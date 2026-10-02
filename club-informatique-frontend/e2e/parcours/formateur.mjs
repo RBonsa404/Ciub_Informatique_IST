@@ -2,7 +2,7 @@
 // consulter ses inscrits et pointer les présences. Un membre s'inscrit entre-temps, dans un second navigateur.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { aller, api, attendu, basculer, calme, chemin, COMPTES, confirmer, connecter, dansJours, lire, menu, notification, PDF, texte } from './outils.mjs';
+import { aller, api, attendu, basculer, calme, chemin, COMPTES, confirmer, connecter, contient, dansJours, lire, menu, notification, PDF, texte } from './outils.mjs';
 
 export async function parcoursFormateur({ page, etape, dossier }, etat) {
   const suffixe = Date.now().toString(36);
@@ -59,7 +59,7 @@ export async function parcoursFormateur({ page, etape, dossier }, etat) {
     await notification(page, 'La ressource est publiée.');
     await page.waitForURL((url) => url.pathname === `/espace/formateur/cours/${cours.id}`);
     await calme(page);
-    attendu((await texte(page)).includes(support), 'le support déposé doit figurer dans le détail du cours');
+    attendu(await contient(page, support), 'le support déposé doit figurer dans le détail du cours');
   });
 
   await etape('Publication du cours : il apparaît au catalogue public', async () => {
@@ -72,7 +72,7 @@ export async function parcoursFormateur({ page, etape, dossier }, etat) {
     await calme(page);
     await calme(page);
     await aller(page, '/formations');
-    attendu((await texte(page)).includes(cours.titre), 'le cours publié doit figurer à la page publique des formations');
+    attendu(await contient(page, cours.titre), 'le cours publié doit figurer à la page publique des formations');
   });
 
   await etape('Modification du cours : la fiche publique reprend la nouvelle valeur', async () => {
@@ -84,7 +84,7 @@ export async function parcoursFormateur({ page, etape, dossier }, etat) {
     await calme(page);
     const fiche = (await lire(null, '/formations?size=50')).content.find((f) => f.titre === cours.titre);
     await aller(page, `/formations/${fiche.slug}`);
-    attendu((await texte(page)).includes('Savoir utiliser un terminal.'), 'la fiche publique doit afficher le prérequis modifié');
+    attendu(await contient(page, 'Savoir utiliser un terminal.'), 'la fiche publique doit afficher le prérequis modifié');
     cours.slug = fiche.slug;
   });
 
@@ -117,12 +117,12 @@ export async function parcoursFormateur({ page, etape, dossier }, etat) {
     await aller(page, `/espace/formateur/cours/${cours.id}`);
     await page.getByRole('link', { name: /^Émargement/ }).first().click();
     await calme(page);
-    attendu((await texte(page)).includes('Sawadogo'), 'le membre inscrit doit figurer sur la feuille d’émargement');
+    attendu(await contient(page, 'Sawadogo'), 'le membre inscrit doit figurer sur la feuille d’émargement');
     await page.locator('tbody select').first().selectOption('PRESENT');
     await page.getByRole('button', { name: 'Enregistrer la feuille' }).click();
     await notification(page, /est enregistré/);
     await calme(page);
-    attendu((await texte(page)).includes('Dernier enregistrement'), 'la date du dernier enregistrement doit être affichée');
+    attendu(await contient(page, 'Dernier enregistrement'), 'la date du dernier enregistrement doit être affichée');
   });
 
   await etape('Retrait d’une séance (avec confirmation)', async () => {

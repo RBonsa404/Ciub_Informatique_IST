@@ -2,7 +2,7 @@
 // connexion, profil, déconnexion, réinitialisation du mot de passe avec lien à usage unique.
 import { join } from 'node:path';
 import { ADRESSE_DU_CLUB, BASE, MOT_DE_PASSE } from './pile.mjs';
-import { COMPTES, adresseNeuve, attendu, calme, chemin, connecter, courrielPour, lienDuCourriel, lire, menu, sansDebordement, texte } from './outils.mjs';
+import { adresseNeuve, attendu, calme, chemin, COMPTES, connecter, contient, courrielPour, lienDuCourriel, lire, menu, sansDebordement, texte } from './outils.mjs';
 
 const champ = (page, libelle) => page.getByLabel(new RegExp(`^\\s*${libelle}(\\s*\\*)?\\s*$`));
 
@@ -156,7 +156,7 @@ export async function parcoursVisiteur({ page, etape, dossier }, etat) {
     await calme(page);
     const stockage = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }));
     attendu(!/eyJ|accessToken|refreshToken/.test(stockage), 'aucun jeton ne doit figurer dans le stockage du navigateur');
-    attendu((await texte(page)).includes(compte.prenom), 'le tableau de bord doit saluer le membre par son prénom');
+    attendu(await contient(page, compte.prenom), 'le tableau de bord doit saluer le membre par son prénom');
   });
 
   await etape('Profil : consultation, modification de la filière et de la présentation, valeurs relues sur le profil', async () => {

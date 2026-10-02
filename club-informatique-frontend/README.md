@@ -12,12 +12,17 @@ Node.js 24 (LTS) et npm 11.
 |---|---|
 | `npm ci` | installer les dépendances |
 | `npm start` | serveur de développement sur `http://localhost:4200` (tous les modules visibles, page `/__design` disponible) |
-| `npm run build` | construction de production dans `dist/` |
+| `npm run build` | construction de production dans `dist/` ; les pages publiques à adresse fixe y sont pré-rendues |
 | `npm test` | tests unitaires |
 | `npm run check` | gardes : aucun littéral numérique affiché, casse des fichiers |
 | `npm run assets:icons` | favicon, icônes, manifeste et image de partage à partir de `branding/logo.png` |
 | `npm run assets:sprite` | sprite d'icônes à partir de `scripts/icons.json` |
 | `npm run assets:fonts` | copie des polices locales et génération de `src/styles/fonts.css` |
+| `node e2e/recette-page.mjs <page>` | recette d'une page (captures, débordement, console, accessibilité) sur la pile locale ; `--base` désigne le frontend visé |
+| `node e2e/integration.mjs` | preuve d'intégration par module |
+| `node e2e/parcours.mjs` | parcours complets de chaque rôle sur base vierge et image de production |
+| `node e2e/lighthouse.mjs` | mesures Lighthouse des pages publiques sur l'image de production |
+| `docker build -t ci-ist-front .` | image de production (Nginx) |
 | `node e2e/recette-socle.mjs` | recette du socle (captures, débordement, console, accessibilité, styles) ; serveur de développement démarré |
 
 ## Organisation

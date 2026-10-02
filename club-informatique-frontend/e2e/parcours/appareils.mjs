@@ -1,7 +1,7 @@
 // Appareils (12.11) : reprise des parcours principaux à 360 et 768 pixels de large. Après chaque étape, la page ne doit
 // présenter aucun débordement horizontal ; la navigation passe par les menus repliés des petits écrans.
 import { BASE, MOT_DE_PASSE } from './pile.mjs';
-import { adresseNeuve, aller, attendu, calme, chemin, COMPTES, confirmer, connecter, courrielPour, dansJours, imageDEssai, lienDuCourriel, lire, menu, notification, sansDebordement, texte } from './outils.mjs';
+import { adresseNeuve, aller, attendu, calme, chemin, COMPTES, confirmer, connecter, contient, courrielPour, dansJours, imageDEssai, lienDuCourriel, lire, menu, notification, sansDebordement, texte } from './outils.mjs';
 import { ouvrirPagePublique } from './visiteur.mjs';
 
 const champ = (page, libelle) => page.getByLabel(new RegExp(`^\\s*${libelle}(\\s*\\*)?\\s*$`));
@@ -18,6 +18,7 @@ export async function parcoursAppareil({ page, etape: etapeBrute }, etat) {
 
   await etape('Visiteur : accueil, puis pages publiques par le menu de l’en-tête et le pied de page', async () => {
     await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+    await calme(page);
     await sansDebordement(page);
     for (const [libelle, route, zone] of [['Formations', '/formations', 'en-tête'], ['Événements', '/evenements', 'en-tête'], ['Actualités', '/actualites', 'en-tête'], ['Contact', '/contact', 'en-tête'], ['Bureau', '/bureau', 'pied de page'], ['Politique de confidentialité', '/confidentialite', 'pied de page']]) {
       await ouvrirPagePublique(page, libelle, zone);
@@ -29,11 +30,11 @@ export async function parcoursAppareil({ page, etape: etapeBrute }, etat) {
   await etape('Visiteur : détail d’une formation et d’une actualité', async () => {
     await page.goto(`${BASE}/formations/${etat.cours.slug}`, { waitUntil: 'networkidle' });
     await calme(page);
-    attendu((await texte(page)).includes(etat.cours.titre), 'la fiche de la formation doit s’afficher');
+    attendu(await contient(page, etat.cours.titre), 'la fiche de la formation doit s’afficher');
     await sansDebordement(page);
     await page.goto(`${BASE}/actualites/${etat.actualite.slug}`, { waitUntil: 'networkidle' });
     await calme(page);
-    attendu((await texte(page)).includes(etat.actualite.titre), 'l’article doit s’afficher');
+    attendu(await contient(page, etat.actualite.titre), 'l’article doit s’afficher');
   });
 
   await etape('Inscription, vérification de l’adresse par courriel, connexion', async () => {
@@ -64,7 +65,7 @@ export async function parcoursAppareil({ page, etape: etapeBrute }, etat) {
     await sansDebordement(page);
     await aller(page, '/espace/membre');
     await menu(page, 'Mes inscriptions');
-    attendu((await texte(page)).includes(etat.cours.titre), 'l’inscription doit être listée');
+    attendu(await contient(page, etat.cours.titre), 'l’inscription doit être listée');
   });
 
   await etape('Membre : notifications lues, profil modifié avec photo', async () => {
@@ -84,7 +85,7 @@ export async function parcoursAppareil({ page, etape: etapeBrute }, etat) {
     await page.getByRole('button', { name: 'Enregistrer les modifications' }).click();
     await page.waitForURL((url) => url.pathname === '/espace/profil');
     await calme(page);
-    attendu((await texte(page)).includes('membre du club depuis cette année'), 'le profil doit afficher la présentation enregistrée');
+    attendu(await contient(page, 'membre du club depuis cette année'), 'le profil doit afficher la présentation enregistrée');
   });
 
   await etape('Membre : paramètres, puis déconnexion par le menu de l’espace', async () => {
@@ -102,7 +103,7 @@ export async function parcoursAppareil({ page, etape: etapeBrute }, etat) {
     await menu(page, 'Mes cours');
     await sansDebordement(page);
     await aller(page, `/espace/formateur/cours/${etat.cours.id}`);
-    attendu((await texte(page)).includes(etat.cours.titre), 'le détail du cours doit s’afficher');
+    attendu(await contient(page, etat.cours.titre), 'le détail du cours doit s’afficher');
     await sansDebordement(page);
     await page.getByRole('link', { name: /^Émargement/ }).first().click();
     await calme(page);
@@ -143,6 +144,6 @@ export async function parcoursAppareil({ page, etape: etapeBrute }, etat) {
     await sansDebordement(page);
     await menu(page, 'Statistiques');
     const stats = await lire(COMPTES.admin, '/admin/statistiques');
-    attendu((await texte(page)).includes(String(stats.totalMembres)), 'les statistiques doivent afficher les totaux du serveur');
+    attendu(await contient(page, String(stats.totalMembres)), 'les statistiques doivent afficher les totaux du serveur');
   });
 }

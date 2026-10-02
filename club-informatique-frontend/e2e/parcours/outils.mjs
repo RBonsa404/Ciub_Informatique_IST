@@ -119,6 +119,8 @@ export async function connecter(page, email, motDePasse = MOT_DE_PASSE, attendu 
 /** Attend la fin des chargements visibles (zones en attente) et du réseau. */
 export async function calme(page) {
   await page.waitForTimeout(250);
+  // Une page pré-rendue n'est utilisable qu'une fois prise en main par l'application.
+  await page.waitForFunction(() => !document.querySelector('app-root[ngh]'), null, { timeout: 20000 });
   await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), null, { timeout: 20000 });
   await page.waitForLoadState('networkidle');
 }
@@ -166,6 +168,16 @@ export async function basculer(page, nom, voulu) {
 
 export const chemin = (page) => new URL(page.url()).pathname;
 export const texte = (page, selecteur = 'main') => page.locator(selecteur).first().innerText();
+
+/** Vrai si le contenu principal contient ce texte, attendu jusqu'à cinq secondes (le rendu suit la réponse du serveur). */
+export async function contient(page, attendu, selecteur = 'main') {
+  const limite = Date.now() + 5000;
+  do {
+    if ((await texte(page, selecteur)).includes(attendu)) return true;
+    await page.waitForTimeout(200);
+  } while (Date.now() < limite);
+  return false;
+}
 
 /** Vérifie une condition ; le message décrit ce qui était attendu. */
 export function attendu(condition, message) {

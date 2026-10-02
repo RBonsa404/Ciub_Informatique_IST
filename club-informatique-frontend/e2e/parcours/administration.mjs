@@ -3,7 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BASE, MOT_DE_PASSE, MOT_DE_PASSE_INITIAL, PREMIER_ADMIN, demarrerBackend, enBase } from './pile.mjs';
-import { adresseNeuve, aller, api, attendu, calme, chemin, COMPTES, confirmer, connecter, courrielPour, lienDuCourriel, lire, menu, notification, oublierJetons, texte } from './outils.mjs';
+import { adresseNeuve, aller, api, attendu, calme, chemin, COMPTES, confirmer, connecter, contient, courrielPour, lienDuCourriel, lire, menu, notification, oublierJetons, texte } from './outils.mjs';
 
 const champ = (page, libelle) => page.getByLabel(new RegExp(`^\\s*${libelle}(\\s*\\*)?\\s*$`));
 
@@ -27,7 +27,7 @@ export async function parcoursAdministrateur({ page, etape }, etat) {
     attendu((await page.locator('tbody tr').count()) === 1, 'la recherche par adresse doit renvoyer un seul compte');
     await page.getByRole('link', { name: /^Éditer/ }).click();
     await calme(page);
-    attendu((await texte(page)).includes(membre.email), 'la fiche doit afficher l’adresse du compte');
+    attendu(await contient(page, membre.email), 'la fiche doit afficher l’adresse du compte');
   });
 
   await etape('Compte : modification de la filière, attribution du rôle Formateur', async () => {
@@ -104,7 +104,7 @@ export async function parcoursAdministrateur({ page, etape }, etat) {
     await calme(page);
     await page.getByRole('button', { name: 'Traités' }).click();
     await calme(page);
-    attendu((await texte(page)).includes(etat.objetDuMessage), 'le message traité doit figurer sous le filtre « Traités »');
+    attendu(await contient(page, etat.objetDuMessage), 'le message traité doit figurer sous le filtre « Traités »');
   });
 
   await etape('Journal d’audit : les actions sensibles du parcours y figurent ; filtres par compte et par résultat', async () => {
@@ -241,7 +241,7 @@ export async function parcoursSuperAdmin({ page, etape }, etat) {
   await etape('Compte verrouillé : signalé parmi les alertes de sécurité, déverrouillé depuis sa fiche', async () => {
     await calme(page);
     await menu(page, 'Sécurité des comptes');
-    attendu((await texte(page)).includes(etat.invite.email), 'le compte verrouillé doit figurer parmi les alertes');
+    attendu(await contient(page, etat.invite.email), 'le compte verrouillé doit figurer parmi les alertes');
     const compte = (await lire(admin, `/admin/users?search=${encodeURIComponent(etat.invite.email)}`)).content[0];
     await aller(page, `/espace/admin/utilisateurs/${compte.id}`);
     await page.getByRole('button', { name: 'Déverrouiller' }).click();

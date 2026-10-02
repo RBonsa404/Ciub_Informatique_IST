@@ -8,7 +8,7 @@ import { chromium } from '@playwright/test';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { aller, connecter } from './pages/_outils.mjs';
+import { aller, connecter, priseEnMain } from './pages/_outils.mjs';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const args = process.argv.slice(2);
@@ -82,6 +82,7 @@ for (const id of ids.length ? ids : Object.keys(registry)) {
           if (page.url().startsWith(base)) await page.evaluate(() => localStorage.removeItem('ci_ist_session'));
           if (scenario.before) await scenario.before(page, { base, theme, width });
           await page.goto(base + path, { waitUntil: scenario.waitUntil ?? 'networkidle' });
+          await priseEnMain(page);
         }
         await page.evaluate(() => document.fonts.ready);
         if (scenario.run) await scenario.run(page, { base, theme, width });

@@ -1,7 +1,7 @@
 // Parcours du Responsable du Club (12.5) : événements, publications, composition du bureau, inscriptions et liste d'attente,
 // validation des projets, notification globale.
 import { join } from 'node:path';
-import { aller, api, attendu, basculer, calme, chemin, COMPTES, confirmer, connecter, dansJours, imageDEssai, lire, menu, notification, texte } from './outils.mjs';
+import { aller, api, attendu, basculer, calme, chemin, COMPTES, confirmer, connecter, contient, dansJours, imageDEssai, lire, menu, notification, texte } from './outils.mjs';
 
 export async function parcoursResponsable({ page, etape, dossier }, etat) {
   const suffixe = Date.now().toString(36);
@@ -35,7 +35,7 @@ export async function parcoursResponsable({ page, etape, dossier }, etat) {
     await saisirEvenement(evenement.titre, '1');
     attendu((await titresPublics('evenements')).includes(evenement.titre), 'l’événement publié doit figurer dans la liste publique');
     await aller(page, '/evenements');
-    attendu((await texte(page)).includes(evenement.titre), 'l’événement publié doit figurer à la page publique');
+    attendu(await contient(page, evenement.titre), 'l’événement publié doit figurer à la page publique');
     evenement.id = (await lire(COMPTES.responsable, '/gestion/evenements?size=50')).content.find((e) => e.titre === evenement.titre).id;
   });
 
@@ -75,7 +75,7 @@ export async function parcoursResponsable({ page, etape, dossier }, etat) {
     const image = await fetch(new URL(article.image, page.url()).href);
     attendu(image.status === 200 && (image.headers.get('content-type') ?? '').startsWith('image/png'), `l’image d’une actualité publique doit être servie à un visiteur : ${image.status}`);
     await aller(page, `/actualites/${article.slug}`);
-    attendu((await texte(page)).includes('Comment s’inscrire'), 'l’article public doit afficher son contenu');
+    attendu(await contient(page, 'Comment s’inscrire'), 'l’article public doit afficher son contenu');
     etat.actualite = { titre: publique, slug: article.slug };
   });
 
@@ -129,7 +129,7 @@ export async function parcoursResponsable({ page, etape, dossier }, etat) {
     const bureau = await lire(null, '/bureau');
     attendu(bureau.length >= 1 && bureau.some((m) => m.fonction === 'Trésorier adjoint') && !bureau.some((m) => m.fonction === 'Présidente'), 'la composition publique doit refléter les modifications');
     await aller(page, '/bureau');
-    attendu((await texte(page)).includes('Trésorier adjoint'), 'la page publique du bureau doit afficher la fonction modifiée');
+    attendu(await contient(page, 'Trésorier adjoint'), 'la page publique du bureau doit afficher la fonction modifiée');
     attendu((await page.locator('main img').count()) === 0, 'aucune photo ne doit figurer sur les cartes du bureau');
   });
 
@@ -173,7 +173,8 @@ export async function parcoursResponsable({ page, etape, dossier }, etat) {
 
     await aller(page, `/espace/gestion/projets/${ecarte.id}`);
     await page.getByRole('button', { name: 'Rejeter' }).click();
-    attendu((await texte(page)).includes('Indiquez le motif du rejet.'), 'un rejet sans motif doit être refusé');
+    await page.getByText('Indiquez le motif du rejet.').waitFor({ timeout: 5000 }).catch(() => {});
+    attendu(await contient(page, 'Indiquez le motif du rejet.'), 'un rejet sans motif doit être refusé');
     await page.getByLabel(/Motif du rejet/).fill('Sujet déjà traité par un autre projet du club.');
     await page.getByRole('button', { name: 'Rejeter' }).click();
     await confirmer(page, 'Rejeter');

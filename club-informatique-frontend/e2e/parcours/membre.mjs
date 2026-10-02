@@ -2,7 +2,7 @@
 // inscriptions, supports, notifications, photo de profil, proposition de projet, données personnelles, écrans des autres rôles refusés.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { aller, api, attendu, calme, chemin, confirmer, connecter, imageDEssai, lire, menu, notification, PDF, texte } from './outils.mjs';
+import { aller, api, attendu, calme, chemin, confirmer, connecter, contient, imageDEssai, lire, menu, notification, PDF, texte } from './outils.mjs';
 
 const ECRANS_DES_AUTRES_ROLES = ['/espace/formateur', '/espace/formateur/cours', '/espace/gestion', '/espace/gestion/evenements', '/espace/admin', '/espace/admin/utilisateurs', '/espace/admin/messages', '/espace/systeme', '/espace/dsi'];
 
@@ -18,15 +18,15 @@ export async function parcoursMembre({ page, etape, dossier }, etat) {
 
   await etape('Consultation des formations, des événements et des publications réservées aux membres', async () => {
     await aller(page, '/formations');
-    attendu((await texte(page)).includes(etat.cours.titre), 'la formation publiée par le formateur doit être listée');
+    attendu(await contient(page, etat.cours.titre), 'la formation publiée par le formateur doit être listée');
     await aller(page, '/evenements');
-    attendu((await texte(page)).includes(etat.evenement.titre), 'l’événement publié par le responsable doit être listé');
+    attendu(await contient(page, etat.evenement.titre), 'l’événement publié par le responsable doit être listé');
     await aller(page, '/espace/membre');
     await menu(page, 'Publications');
-    attendu((await texte(page)).includes(etat.publication), 'l’annonce réservée aux membres doit être listée');
+    attendu(await contient(page, etat.publication), 'l’annonce réservée aux membres doit être listée');
     await page.getByRole('link', { name: etat.publication }).first().click();
     await calme(page);
-    attendu((await texte(page)).includes('mercredi après-midi'), 'le détail de l’annonce doit afficher son contenu');
+    attendu(await contient(page, 'mercredi après-midi'), 'le détail de l’annonce doit afficher son contenu');
   });
 
   await etape('Inscription à une séance de formation : confirmée', async () => {
@@ -80,7 +80,7 @@ export async function parcoursMembre({ page, etape, dossier }, etat) {
     attendu((await page.getByRole('link', { name: new RegExp(`Notifications, ${avant} non lues?`) }).count()) === 1, 'la cloche doit annoncer le nombre réel de notifications non lues');
     await page.getByRole('link', { name: /^Notifications, / }).click();
     await calme(page);
-    attendu((await texte(page)).includes(etat.annonce), 'l’annonce globale du responsable doit figurer dans les notifications');
+    attendu(await contient(page, etat.annonce), 'l’annonce globale du responsable doit figurer dans les notifications');
     await page.getByRole('button', { name: /^Marquer comme lue/ }).first().click();
     await calme(page);
     attendu((await nonLues()) === avant - 1, 'une seule notification doit passer à « lue »');
@@ -122,7 +122,7 @@ export async function parcoursMembre({ page, etape, dossier }, etat) {
     await notification(page, 'Votre proposition est transmise au bureau du club.');
     await page.waitForURL((url) => url.pathname === '/espace/projets');
     await calme(page);
-    attendu((await texte(page)).includes(projet), 'la proposition doit figurer dans « Mes projets »');
+    attendu(await contient(page, projet), 'la proposition doit figurer dans « Mes projets »');
     attendu((await lire(compte, '/projets/mes-projets?size=50')).content.find((p) => p.titre === projet)?.statut === 'PROPOSE', 'la proposition doit être en attente');
     attendu(!(await lire(null, '/projets?size=50')).content.some((p) => p.titre === projet), 'une proposition non validée ne doit pas être publique');
   });

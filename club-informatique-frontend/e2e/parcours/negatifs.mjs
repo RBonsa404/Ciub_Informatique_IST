@@ -1,7 +1,7 @@
 // Cas négatifs (12.9) : page protégée sans session, mauvais rôle, jeton expiré, rotation du jeton de rafraîchissement,
 // champs invalides, doublons, limitation de débit, téléversement refusé, coupure du backend.
 import { API, BACKEND, BASE, MOT_DE_PASSE, arreterBackend, demarrerBackend, enBase } from './pile.mjs';
-import { COMPTES, EXECUTABLE, PDF, aller, api, attendu, calme, chemin, connecter, courrielPour, jeton, lire, oublierJetons, sansSession, texte } from './outils.mjs';
+import { aller, api, attendu, calme, chemin, COMPTES, connecter, contient, courrielPour, EXECUTABLE, jeton, lire, oublierJetons, PDF, sansSession, texte } from './outils.mjs';
 
 const champ = (page, libelle) => page.getByLabel(new RegExp(`^\\s*${libelle}(\\s*\\*)?\\s*$`));
 const json = (corps) => ({ method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(corps) });
@@ -136,7 +136,7 @@ export async function parcoursNegatifs({ page, contexte, etape }, etat) {
     page.on('response', compter);
     await page.waitForTimeout(5000);
     await aller(page, '/espace/profil');
-    attendu((await texte(page)).includes(COMPTES.membre), 'après l’expiration du jeton, la page doit se charger normalement');
+    attendu(await contient(page, COMPTES.membre), 'après l’expiration du jeton, la page doit se charger normalement');
     page.off('response', compter);
     attendu(renouvellements >= 1, 'le jeton expiré doit avoir été renouvelé par le cookie de session');
     // Le cookie de session disparaît (expiration) : le navigateur garde seulement le souvenir d'une session passée.
@@ -196,6 +196,6 @@ export async function parcoursNegatifs({ page, contexte, etape }, etat) {
     oublierJetons();
     await page.getByRole('button', { name: /Réessayer/ }).first().click();
     await calme(page);
-    attendu((await texte(page)).includes(etat.cours.titre), 'au retour du service, « Réessayer » doit afficher les formations');
+    attendu(await contient(page, etat.cours.titre), 'au retour du service, « Réessayer » doit afficher les formations');
   }, { erreursAttendues: ['502', '503', '504', 'Failed to load resource', 'ERR_'] });
 }

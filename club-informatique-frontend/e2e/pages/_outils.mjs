@@ -32,6 +32,9 @@ export async function premier(liste, tri = '') {
   return data.content[0];
 }
 
+/** Attend qu'une page pré-rendue soit prise en main par l'application (sans effet sur une page rendue par le navigateur). */
+export const priseEnMain = (page) => page.waitForFunction(() => !document.querySelector('app-root[ngh]'), null, { timeout: 20000 });
+
 /** Ouvre une session par le formulaire de connexion réel. */
 export async function connecter(page, base, role) {
   // La session survit au rechargement (cookie HttpOnly) : sans ce retrait, la page de connexion renverrait vers l'espace.
