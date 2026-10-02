@@ -1,13 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ToastContainer } from './shared/components/toast/toast';
+import { ToastContainer } from './shared/ui/toast/toast-container';
 
 @Component({
-  imports: [RouterOutlet, ToastContainer],
   selector: 'app-root',
-  styleUrl: './app.css',
-  templateUrl: './app.html',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  imports: [RouterOutlet, ToastContainer],
+  template: `
+    <router-outlet />
+    <app-toast-container />
+  `,
 })
-export class App {
-  protected readonly title = signal('club-informatique-frontend');
-}
+export class App {}

@@ -62,4 +62,8 @@ public class Inscription extends BaseEntity {
 
     @Column(name = "motif_annulation", length = 500)
     private String motifAnnulation;
+
+    /** Date du rappel envoyé avant l'activité ; vide tant qu'aucun rappel n'est parti. */
+    @Column(name = "rappel_envoye_le")
+    private LocalDateTime rappelEnvoyeLe;
 }

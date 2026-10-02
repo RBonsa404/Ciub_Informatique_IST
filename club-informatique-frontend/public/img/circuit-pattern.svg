@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="160" viewBox="0 0 160 160">
+  <defs>
+    <style>
+      .trace { fill: none; stroke: #000; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+      .node { fill: #000; }
+      .node-ring { fill: none; stroke: #000; stroke-width: 1.2; }
+    </style>
+  </defs>
+  <path class="trace" d="M 0,20 L 40,20 L 60,40 L 100,40 L 120,20 L 160,20" />
+  <path class="trace" d="M 40,80 L 70,80 L 90,100 L 130,100 L 150,120 L 160,120" />
+  <path class="trace" d="M 20,160 L 20,130 L 40,110 L 40,80" />
+  <path class="trace" d="M 100,40 L 100,70 L 120,90 L 120,140 L 140,160" />
+  <path class="trace" d="M 0,100 L 30,100 L 50,120 L 90,120 L 100,130 L 100,160" />
+  <path class="trace" d="M 80,0 L 80,30 L 70,40 L 70,60" />
+  <path class="trace" d="M 140,0 L 140,40 L 120,60 L 120,80" />
+  
+  <circle class="node" cx="40" cy="20" r="2.5" />
+  <circle class="node-ring" cx="60" cy="40" r="4.5" />
+  <circle class="node" cx="100" cy="40" r="2.5" />
+  <circle class="node" cx="70" cy="80" r="2.5" />
+  <circle class="node-ring" cx="90" cy="100" r="4.5" />
+  <circle class="node" cx="130" cy="100" r="2.5" />
+  <circle class="node" cx="40" cy="110" r="2.5" />
+  <circle class="node-ring" cx="120" cy="90" r="4.5" />
+  <circle class="node" cx="50" cy="120" r="2.5" />
+  <circle class="node" cx="120" cy="60" r="2.5" />
+</svg>

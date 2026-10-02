@@ -23,6 +23,8 @@ public class UserDetailsImpl implements UserDetails {
     private final String password;
     private final StatutUtilisateur statut;
     private final boolean accountNonLocked;
+    private final int versionSession;
+    private final boolean changementMotDePasseRequis;
     private final Collection<? extends GrantedAuthority> authorities;
 
     public UserDetailsImpl(Utilisateur utilisateur) {
@@ -30,6 +32,8 @@ public class UserDetailsImpl implements UserDetails {
         this.email = utilisateur.getEmail();
         this.password = utilisateur.getMotDePasse();
         this.statut = utilisateur.getStatut();
+        this.versionSession = utilisateur.getVersionSession() == null ? 0 : utilisateur.getVersionSession();
+        this.changementMotDePasseRequis = Boolean.TRUE.equals(utilisateur.getChangementMotDePasseRequis());
         this.accountNonLocked = !utilisateur.estVerrouille() && utilisateur.getStatut() != StatutUtilisateur.SUSPENDU;
 
         Set<GrantedAuthority> auths = new HashSet<>();

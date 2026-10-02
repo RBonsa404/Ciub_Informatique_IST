@@ -11,7 +11,7 @@ dockerfilePath = "Dockerfile"
 
 [deploy]
 # Health check for Railway (liveness probe doesn't fail if DB is connecting)
-healthcheckPath = "/api/actuator/health/liveness"
+healthcheckPath = "/api/v1/actuator/health/liveness"
 healthcheckTimeout = 180
 
 # Restart policy

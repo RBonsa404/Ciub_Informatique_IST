@@ -1,0 +1,9 @@
+Cas d'essai de la garde (voir scripts/check-no-hardcoded-stats.mjs --self-test).
+Gabarit fautif : trois littéraux numériques affichés, une interpolation correcte.
+
+<p>Plus de 150 membres</p>
+<p>{{ total() }} inscrits</p>
+<span>98 %</span>
+<strong>12+</strong>
+@if (items().length > 0) { <em>liste</em> }
+<a [attr.aria-label]="'Page ' + (page() + 1)">suivante</a>

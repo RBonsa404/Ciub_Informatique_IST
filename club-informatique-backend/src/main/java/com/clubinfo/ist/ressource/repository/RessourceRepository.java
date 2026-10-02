@@ -26,8 +26,8 @@ public interface RessourceRepository extends JpaRepository<Ressource, Long> {
     @Query("SELECT r FROM Ressource r WHERE r.deletedAt IS NULL AND r.estPublique = true " +
            "AND (:categorieId IS NULL OR r.categorie.id = :categorieId) " +
            "AND (:type IS NULL OR r.type = :type) " +
-           "AND (:search IS NULL OR LOWER(r.titre) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(r.description) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (CAST(:search AS string) IS NULL OR LOWER(r.titre) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(r.description) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))")
     Page<Ressource> findPublicWithFilters(
             @Param("categorieId") Long categorieId,
             @Param("type") TypeRessource type,

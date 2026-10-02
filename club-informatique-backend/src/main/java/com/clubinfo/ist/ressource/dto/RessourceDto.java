@@ -24,7 +24,6 @@ public class RessourceDto {
     private String formationTitre;
     private Long categorieId;
     private String categorieNom;
-    private Long auteurId;
     private String auteurNom;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

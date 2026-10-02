@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Entité représentant une formation ou atelier technique (Web, IA, Cyber, Réseau).
+ * Entité représentant une formation ou atelier technique (développement, données, sécurité, réseau).
  */
 @Entity
 @Table(name = "formation", indexes = {

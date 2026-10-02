@@ -1,0 +1,165 @@
+/* Jetons de design : valeurs reprises de la maquette (assets/css/tokens.css), déclarées une seule fois. */
+
+@theme {
+  /* Palette de la charte */
+  --color-blue-royal: #1d4ed8;
+  --color-blue-royal-hover: #1e40af;
+  --color-amber-tech: #fbbf24;
+  --color-amber-hover: #f59e0b;
+  --color-white: #ffffff;
+  --color-blue-night: #0b1e3f;
+  --color-cyan-circuit: #38bdf8;
+  --color-cyan-glow: rgba(56, 189, 248, 0.4);
+  --color-slate-gray: #64748b;
+  --color-night-ink: #0f172a;
+
+  /* Statuts sémantiques */
+  --color-success: #10b981;
+  --color-success-bg: rgba(16, 185, 129, 0.15);
+  --color-warning: #f59e0b;
+  --color-warning-bg: rgba(245, 158, 11, 0.15);
+  --color-danger: #ef4444;
+  --color-danger-bg: rgba(239, 68, 68, 0.15);
+  --color-info: #0ea5e9;
+  --color-info-bg: rgba(14, 165, 233, 0.15);
+
+  /* Typographies */
+  --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Rayons */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Points de rupture : mobile, tablette, bureau (maquette : 768 et 1024) */
+  --breakpoint-sm: 600px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1440px;
+}
+
+/* Alias par rôle, branchés sur les variables de thème ci-dessous. */
+@theme inline {
+  --color-app: var(--bg-app);
+  --color-canvas: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-surface-elevated);
+  --color-surface-hover: var(--bg-surface-hover);
+  --color-glass: var(--glass-bg);
+  --color-glass-subtle: var(--glass-bg-subtle);
+  --color-fg: var(--text-primary);
+  --color-fg-secondary: var(--text-secondary);
+  --color-fg-muted: var(--text-muted);
+  --color-fg-inverted: var(--text-inverted);
+  --color-line: var(--border-subtle);
+  --color-line-strong: var(--border-strong);
+  --color-line-glass: var(--glass-border);
+  --color-accent: var(--accent-primary);
+  --color-accent-glow: var(--accent-glow);
+  --color-accent-amber: var(--accent-amber);
+}
+
+:root {
+  --transition-fast: 0.15s ease-in-out;
+  --transition-normal: 0.25s ease-in-out;
+  --transition-slow: 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  --header-height: 70px;
+  --sidebar-width: 270px;
+}
+
+/* Thème sombre (valeur par défaut en l'absence d'attribut, comme dans la maquette) */
+[data-theme='dark'],
+:root:not([data-theme='light']) {
+  color-scheme: dark;
+
+  --bg-app: #070d1e;
+  --bg-canvas: #0b1e3f;
+  --bg-surface: #0f172a;
+  --bg-surface-elevated: #162447;
+  --bg-surface-hover: #1e293b;
+
+  --glass-bg: rgba(15, 23, 42, 0.78);
+  --glass-bg-subtle: rgba(11, 30, 63, 0.55);
+  --glass-bg-opaque: #0f172a;
+  --glass-border: rgba(56, 189, 248, 0.18);
+  --glass-border-subtle: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 12px 36px 0 rgba(0, 0, 0, 0.45);
+  --glass-glow: 0 0 20px rgba(56, 189, 248, 0.2);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --text-inverted: #0f172a;
+
+  --border-subtle: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(56, 189, 248, 0.3);
+
+  --accent-primary: var(--color-blue-royal);
+  --accent-primary-text: #ffffff;
+  --accent-glow: var(--color-cyan-circuit);
+  --accent-amber: var(--color-amber-tech);
+  --accent-active: var(--color-cyan-circuit);
+  --badge-bg: rgba(29, 78, 216, 0.2);
+  --badge-border: rgba(56, 189, 248, 0.3);
+  --badge-amber-text: #fbbf24;
+  --badge-success-text: #10b981;
+  --badge-danger-text: #fca5a5;
+  --badge-neutral-text: #94a3b8;
+  --accent-amber-text: #fbbf24;
+  --focus-ring: rgba(56, 189, 248, 0.25);
+  --focus-outline: #38bdf8;
+
+  --circuit-opacity: 0.12;
+  --circuit-stroke: #38bdf8;
+}
+
+/* Thème clair */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg-app: #f8fafc;
+  --bg-canvas: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #f8fafc;
+  --bg-surface-hover: #e2e8f0;
+
+  --glass-bg: rgba(255, 255, 255, 0.88);
+  --glass-bg-subtle: rgba(248, 250, 252, 0.7);
+  --glass-bg-opaque: #ffffff;
+  --glass-border: rgba(29, 78, 216, 0.15);
+  --glass-border-subtle: rgba(226, 232, 240, 0.8);
+  --glass-shadow: 0 8px 30px rgba(15, 23, 42, 0.08);
+  --glass-glow: 0 0 15px rgba(29, 78, 216, 0.12);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #566378;
+  --text-inverted: #ffffff;
+
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --accent-primary: var(--color-blue-royal);
+  --accent-primary-text: #ffffff;
+  --accent-glow: #0369a1;
+  --accent-amber: #b45309;
+  --accent-active: var(--color-blue-royal);
+  --badge-bg: #eff6ff;
+  --badge-border: #bfdbfe;
+  --badge-amber-text: #92400e;
+  --badge-success-text: #065f46;
+  --badge-danger-text: #991b1b;
+  --badge-neutral-text: #475569;
+  --accent-amber-text: #92400e;
+  --focus-ring: rgba(29, 78, 216, 0.25);
+  --focus-outline: #1d4ed8;
+
+  --circuit-opacity: 0.05;
+  --circuit-stroke: #1d4ed8;
+}

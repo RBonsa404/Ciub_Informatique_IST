@@ -1,13 +1,13 @@
-# ===================================================================
-# Railway Configuration — Frontend Angular
-# ===================================================================
+# Déploiement du frontend sur Railway : image construite par le Dockerfile de ce dossier (Angular, puis Nginx).
+# Variable à définir sur le service : API_URL, adresse interne du backend (exemple : http://club-backend.railway.internal:8080).
+
 [build]
 builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-healthcheckPath = "/"
+# Sonde servie par Nginx, indépendante du backend.
+healthcheckPath = "/sante"
 healthcheckTimeout = 60
-
 restartPolicyType = "ON_FAILURE"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 5

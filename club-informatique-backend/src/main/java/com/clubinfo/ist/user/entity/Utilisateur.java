@@ -91,12 +91,31 @@ public class Utilisateur extends BaseEntity {
     @Column(name = "verrouille_jusqua")
     private LocalDateTime verrouilleJusqua;
 
-    @Column(name = "totp_secret")
-    private String totpSecret;
+    @Column(name = "email_verifie_le")
+    private LocalDateTime emailVerifieLe;
 
-    @Column(name = "totp_active")
+    /** Date du consentement donné à l'inscription. */
+    @Column(name = "consentement_le")
+    private LocalDateTime consentementLe;
+
+    @Column(name = "notifications_courriel", nullable = false)
     @Builder.Default
-    private Boolean totpActive = false;
+    private Boolean notificationsCourriel = true;
+
+    /** Portée par chaque jeton d'accès ; l'augmenter invalide tous les jetons déjà émis pour le compte. */
+    @Column(name = "version_session", nullable = false)
+    @Builder.Default
+    private Integer versionSession = 0;
+
+    /** Compte de test : exclu des statistiques, annuaires et exports, retirable en une opération. */
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean test = false;
+
+    /** Le mot de passe a été attribué par un tiers : il doit être changé avant tout autre usage. */
+    @Column(name = "changement_mot_de_passe_requis", nullable = false)
+    @Builder.Default
+    private Boolean changementMotDePasseRequis = false;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -127,12 +146,5 @@ public class Utilisateur extends BaseEntity {
      */
     public boolean estVerrouille() {
         return this.verrouilleJusqua != null && LocalDateTime.now().isBefore(this.verrouilleJusqua);
-    }
-
-    /**
-     * Vérifie si la 2FA est activée pour cet utilisateur.
-     */
-    public boolean est2faActive() {
-        return Boolean.TRUE.equals(this.totpActive) && this.totpSecret != null;
     }
 }

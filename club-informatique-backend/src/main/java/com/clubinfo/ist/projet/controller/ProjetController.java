@@ -1,10 +1,12 @@
 package com.clubinfo.ist.projet.controller;
 
-import com.clubinfo.ist.projet.dto.ProjetCreateDto;
-import com.clubinfo.ist.projet.dto.ProjetDto;
-import com.clubinfo.ist.projet.dto.ProjetMembreDto;
-import com.clubinfo.ist.projet.dto.ProjetSuiviDto;
-import com.clubinfo.ist.projet.dto.ProjetValidationDto;
+import com.clubinfo.ist.common.security.UserDetailsImpl;
+import com.clubinfo.ist.projet.dto.ProjetDtos.CompteursProjets;
+import com.clubinfo.ist.projet.dto.ProjetDtos.DecisionProjet;
+import com.clubinfo.ist.projet.dto.ProjetDtos.ProjetDto;
+import com.clubinfo.ist.projet.dto.ProjetDtos.ProjetSaisie;
+import com.clubinfo.ist.projet.dto.ProjetDtos.SuiviProjet;
+import com.clubinfo.ist.projet.entity.StatutProjet;
 import com.clubinfo.ist.projet.service.ProjetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -18,123 +20,110 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
-@RequestMapping("/projets")
 @RequiredArgsConstructor
-@Tag(name = "Projets Collaboratifs", description = "Endpoints de proposition, validation, collaboration et suivi de projets étudiants (UC-02, UC-11, UC-17, UC-20)")
+@Tag(name = "Projets", description = "Projets validés, propositions des membres, décision du Responsable et suivi des formateurs")
 public class ProjetController {
 
-    private final ProjetService projetService;
+    private static final String MEMBRE = "hasRole('MEMBRE')";
+    private static final String FORMATEUR = "hasRole('FORMATEUR')";
+    private static final String GESTION = "hasRole('RESPONSABLE_CLUB')";
 
-    @GetMapping
-    @Operation(summary = "Lister les projets validés et en cours (public) (UC-02)")
-    public ResponseEntity<Page<ProjetDto>> getPublishedProjets(
-            @RequestParam(required = false) Long categorieId,
-            @RequestParam(required = false) String search,
-            @PageableDefault(size = 10) Pageable pageable) {
-        Page<ProjetDto> projets = projetService.getPublishedProjets(categorieId, search, pageable);
-        return ResponseEntity.ok(projets);
+    private final ProjetService projets;
+
+    // ---- Lecture publique
+
+    @GetMapping("/projets")
+    @Operation(summary = "Projets validés, en cours ou terminés")
+    public Page<ProjetDto> publies(@RequestParam(required = false) Long categorieId, @RequestParam(required = false) String search,
+                                   @PageableDefault(size = 10) Pageable pageable) {
+        return projets.publies(categorieId, search, pageable);
     }
 
-    @GetMapping("/admin/all")
-    @PreAuthorize("hasAnyRole('RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/projets/slug/{slug}")
+    @Operation(summary = "Projet validé")
+    public ProjetDto publie(@PathVariable String slug) {
+        return projets.publie(slug);
+    }
+
+    // ---- Membre
+
+    @PostMapping("/projets")
+    @PreAuthorize(MEMBRE)
     @SecurityRequirement(name = "BearerAuth")
-    @Operation(summary = "Lister tous les projets sans distinction de statut pour admin (UC-20)")
-    public ResponseEntity<Page<ProjetDto>> getAllForAdmin(@PageableDefault(size = 10) Pageable pageable) {
-        Page<ProjetDto> projets = projetService.getAllProjetsForAdmin(pageable);
-        return ResponseEntity.ok(projets);
+    @Operation(summary = "Proposer un projet (statut « proposé »)")
+    public ResponseEntity<ProjetDto> proposer(@AuthenticationPrincipal UserDetailsImpl membre, @Valid @RequestBody ProjetSaisie saisie) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(projets.proposer(membre.getId(), saisie));
     }
 
-    @GetMapping("/en-attente")
-    @PreAuthorize("hasAnyRole('RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/projets/mes-projets")
+    @PreAuthorize(MEMBRE)
     @SecurityRequirement(name = "BearerAuth")
-    @Operation(summary = "Lister les propositions de projets en attente de validation (UC-20)")
-    public ResponseEntity<List<ProjetDto>> getProjetsEnAttente() {
-        return ResponseEntity.ok(projetService.getProjetsEnAttente());
+    @Operation(summary = "Projets proposés par l'utilisateur, tous statuts")
+    public Page<ProjetDto> mesProjets(@AuthenticationPrincipal UserDetailsImpl membre, @RequestParam(required = false) StatutProjet statut,
+                                      @RequestParam(required = false) Long categorieId, @PageableDefault(size = 10) Pageable pageable) {
+        return projets.duPorteur(membre.getId(), statut, categorieId, pageable);
     }
 
-    @GetMapping("/{id}")
-    @Operation(summary = "Consulter le détail d'un projet par son ID (public) (UC-02)")
-    public ResponseEntity<ProjetDto> getProjetById(@PathVariable Long id) {
-        return ResponseEntity.ok(projetService.getProjetById(id));
-    }
-
-    @GetMapping("/slug/{slug}")
-    @Operation(summary = "Consulter le détail d'un projet par son slug (public) (UC-02)")
-    public ResponseEntity<ProjetDto> getProjetBySlug(@PathVariable String slug) {
-        return ResponseEntity.ok(projetService.getProjetBySlug(slug));
-    }
-
-    @PostMapping
-    @PreAuthorize("hasAnyRole('MEMBRE', 'FORMATEUR', 'RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/projets/{id}")
+    @PreAuthorize("isAuthenticated()")
     @SecurityRequirement(name = "BearerAuth")
-    @Operation(summary = "Soumettre une proposition de projet étudiant (UC-11)")
-    public ResponseEntity<ProjetDto> proposerProjet(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @Valid @RequestBody ProjetCreateDto dto) {
-        ProjetDto created = projetService.proposerProjet(userDetails.getUsername(), dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    @Operation(summary = "Projet par identifiant ; un projet non publié est réservé à son porteur, aux formateurs et à la gestion")
+    public ProjetDto lire(@PathVariable Long id, @AuthenticationPrincipal UserDetailsImpl lecteur) {
+        return projets.lire(id, lecteur);
     }
 
-    @PutMapping("/{id}/validation")
-    @PreAuthorize("hasAnyRole('RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
+    // ---- Formateur
+
+    @PutMapping("/projets/{id}/suivi")
+    @PreAuthorize(FORMATEUR)
     @SecurityRequirement(name = "BearerAuth")
-    @Operation(summary = "Valider ou rejeter une proposition de projet (UC-20)")
-    public ResponseEntity<ProjetDto> validerProjet(
-            @PathVariable Long id,
-            @Valid @RequestBody ProjetValidationDto dto) {
-        ProjetDto validated = projetService.validerProjet(id, dto);
-        return ResponseEntity.ok(validated);
+    @Operation(summary = "Enregistrer le suivi d'un formateur (note et avancement)")
+    public ProjetDto suivre(@PathVariable Long id, @Valid @RequestBody SuiviProjet suivi) {
+        return projets.suivre(id, suivi);
     }
 
-    @PostMapping("/{id}/membres")
-    @PreAuthorize("hasAnyRole('MEMBRE', 'FORMATEUR', 'RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
+    // ---- Gestion
+
+    @GetMapping("/projets/en-attente")
+    @PreAuthorize(GESTION)
     @SecurityRequirement(name = "BearerAuth")
-    @Operation(summary = "Rejoindre l'équipe d'un projet validé (UC-11 / extension CDC)")
-    public ResponseEntity<ProjetMembreDto> rejoindreProjet(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long id) {
-        ProjetMembreDto joined = projetService.rejoindreProjet(userDetails.getUsername(), id);
-        return ResponseEntity.status(HttpStatus.CREATED).body(joined);
+    @Operation(summary = "Propositions en attente de décision")
+    public List<ProjetDto> enAttente() {
+        return projets.enAttente();
     }
 
-    @GetMapping("/{id}/membres")
-    @Operation(summary = "Lister les membres participant à un projet (UC-17)")
-    public ResponseEntity<List<ProjetMembreDto>> getMembres(@PathVariable Long id) {
-        return ResponseEntity.ok(projetService.getMembres(id));
-    }
-
-    @PutMapping("/{id}/suivi")
-    @PreAuthorize("hasAnyRole('FORMATEUR', 'RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/gestion/projets")
+    @PreAuthorize(GESTION)
     @SecurityRequirement(name = "BearerAuth")
-    @Operation(summary = "Mettre à jour le suivi pédagogique et l'avancement d'un projet (UC-17)")
-    public ResponseEntity<ProjetDto> updateSuiviFormateur(
-            @PathVariable Long id,
-            @Valid @RequestBody ProjetSuiviDto dto) {
-        ProjetDto updated = projetService.updateSuiviFormateur(id, dto);
-        return ResponseEntity.ok(updated);
+    @Operation(summary = "Tous les projets, tous statuts")
+    public Page<ProjetDto> geres(@RequestParam(required = false) StatutProjet statut, @PageableDefault(size = 10) Pageable pageable) {
+        return projets.geres(statut, pageable);
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyRole('RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
+    @GetMapping("/gestion/projets/compteurs")
+    @PreAuthorize(GESTION)
     @SecurityRequirement(name = "BearerAuth")
-    @Operation(summary = "Supprimer logiquement un projet (UC-20)")
-    public ResponseEntity<Map<String, String>> deleteProjet(@PathVariable Long id) {
-        projetService.deleteProjet(id);
-        return ResponseEntity.ok(Map.of("message", "Projet supprimé avec succès"));
+    @Operation(summary = "Décompte des projets par décision")
+    public CompteursProjets compteurs() {
+        return projets.compteurs();
+    }
+
+    @PutMapping("/projets/{id}/validation")
+    @PreAuthorize(GESTION)
+    @SecurityRequirement(name = "BearerAuth")
+    @Operation(summary = "Approuver ou rejeter une proposition ; notifie le porteur")
+    public ProjetDto decider(@PathVariable Long id, @Valid @RequestBody DecisionProjet decision) {
+        return projets.decider(id, decision);
     }
 }

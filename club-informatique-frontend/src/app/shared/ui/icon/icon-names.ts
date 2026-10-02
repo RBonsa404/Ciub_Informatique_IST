@@ -1,0 +1,5 @@
+// Fichier généré par scripts/generate-icon-sprite.mjs. Ne pas modifier à la main.
+export const ICON_NAMES = ["activity","alert-circle","alert-triangle","archive","arrow-left","arrow-right","award","bar-chart-2","bell","book","book-open","briefcase","calendar","check","check-circle","check-square","chevron-down","chevron-left","chevron-right","chevron-up","clipboard","clock","code","copy","database","download","edit","edit-2","external-link","eye","eye-off","file","file-text","filter","folder","graduation-cap","grid","home","image","inbox","info","key","layers","lock","log-in","log-out","mail","map-pin","menu","message-circle","message-square","minus","monitor","moon","more-horizontal","newspaper","paperclip","phone","plus","plus-circle","refresh-cw","rss","save","search","send","server","settings","shield","sliders","star","sun","tag","target","tool","trash-2","unlock","upload","user","user-check","user-plus","user-x","users","volume-2","x","x-circle","zap"] as const;
+export type IconName = (typeof ICON_NAMES)[number];
+export const BRAND_NAMES = ["facebook","linkedin","tiktok","whatsapp"] as const;
+export type BrandName = (typeof BRAND_NAMES)[number];

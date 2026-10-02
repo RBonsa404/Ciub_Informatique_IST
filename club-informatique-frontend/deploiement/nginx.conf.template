@@ -1,0 +1,90 @@
+# Service du frontend construit. ${PORT}, ${API_URL} et ${NGINX_LOCAL_RESOLVERS} sont remplacés au démarrage du conteneur ;
+# les variables propres à Nginx ($uri, $host…) sont laissées telles quelles.
+
+# Schéma vu par le visiteur : celui que transmet le proxy de l'hébergeur, à défaut celui de la connexion directe.
+map $http_x_forwarded_proto $schema_public {
+    default $http_x_forwarded_proto;
+    ""      $scheme;
+}
+
+server {
+    listen ${PORT};
+    listen [::]:${PORT};
+    server_name _;
+    server_tokens off;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Le dépôt de fichier est limité à 10 Mo par le backend ; la marge couvre l'enveloppe de la requête.
+    client_max_body_size 11m;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/javascript application/json application/manifest+json image/svg+xml text/calendar;
+
+    # Sonde de l'hébergeur : ne dépend pas du backend.
+    location = /sante {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # Consignes aux robots et plan du site : routes publiques seulement, adresses construites sur l'hôte demandé
+    # (aucun nom de domaine n'est écrit dans l'application).
+    location = /robots.txt {
+        default_type text/plain;
+        return 200 "User-agent: *\nAllow: /\nDisallow: /espace/\nDisallow: /api/\nDisallow: /connexion\nDisallow: /inscription\nSitemap: $schema_public://$http_host/sitemap.xml\n";
+    }
+    location = /sitemap.xml {
+        default_type application/xml;
+        return 200 '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>$schema_public://$http_host/</loc></url>\n<url><loc>$schema_public://$http_host/presentation</loc></url>\n<url><loc>$schema_public://$http_host/bureau</loc></url>\n<url><loc>$schema_public://$http_host/actualites</loc></url>\n<url><loc>$schema_public://$http_host/evenements</loc></url>\n<url><loc>$schema_public://$http_host/formations</loc></url>\n<url><loc>$schema_public://$http_host/projets</loc></url>\n<url><loc>$schema_public://$http_host/ressources</loc></url>\n<url><loc>$schema_public://$http_host/contact</loc></url>\n<url><loc>$schema_public://$http_host/mentions-legales</loc></url>\n<url><loc>$schema_public://$http_host/confidentialite</loc></url>\n<url><loc>$schema_public://$http_host/conditions-utilisation</loc></url>\n</urlset>\n';
+    }
+
+    # API : même origine que le site, le cookie de session reste de première partie.
+    # L'adresse passe par une variable : Nginx la résout à l'usage, et non une fois pour toutes au démarrage
+    # (le backend peut changer d'adresse interne à chaque redéploiement).
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+    location /api/ {
+        set $backend "${API_URL}";
+        proxy_pass $backend;
+        proxy_http_version 1.1;
+        # Le backend reçoit l'hôte, le schéma et l'adresse du client tels que le navigateur les a présentés
+        # (le schéma et l'adresse viennent du proxy de l'hébergeur, placé devant ce serveur).
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 60s;
+    }
+
+    # Fichiers à empreinte (nom unique par version) : cache d'un an, jamais revalidés.
+    location ~* "-[A-Za-z0-9_-]{8}\.(?:js|css)$" {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+
+    # Polices, images et icônes : noms stables, cache d'un mois.
+    location ~* "\.(?:woff2|png|jpg|jpeg|webp|svg|ico|webmanifest)$" {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "public, max-age=2592000" always;
+        try_files $uri =404;
+    }
+
+    # Script du thème : toujours revalidé, pour qu'une nouvelle version soit servie aussitôt.
+    location = /theme-init.js {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    # Pages : une page publique pré-rendue à la construction est servie telle quelle ; toute autre adresse reçoit
+    # la page d'entrée de l'application, dont le routage se fait dans le navigateur. Toujours revalidées.
+    location / {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "no-cache" always;
+        try_files $uri $uri/index.html /index.csr.html;
+    }
+}

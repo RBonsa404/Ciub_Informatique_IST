@@ -78,3 +78,17 @@ desktop.ini
 # ========================================================
 !club-informatique-frontend/public/**
 !club-informatique-frontend/src/assets/**
+
+# --- Captures de reference de la maquette (volumineuses, regenerables) ---
+/docs/maquette-ref/**/*.png
+
+# --- Rapports de tests locaux ---
+playwright-report/
+test-results/
+coverage/
+
+# --- Captures de recette des pages (regenerables par e2e/recette-page.mjs) ---
+/docs/recette/**/*.png
+
+# --- Traces, captures et fichiers telecharges des parcours (regenerables par e2e/parcours.mjs) ---
+/docs/recette/parcours/

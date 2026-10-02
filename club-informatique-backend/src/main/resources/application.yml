@@ -1,19 +1,26 @@
 # ===================================================================
-# Club Informatique IST — Configuration commune
+# Club Informatique de l'IST : configuration commune
+# Tout secret vient de l'environnement ; aucune valeur sensible n'est écrite ici.
 # ===================================================================
 
 server:
   port: ${PORT:${SERVER_PORT:8080}}
   servlet:
-    context-path: /api
+    context-path: /api/v1
+  compression:
+    enabled: true
+    mime-types: application/json,application/problem+json,text/calendar
+    min-response-size: 1024
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
 
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   application:
     name: club-informatique-backend
-
-  # JPA
   jpa:
     open-in-view: false
     hibernate:
@@ -22,16 +29,13 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        # Les associations paresseuses se chargent par lots, pas une requête par ligne.
+        default_batch_fetch_size: 50
         jdbc:
           time_zone: UTC
-
-  # Flyway
   flyway:
     enabled: true
-    baseline-on-migrate: true
     locations: classpath:db/migration
-
-  # Jackson
   jackson:
     serialization:
       write-dates-as-timestamps: false
@@ -39,47 +43,83 @@ spring:
       fail-on-unknown-properties: false
     default-property-inclusion: non_null
     time-zone: UTC
-
-  # File upload
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 200
+  task:
+    execution:
+      pool:
+        core-size: 2
+        max-size: 4
+        queue-capacity: 500
+      thread-name-prefix: tache-
   servlet:
     multipart:
       max-file-size: 10MB
-      max-request-size: 20MB
+      max-request-size: 12MB
 
-# ===================================================================
-# Application custom properties
-# ===================================================================
 app:
   jwt:
-    secret: ${JWT_SECRET:changeThisSecretInProductionToAVeryLongAndSecureValue}
+    # Obligatoire en production (JWT_SECRET, 32 octets au moins). Absent ailleurs : clé aléatoire jusqu'au redémarrage.
+    secret: ${JWT_SECRET:}
     access-token-expiration-ms: 900000        # 15 minutes
-    refresh-token-expiration-ms: 604800000    # 7 days
-
+    refresh-token-expiration-ms: 604800000    # 7 jours
   cors:
+    # Liste blanche d'origines exactes, séparées par des virgules.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
-
   rate-limit:
     auth:
-      capacity: 5
-      refill-tokens: 5
+      capacity: ${RATE_LIMIT_AUTH_CAPACITY:20}
       refill-duration-minutes: 15
     password-reset:
-      capacity: 3
-      refill-tokens: 3
+      capacity: 5
       refill-duration-minutes: 60
-
+    contact:
+      capacity: 5
+      refill-duration-minutes: 60
+  cookie:
+    # Cookie de session marqué Secure : obligatoire dès que le site est servi en HTTPS.
+    secure: ${COOKIE_SECURE:false}
   security:
-    bcrypt-strength: 12
+    # Coût du hachage des mots de passe : 11 donne environ 0,2 s par vérification (mesures : docs/performance.md).
+    bcrypt-strength: ${BCRYPT_STRENGTH:11}
     max-login-attempts: 5
-    lock-duration-minutes: 30
+    lock-duration-minutes: 15
+  mail:
+    # Expéditeur des courriels ; l'envoi passe par le serveur SMTP configuré (MAIL_HOST…).
+    from: ${MAIL_FROM:ne-pas-repondre@localhost}
+    from-name: Club Informatique de l'IST
+    contact: clubinformatique.ist@gmail.com
+  contact:
+    # Adresse du club qui reçoit les messages du formulaire de contact.
+    destinataire: ${CONTACT_EMAIL:clubinformatique.ist@gmail.com}
+  # Adresse publique du frontend, pour les liens placés dans les courriels.
+  frontend-url: ${APP_FRONTEND_URL:http://localhost:4200}
+  storage:
+    # local : dossier (volume persistant en ligne) ; s3 : stockage objet compatible S3.
+    type: ${STORAGE_TYPE:local}
+    max-size-bytes: 10485760
+    local:
+      directory: ${UPLOAD_DIR:./uploads}
+    s3:
+      endpoint: ${STORAGE_S3_ENDPOINT:}
+      region: ${STORAGE_S3_REGION:}
+      bucket: ${STORAGE_S3_BUCKET:}
+      access-key: ${STORAGE_S3_ACCESS_KEY:}
+      secret-key: ${STORAGE_S3_SECRET_KEY:}
+  bootstrap:
+    # Premier Super Admin réel : créé au démarrage tant qu'aucun n'existe, mot de passe à changer à la première connexion.
+    admin-email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
+    admin-password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
+  test-accounts:
+    # Comptes d'essai (un par rôle, domaine .invalid). Jamais activés par défaut.
+    seed: ${APP_SEED_TEST_ACCOUNTS:false}
+    password: ${APP_TEST_ACCOUNTS_PASSWORD:}
+    # Retrait des comptes d'essai et de leurs données au démarrage.
+    purge: ${APP_PURGE_TEST_ACCOUNTS:false}
 
-  upload:
-    directory: ${UPLOAD_DIR:./uploads}
-    allowed-extensions: pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,zip
-
-# ===================================================================
-# SpringDoc / Swagger
-# ===================================================================
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -88,18 +128,15 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-# ===================================================================
-# Actuator — Healthcheck Railway
-# ===================================================================
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health
       base-path: /actuator
   endpoint:
     health:
-      show-details: always
+      show-details: never
       probes:
         enabled: true
   health:
@@ -107,3 +144,5 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+    mail:
+      enabled: false

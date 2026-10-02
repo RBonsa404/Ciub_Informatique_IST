@@ -1,44 +1,31 @@
 package com.clubinfo.ist.common.security;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.clubinfo.ist.common.exception.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 
-/**
- * Point d'entrée d'authentification : renvoie une erreur 401 propre au lieu d'une page HTML.
- */
+/** Réponses 401 et 403 de la chaîne de sécurité, au format RFC 9457. */
 @Component
 @RequiredArgsConstructor
-public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint, AccessDeniedHandler {
 
-    private final ObjectMapper objectMapper;
+    private final ProblemeWriter problemes;
 
     @Override
-    public void commence(HttpServletRequest request,
-                         HttpServletResponse response,
-                         AuthenticationException authException) throws IOException {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+        problemes.ecrire(request, response, HttpStatus.UNAUTHORIZED, null, "Votre session est absente ou a expiré. Veuillez vous reconnecter.");
+    }
 
-        ErrorResponse error = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.UNAUTHORIZED.value())
-                .error("Non authentifié")
-                .message("Authentification requise pour accéder à cette ressource")
-                .errorCode("UNAUTHORIZED")
-                .path(request.getRequestURI())
-                .build();
-
-        objectMapper.writeValue(response.getOutputStream(), error);
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
+        problemes.ecrire(request, response, HttpStatus.FORBIDDEN, null, "Vous n’avez pas les droits nécessaires pour cette opération.");
     }
 }

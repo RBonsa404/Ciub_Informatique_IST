@@ -1,7 +1,11 @@
 package com.clubinfo.ist.inscription.controller;
 
-import com.clubinfo.ist.inscription.dto.InscriptionDto;
-import com.clubinfo.ist.inscription.dto.InscriptionStatutUpdateDto;
+import com.clubinfo.ist.common.security.UserDetailsImpl;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.InscriptionDto;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.Pointages;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.PresenceDto;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.StatutInscriptionSaisie;
+import com.clubinfo.ist.inscription.entity.StatutInscription;
 import com.clubinfo.ist.inscription.service.InscriptionService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -15,86 +19,103 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/inscriptions")
 @RequiredArgsConstructor
 @SecurityRequirement(name = "BearerAuth")
-@Tag(name = "Inscriptions", description = "Endpoints d'inscription aux événements et formations, et gestion de liste d'attente (UC-09, UC-12, UC-21)")
+@Tag(name = "Inscriptions", description = "Inscriptions aux événements et aux séances, gestion et émargement")
 public class InscriptionController {
 
-    private final InscriptionService inscriptionService;
+    /** Cible d'une inscription, pour le filtre de « mes inscriptions ». */
+    public enum TypeCible { EVENEMENT, FORMATION }
 
-    @PostMapping("/evenements/{evenementId}")
-    @Operation(summary = "S'inscrire à un événement (gestion automatique de capacité et liste d'attente) (UC-09)")
-    public ResponseEntity<InscriptionDto> inscrireEvenement(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long evenementId) {
-        InscriptionDto inscription = inscriptionService.inscrireEvenement(userDetails.getUsername(), evenementId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(inscription);
+    private static final String MEMBRE = "hasRole('MEMBRE')";
+    private static final String GESTION = "hasRole('RESPONSABLE_CLUB')";
+    private static final String EQUIPE = "hasAnyRole('FORMATEUR', 'RESPONSABLE_CLUB')";
+
+    private final InscriptionService inscriptions;
+
+    // ---- Membre
+
+    @PostMapping("/inscriptions/evenements/{evenementId}")
+    @PreAuthorize(MEMBRE)
+    @Operation(summary = "S'inscrire à un événement ; liste d'attente si la capacité est atteinte")
+    public ResponseEntity<InscriptionDto> inscrireAEvenement(@AuthenticationPrincipal UserDetailsImpl membre, @PathVariable Long evenementId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(inscriptions.inscrireAEvenement(membre.getId(), evenementId));
     }
 
-    @PostMapping("/formations/{sessionId}")
-    @Operation(summary = "S'inscrire à une session de formation (UC-09)")
-    public ResponseEntity<InscriptionDto> inscrireSessionFormation(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long sessionId) {
-        InscriptionDto inscription = inscriptionService.inscrireSessionFormation(userDetails.getUsername(), sessionId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(inscription);
+    @PostMapping("/inscriptions/formations/{sessionId}")
+    @PreAuthorize(MEMBRE)
+    @Operation(summary = "S'inscrire à une séance de formation")
+    public ResponseEntity<InscriptionDto> inscrireASeance(@AuthenticationPrincipal UserDetailsImpl membre, @PathVariable Long sessionId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(inscriptions.inscrireASeance(membre.getId(), sessionId));
     }
 
-    @GetMapping("/me")
-    @Operation(summary = "Consulter l'historique de ses propres inscriptions (UC-12)")
-    public ResponseEntity<Page<InscriptionDto>> getMyInscriptions(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PageableDefault(size = 10) Pageable pageable) {
-        Page<InscriptionDto> inscriptions = inscriptionService.getMyInscriptions(userDetails.getUsername(), pageable);
-        return ResponseEntity.ok(inscriptions);
+    @GetMapping("/inscriptions/me")
+    @PreAuthorize(MEMBRE)
+    @Operation(summary = "Inscriptions de l'utilisateur")
+    public Page<InscriptionDto> mesInscriptions(@AuthenticationPrincipal UserDetailsImpl membre,
+                                                @RequestParam(required = false) TypeCible type,
+                                                @RequestParam(required = false) StatutInscription statut,
+                                                @PageableDefault(size = 10) Pageable pageable) {
+        return inscriptions.duMembre(membre.getId(), type == null ? null : type.name(), statut, pageable);
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Annuler une inscription (promut automatiquement le suivant sur liste d'attente) (UC-09)")
-    public ResponseEntity<InscriptionDto> annulerInscription(
-            @AuthenticationPrincipal UserDetails userDetails,
-            @PathVariable Long id,
-            @RequestParam(required = false) String motif) {
-        InscriptionDto cancelled = inscriptionService.annulerInscription(userDetails.getUsername(), id, motif);
-        return ResponseEntity.ok(cancelled);
+    @DeleteMapping("/inscriptions/{id}")
+    @PreAuthorize(MEMBRE)
+    @Operation(summary = "Annuler son inscription ; promeut le premier membre en liste d'attente")
+    public ResponseEntity<Void> annuler(@AuthenticationPrincipal UserDetailsImpl membre, @PathVariable Long id) {
+        inscriptions.annuler(membre.getId(), id);
+        return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/evenements/{evenementId}")
-    @PreAuthorize("hasAnyRole('RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
-    @Operation(summary = "Lister les inscrits à un événement (UC-21)")
-    public ResponseEntity<List<InscriptionDto>> getInscriptionsByEvenement(@PathVariable Long evenementId) {
-        return ResponseEntity.ok(inscriptionService.getInscriptionsByEvenement(evenementId));
+    // ---- Gestion
+
+    @GetMapping("/inscriptions/evenements/{evenementId}")
+    @PreAuthorize(GESTION)
+    @Operation(summary = "Inscrits d'un événement")
+    public List<InscriptionDto> deLEvenement(@PathVariable Long evenementId) {
+        return inscriptions.deLEvenement(evenementId);
     }
 
-    @GetMapping("/formations/{sessionId}")
-    @PreAuthorize("hasAnyRole('FORMATEUR', 'RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
-    @Operation(summary = "Lister les inscrits à une session de formation (UC-21)")
-    public ResponseEntity<List<InscriptionDto>> getInscriptionsBySession(@PathVariable Long sessionId) {
-        return ResponseEntity.ok(inscriptionService.getInscriptionsBySession(sessionId));
+    @GetMapping("/inscriptions/formations/{sessionId}")
+    @PreAuthorize(EQUIPE)
+    @Operation(summary = "Inscrits d'une séance")
+    public List<InscriptionDto> deLaSeance(@PathVariable Long sessionId, @AuthenticationPrincipal UserDetailsImpl lecteur) {
+        return inscriptions.deLaSeance(sessionId, lecteur);
     }
 
-    @PutMapping("/{id}/statut")
-    @PreAuthorize("hasAnyRole('RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
-    @Operation(summary = "Modifier le statut d'une inscription (ex: promouvoir liste d'attente manuellement) (UC-21)")
-    public ResponseEntity<InscriptionDto> updateStatut(
-            @PathVariable Long id,
-            @Valid @RequestBody InscriptionStatutUpdateDto dto) {
-        InscriptionDto updated = inscriptionService.updateStatutInscription(id, dto);
-        return ResponseEntity.ok(updated);
+    @PutMapping("/inscriptions/{id}/statut")
+    @PreAuthorize(GESTION)
+    @Operation(summary = "Changer le statut d'une inscription (promotion depuis la liste d'attente)")
+    public InscriptionDto changerStatut(@PathVariable Long id, @Valid @RequestBody StatutInscriptionSaisie saisie) {
+        return inscriptions.changerStatut(id, saisie.statut(), saisie.motif());
+    }
+
+    // ---- Émargement
+
+    @GetMapping("/presences/sessions/{sessionId}")
+    @PreAuthorize(EQUIPE)
+    @Operation(summary = "Feuille d'émargement d'une séance")
+    public List<PresenceDto> feuilleDEmargement(@PathVariable Long sessionId, @AuthenticationPrincipal UserDetailsImpl lecteur) {
+        return inscriptions.feuilleDEmargement(sessionId, lecteur);
+    }
+
+    @PostMapping("/presences/sessions/{sessionId}")
+    @PreAuthorize(EQUIPE)
+    @Operation(summary = "Enregistrer des pointages")
+    public List<PresenceDto> pointer(@PathVariable Long sessionId, @Valid @RequestBody Pointages pointages,
+                                     @AuthenticationPrincipal UserDetailsImpl formateur) {
+        return inscriptions.pointer(sessionId, pointages.presences(), formateur);
     }
 }

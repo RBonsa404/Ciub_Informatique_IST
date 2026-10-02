@@ -1,176 +1,127 @@
-# 🚀 Plateforme Numérique du Club Informatique de l'IST
+# Plateforme du Club Informatique de l'IST
 
-Plateforme officielle de gestion, de formation et de collaboration du **Club Informatique de l'Institut Supérieur de Technologie (IST)**.
+Site et espace de gestion du Club Informatique de l'Institut Supérieur de Technologie (Ouagadougou) : présentation du club, actualités, événements, formations et inscriptions, supports de cours, projets des membres, notifications, administration.
 
-Conçue selon les standards de l'ingénierie logicielle moderne, la plateforme digitalise l'intégralité des activités du club : adhésions, catalogue et sessions de formation certifiantes, feuilles d'émargement, organisation de hackathons, publication d'actualités, hébergement et suivi de projets étudiants, gestion des rôles et supervision institutionnelle par la DSI.
+Le dépôt contient deux applications et leur documentation.
 
----
+| Dossier | Contenu |
+|---|---|
+| `club-informatique-frontend/` | application web (Angular, Tailwind CSS), servie en production par Nginx |
+| `club-informatique-backend/` | API REST (Java 17, Spring Boot, PostgreSQL), servie sous `/api/v1` |
+| `docs/` | contrat de l'API, décisions, exploitation, performance, journaux de recette |
 
-## 🏛️ Rôles & Gouvernance (RBAC)
+## Principes
 
-La plateforme met en œuvre un contrôle d'accès strict basé sur les rôles (RBAC) avec 6 profils hiérarchisés :
+- Aucune donnée affichée n'est écrite dans le frontend : chaque chiffre, nom, date ou contenu vient de l'API, donc de la base. Une donnée absente donne un état vide, jamais une valeur d'exemple. Une garde automatique (`npm run check`) le vérifie.
+- Les droits sont appliqués par le serveur, rôle par rôle et ressource par ressource. Le frontend ne fait que masquer ce que le rôle ne peut pas ouvrir.
+- Aucun secret n'est versionné : la configuration passe par des variables d'environnement (`club-informatique-backend/.env.example`).
 
-1. **Visiteur** : Consultation des pages publiques (actualités, agenda, catalogue formations, galerie projets, bureau exécutif, ressources ouvertes).
-2. **Membre** : Inscription aux formations et hackathons, tableau de bord étudiant, consultation et rendu des devoirs/TPs, proposition de projets, gestion du profil et 2FA.
-3. **Formateur** : Planification des formations et sessions, émargement des présences (*Présent*, *Absent*, *Excusé*), partage de ressources pédagogiques, suivi et mentoring des équipes projets.
-4. **Responsable du Club** : Rédaction et publication d'actualités, création d'événements/hackathons, commission d'approbation des projets étudiants, gestion des inscriptions et diffusion de notifications broadcast.
-5. **Administrateur** : Administration de la base utilisateurs, gestion des statuts de compte (actif/suspendu), métriques et statistiques globales, modération des catégories CMS.
-6. **Super Administrateur** : Configuration des paramètres système critiques (politique de mots de passe, quotas, règles anti brute-force, mode maintenance).
-7. **DSI (Direction des Systèmes d'Information)** : Audit technique et conformité réglementaire en **lecture seule** (accès sécurisé aux logs d'audit et politiques de sécurité).
+## Rôles
 
----
+Visiteur, Membre, Formateur, Responsable du Club, Administrateur, Super Admin, DSI. La matrice des droits est celle que renvoie l'API (`GET /api/v1/admin/roles`) et qu'affiche l'écran « Rôles et permissions ».
 
-## 🏗️ Architecture Globale
+## Prérequis
 
-Le projet repose sur une architecture client-serveur découplée et modulaire :
+| Outil | Version |
+|---|---|
+| Java | 17 |
+| Maven | 3.9 |
+| Node.js, npm | 24, 11 |
+| Docker | pour la base locale, la capture des courriels, les tests d'intégration et les images de production |
 
-```
-                        ┌──────────────────────────────────────┐
-                        │       Navigateur Web / Client        │
-                        └──────────────────┬───────────────────┘
-                                           │
-                                HTTPS / REST (JSON)
-                                Bearer JWT + Rate Limit
-                                           │
-                                           ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                    Frontend : Angular + Tailwind CSS                         │
-│  - Architecture Standalone & Signals                                         │
-│  - Design System Charte v1.0 (Bleu Royal #1B3A8C, Ambre Tech #F5A623)        │
-│  - Thème double (Dark Cyber / Light Glassmorphism)                           │
-│  - Intercepteurs Auth JWT & Gestion d'erreurs globales                       │
-│  - Guards de routage par rôle & état d'authentification                      │
-└──────────────────────────────────────────┬───────────────────────────────────┘
-                                           │
-                                 Appels API REST (/api/v1)
-                                           │
-                                           ▼
-┌──────────────────────────────────────────────────────────────────────────────┐
-│                 Backend : Spring Boot (Java 17 LTS)                          │
-│  - Clean Architecture & Séparation en couches (Controller, Service, Repo)    │
-│  - Spring Security (Stateless JWT HMAC-SHA512 + Refresh Tokens tournants)   │
-│  - Authentification à double facteur (2FA TOTP RFC 6238)                     │
-│  - Filtre Rate-Limiting IP Token Bucket (Bucket4j) & Anti Brute-Force       │
-│  - Audit Trail persistant (BaseEntity, AuditLog immuable)                    │
-│  - Spring Data JPA / Hibernate 6 + Migrations Flyway                         │
-│  - Documentation Swagger OpenAPI v3                                          │
-└──────────────────────────────────────────┬───────────────────────────────────┘
-                                           │
-                                  JDBC / PostgreSQL
-                                           │
-                                           ▼
-                        ┌──────────────────────────────────────┐
-                        │      PostgreSQL Database             │
-                        └──────────────────────────────────────┘
+## Installation et lancement en local
+
+1. Base PostgreSQL et capture des courriels (Mailpit) :
+
+```bash
+docker compose -f club-informatique-backend/compose.dev.yml up -d
 ```
 
----
+2. Backend, sur `http://localhost:8080/api/v1` (les migrations Flyway s'appliquent au démarrage) :
 
-## 💻 Stack Technique Complète
-
-### Backend
-- **Langage** : Java 17 LTS
-- **Framework** : Spring Boot 3.5.3 (Spring Security, Spring Data JPA, Spring Validation)
-- **Base de Données** : PostgreSQL 15+
-- **Migrations & Schéma** : Flyway
-- **Sécurité** : JWT (jjwt 0.12.6), TOTP 2FA (Bouncy Castle), Bucket4j (Rate Limiting), BCrypt
-- **Documentation API** : SpringDoc OpenAPI 2.8.4 (Swagger UI)
-- **Tests** : JUnit 5, Mockito, AssertJ
-
-### Frontend
-- **Framework** : Angular (Standalone Components, Signals, Router Lazy Loading)
-- **Styles** : Tailwind CSS v4 + Design Tokens personnalisés CSS Variables
-- **Typographie** : Poppins, Inter, JetBrains Mono (Google Fonts)
-- **Icônes** : SVG vectoriels natifs intégrés
-
----
-
-## 📁 Structure du Dépôt
-
-```
-.
-├── club-informatique-backend/       # Application Backend Spring Boot
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/clubinfo/ist/   # Code source Java (Controllers, Services, Entités...)
-│   │   │   └── resources/               # Configurations application.yml et migrations db/migration
-│   │   └── test/                        # Tests unitaires et d'intégration
-│   ├── .env.example                     # Exemple de variables d'environnement backend
-│   ├── ENDPOINTS.md                     # Matrice détaillée des 29 Use Cases et endpoints REST
-│   └── pom.xml                          # Dépendances et configuration Maven
-│
-├── club-informatique-frontend/      # Application Frontend Angular
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── core/                    # Services transverses, Modèles, Guards, Intercepteurs
-│   │   │   ├── features/                # Modules métiers (public, auth, membre, formateur, responsable, admin)
-│   │   │   ├── layouts/                 # Layouts (PublicLayout, DashboardLayout)
-│   │   │   └── shared/                  # Composants partagés (Navbar, Footer, Modal, Toast, Pagination...)
-│   │   ├── styles.css                   # Design tokens, thème et directives Tailwind
-│   │   └── index.html                   # Point d'entrée HTML
-│   ├── angular.json                     # Configuration Angular CLI
-│   └── package.json                     # Dépendances NPM
-│
-├── .gitignore                       # Règles d'exclusion Git strictes
-└── README.md                        # Documentation générale du projet
+```bash
+cd club-informatique-backend && cp .env.example .env && mvn spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
----
+3. Frontend, sur `http://localhost:4200` (les appels à `/api` sont relayés vers le backend local) :
 
-## ⚡ Démarrage Rapide
+```bash
+cd club-informatique-frontend && npm ci && npm start
+```
 
-### 1. Prérequis
-- Java Development Kit (JDK) 17+
-- Node.js 20+ et npm 10+
-- PostgreSQL 15+ (local ou conteneurisé)
-- Maven 3.9+ (ou wrapper `mvnw`)
+Les courriels envoyés par l'application se lisent sur `http://localhost:8025` ; aucun ne sort de la machine.
 
-### 2. Démarrage du Backend
-1. Accédez au répertoire backend :
-   ```bash
-   cd club-informatique-backend
-   ```
-2. Configurez les variables d'environnement (en vous basant sur `.env.example`) :
-   ```bash
-   cp .env.example .env
-   ```
-   Renseignez vos accès PostgreSQL locaux et secrets JWT génériques.
-3. Lancez les tests et l'application :
-   ```bash
-   mvn clean package -DskipTests=false
-   mvn spring-boot:run
-   ```
-4. Le backend démarre sur `http://localhost:8080`.
-   - **Documentation Swagger UI** : `http://localhost:8080/swagger-ui.html`
-   - **Spécification OpenAPI JSON** : `http://localhost:8080/v3/api-docs`
+## Variables d'environnement
 
-### 3. Démarrage du Frontend
-1. Accédez au répertoire frontend :
-   ```bash
-   cd club-informatique-frontend
-   ```
-2. Installez les dépendances :
-   ```bash
-   npm install
-   ```
-3. Lancez le serveur de développement :
-   ```bash
-   npm start
-   ```
-4. L'application est accessible sur `http://localhost:4200`.
+La liste complète et commentée est dans `club-informatique-backend/.env.example`.
 
----
+| Variable | En production | Rôle |
+|---|---|---|
+| `SPRING_PROFILES_ACTIVE` | `prod` | profil d'exécution |
+| `SPRING_DATASOURCE_URL`, `SPRING_DATASOURCE_USERNAME`, `SPRING_DATASOURCE_PASSWORD` | obligatoires | base PostgreSQL (URL au format `jdbc:postgresql://…`) |
+| `JWT_SECRET` | obligatoire | secret de signature des jetons, 32 octets au moins |
+| `CORS_ALLOWED_ORIGINS` | obligatoire | adresse publique exacte du site (plusieurs valeurs séparées par des virgules) |
+| `APP_FRONTEND_URL` | obligatoire | adresse publique du site, pour les liens placés dans les courriels |
+| `MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_SMTP_AUTH`, `MAIL_SMTP_STARTTLS`, `MAIL_FROM` | obligatoires | serveur SMTP et adresse d'expédition |
+| `CONTACT_EMAIL` | facultative | adresse qui reçoit les messages du formulaire de contact |
+| `STORAGE_TYPE`, `UPLOAD_DIR`, `STORAGE_S3_*` | selon le stockage | fichiers déposés : dossier sur volume persistant (`local`) ou stockage objet compatible S3 (`s3`) |
+| `APP_BOOTSTRAP_ADMIN_EMAIL`, `APP_BOOTSTRAP_ADMIN_PASSWORD` | au premier démarrage | création du premier Super Admin (voir plus bas) |
+| `APP_SEED_TEST_ACCOUNTS`, `APP_TEST_ACCOUNTS_PASSWORD`, `APP_PURGE_TEST_ACCOUNTS` | essais seulement | comptes de test (voir plus bas) |
+| `API_URL` (service du frontend) | obligatoire | adresse interne du backend, sans barre finale |
 
-## 📖 Guides Complémentaires
+## Tests et contrôles
 
-Pour accompagner les équipes de développement et d'infrastructure, des guides détaillés pas à pas sont fournis séparément en dehors du dépôt :
-- **Guide de Test Local** : Procédure pas à pas d'installation, exécution des suites de tests automatisés et résolution des incidents fréquents.
-- **Guide de Déploiement Railway** : Déploiement automatisé du backend Spring Boot, du service managé PostgreSQL et du frontend avec nom de domaine et certificats SSL.
+| Commande | Dossier | Ce qu'elle vérifie |
+|---|---|---|
+| `mvn verify` | backend | tests unitaires, puis tests d'intégration sur un PostgreSQL réel (Testcontainers), couverture (`target/site/jacoco/index.html`) |
+| `npm test` | frontend | tests unitaires |
+| `npm run check` | frontend | aucun chiffre écrit dans les gabarits ; casse des noms de fichiers |
+| `npm run build` | frontend | construction de production |
+| `node e2e/recette-page.mjs <page>` | frontend | recette d'une page sur la pile locale : deux thèmes, sept largeurs, console, accessibilité (journal dans `docs/recette/<page>/`) |
+| `node e2e/integration.mjs` | frontend | par module : lecture, refus d'un visiteur, refus d'un rôle insuffisant, erreur restituée, garde de la page (`docs/recette/integration.md`) |
+| `node e2e/parcours.mjs` | frontend | parcours complets de chaque rôle sur base vierge, backend construit et frontend de production (`docs/recette/parcours.md`) |
 
----
+La recette et les parcours demandent Docker démarré, le conteneur de base `ci-ist-pg` (PostgreSQL 16, port 5433) et le conteneur de courriel `ci-ist-mail` (Mailpit, ports 1025 et 8025) ; le backend de recette se lance par `node e2e/backend-recette.mjs` et se peuple par `node e2e/seed-recette.mjs`. Ces scripts ne visent que des bases locales.
 
-## 📄 Licence & Contact
+L'intégration continue (`.github/workflows/ci.yml`) rejoue les gardes, les tests et les constructions à chaque poussée.
 
-- **Éditeur** : Club Informatique de l'Institut Supérieur de Technologie (IST)
-- **Contact** : `contact@clubinfo-ist.bf` / Bureau Exécutif de l'IST
-- **Licence** : Projet universitaire interne — Tous droits réservés © 2026.
+## Premier Super Admin
+
+Aucun compte n'est livré avec l'application. Tant qu'aucun Super Admin réel n'existe, le démarrage du backend en crée un à partir de `APP_BOOTSTRAP_ADMIN_EMAIL` et `APP_BOOTSTRAP_ADMIN_PASSWORD` (douze caractères au moins). Ce mot de passe initial doit être changé à la première connexion : d'ici là, le compte n'accède à rien d'autre. Les deux variables peuvent ensuite être retirées.
+
+## Comptes de test
+
+Pour les essais, `APP_SEED_TEST_ACCOUNTS=true` crée au démarrage un compte par rôle sur le domaine réservé `recette.invalid` (aucun courriel ne leur est envoyé), avec le mot de passe donné par `APP_TEST_ACCOUNTS_PASSWORD`. Ces comptes sont marqués en base et exclus de toutes les statistiques.
+
+À la fin des essais, un seul démarrage avec `APP_PURGE_TEST_ACCOUNTS=true` (et `APP_SEED_TEST_ACCOUNTS=false`) retire ces comptes et tout ce qu'ils ont créé ; l'opération est inscrite au journal d'audit. Remettre ensuite la variable à `false`.
+
+## Déploiement (Railway)
+
+Trois services dans un même projet : la base PostgreSQL gérée, le backend, le frontend. Seul le frontend reçoit un domaine public ; il relaie `/api` vers le backend par le réseau privé, si bien que le site et l'API partagent la même origine.
+
+| Service | Dossier racine | Construction | Réglages |
+|---|---|---|---|
+| Backend | `club-informatique-backend` | `Dockerfile` (`railway.toml`) | variables ci-dessus ; volume persistant monté sur `/app/uploads` avec `UPLOAD_DIR=/app/uploads` ; sonde `/api/v1/actuator/health/liveness` ; mise en veille désactivée |
+| Frontend | `club-informatique-frontend` | `Dockerfile` (`railway.toml`) | `API_URL` = adresse interne du backend ; sonde `/sante` ; domaine public |
+| Base | PostgreSQL géré | | ses variables de connexion alimentent `SPRING_DATASOURCE_*` |
+
+Après le premier déploiement : vérifier la sonde de santé, se connecter avec le Super Admin d'amorçage et changer son mot de passe, envoyer un message par le formulaire de contact (réception du courriel), déposer un fichier, puis planifier la sauvegarde. Une version fautive se retire depuis l'onglet des déploiements du service, en redéployant la version précédente ; les migrations de base sont additives et ne se défont pas automatiquement (restaurer la dernière sauvegarde si une migration est en cause).
+
+## Sauvegarde et restauration
+
+`club-informatique-backend/scripts/sauvegarde.sh` produit une sauvegarde complète de la base (`pg_dump`) et inscrit son résultat dans l'application, où le Super Admin le consulte. `club-informatique-backend/scripts/restauration.sh` remplace le contenu d'une base par celui d'une sauvegarde, après confirmation explicite. Procédure détaillée, planification et test de restauration consigné : `docs/exploitation.md`.
+
+Les fichiers déposés ne sont pas dans la base : ils se sauvegardent avec le volume ou le compartiment de stockage.
+
+## Documentation
+
+| Document | Sujet |
+|---|---|
+| `docs/api-contract.openapi.yaml` | contrat de l'API (OpenAPI 3.1) |
+| `docs/decisions.md` | décisions techniques et arbitrages |
+| `docs/exploitation.md` | santé, journaux, tâches planifiées, sauvegarde, restauration |
+| `docs/performance.md` | mesures avant et après, réglages |
+| `docs/ecarts-maquette.md` | écarts assumés entre la maquette de référence et le produit |
+| `docs/informations-a-fournir.md` | informations attendues du club avant publication (mentions légales, hébergeur, durées de conservation) |
+| `docs/recette/` | journaux de recette des pages, preuve d'intégration, parcours |
+| `docs/PROGRESSION.md` | état d'avancement |

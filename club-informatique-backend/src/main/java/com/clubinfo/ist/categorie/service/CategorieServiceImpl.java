@@ -1,5 +1,9 @@
 package com.clubinfo.ist.categorie.service;
 
+import com.clubinfo.ist.common.exception.BusinessException;
+import com.clubinfo.ist.common.web.Slugs;
+import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.core.JdbcTemplate;
 import com.clubinfo.ist.categorie.dto.CategorieDto;
 import com.clubinfo.ist.categorie.dto.CategorieRequestDto;
 import com.clubinfo.ist.categorie.entity.Categorie;
@@ -26,6 +30,7 @@ public class CategorieServiceImpl implements CategorieService {
 
     private final CategorieRepository categorieRepository;
     private final CategorieMapper categorieMapper;
+    private final JdbcTemplate jdbc;
 
     private static final Pattern NONLATIN = Pattern.compile("[^\\w-]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
@@ -60,10 +65,7 @@ public class CategorieServiceImpl implements CategorieService {
             throw new DuplicateResourceException("Une catégorie avec ce nom existe déjà : " + dto.getNom());
         }
 
-        String slug = toSlug(dto.getNom());
-        if (categorieRepository.existsBySlugAndDeletedAtIsNull(slug)) {
-            slug = slug + "-" + System.currentTimeMillis() % 1000;
-        }
+        String slug = Slugs.libre(dto.getNom(), categorieRepository::existsBySlug);
 
         Categorie categorie = Categorie.builder()
                 .nom(dto.getNom())
@@ -100,8 +102,18 @@ public class CategorieServiceImpl implements CategorieService {
     @Transactional
     public void deleteCategorie(Long id) {
         Categorie categorie = findCategorieById(id);
-        categorie.setDeletedAt(LocalDateTime.now());
-        categorieRepository.save(categorie);
+        // Une catégorie qui classe encore des contenus ne se supprime pas : ils perdraient leur classement sans avertissement.
+        Integer usages = jdbc.queryForObject("""
+                SELECT (SELECT COUNT(*) FROM actualite WHERE categorie_id = ? AND deleted_at IS NULL)
+                     + (SELECT COUNT(*) FROM evenement WHERE categorie_id = ? AND deleted_at IS NULL)
+                     + (SELECT COUNT(*) FROM formation WHERE categorie_id = ? AND deleted_at IS NULL)
+                     + (SELECT COUNT(*) FROM projet WHERE categorie_id = ? AND deleted_at IS NULL)
+                     + (SELECT COUNT(*) FROM ressource WHERE categorie_id = ? AND deleted_at IS NULL)""", Integer.class, id, id, id, id, id);
+        if (usages != null && usages > 0) {
+            throw new BusinessException("Cette catégorie classe encore " + usages + " contenu(s) : elle ne peut pas être supprimée.",
+                    HttpStatus.CONFLICT, "CATEGORIE_UTILISEE");
+        }
+        categorieRepository.delete(categorie);
         log.info("Catégorie ID {} supprimée logiquement", id);
     }
 
@@ -110,10 +122,4 @@ public class CategorieServiceImpl implements CategorieService {
                 .orElseThrow(() -> new ResourceNotFoundException("Categorie", "id", id));
     }
 
-    private String toSlug(String input) {
-        String nowhitespace = WHITESPACE.matcher(input).replaceAll("-");
-        String normalized = Normalizer.normalize(nowhitespace, Normalizer.Form.NFD);
-        String slug = NONLATIN.matcher(normalized).replaceAll("");
-        return slug.toLowerCase(Locale.ENGLISH);
-    }
 }

@@ -1,0 +1,1421 @@
+{
+ "date": "2026-10-01T21:07:16.254Z",
+ "base": "http://localhost:4200",
+ "overflow": [],
+ "console": [],
+ "axe": [],
+ "styles": {
+  "dark": {
+   "compares": 50,
+   "identiques": 18,
+   "ecarts": [
+    {
+     "selecteur": "h1",
+     "statut": "écart attendu : la maquette mesure le titre de l’accueil, dimensionné en ligne",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "56px",
+       "socle": "48px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "61.6px",
+       "socle": "60px"
+      }
+     ]
+    },
+    {
+     "selecteur": "h2",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "gap",
+       "maquette": "12px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": "h4",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": "p",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "18.4px",
+       "socle": "16px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "29.44px",
+       "socle": "25.6px"
+      },
+      {
+       "propriete": "letterSpacing",
+       "maquette": "0.368px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": ".container",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": ".brand-title-main",
+     "statut": "écart attendu : E-04 : interligne resserré, sous-titre sur deux lignes",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "26.88px",
+       "socle": "21.84px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".brand-title-sub",
+     "statut": "écart attendu : E-19 : ambre remplacé par le jeton d’accent ambre du thème (contraste en thème clair)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "14.976px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".nav-link",
+     "statut": "écart attendu : couleur de l’entrée active selon la page mesurée",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(203, 213, 225)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(203, 213, 225)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(203, 213, 225)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".nav-link.active",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": ".btn",
+     "statut": "écart attendu : premier bouton de la page différent",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "13.6px",
+       "socle": "15.2px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-secondary",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "13.6px",
+       "socle": "15.2px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-outline",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "23.04px",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "7.2px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "14.4px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "7.2px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "14.4px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-sm",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "21.76px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "4.8px",
+       "socle": "7.2px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "9.6px",
+       "socle": "14.4px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "4.8px",
+       "socle": "7.2px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "9.6px",
+       "socle": "14.4px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-lg",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "backgroundImage",
+       "maquette": "linear-gradient(90deg, rgb(0, 85, 255), rgb(0, 136, 255))",
+       "socle": "linear-gradient(135deg, rgb(29, 78, 216) 0%, rgb(37, 99, 235) 100%)"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "28.8px",
+       "socle": "32px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "28.8px",
+       "socle": "32px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "10px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-icon",
+     "statut": "écart attendu : E-23 : interligne unifié entre boutons et liens d’action",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "19.968px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-primary",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "19.968px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-amber",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "19.968px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-success",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "10.88px",
+       "socle": "12.48px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "17.408px",
+       "socle": "19.968px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".glass-card",
+     "statut": "écart attendu : la maquette mesure une carte dimensionnée en ligne",
+     "ecarts": [
+      {
+       "propriete": "paddingTop",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "gap",
+       "maquette": "20px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": ".mobile-menu-toggle",
+     "statut": "écart attendu : cible tactile portée de 42 à 44 px",
+     "ecarts": [
+      {
+       "propriete": "fontFamily",
+       "maquette": "Arial",
+       "socle": "Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif"
+      },
+      {
+       "propriete": "fontSize",
+       "maquette": "13.3333px",
+       "socle": "16px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "25.6px"
+      }
+     ]
+    },
+    {
+     "selecteur": "h3",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(248, 250, 252)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(248, 250, 252)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(248, 250, 252)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".glass-panel",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "paddingTop",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "gap",
+       "maquette": "16px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-input",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "paddingLeft",
+       "maquette": "40px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".user-avatar",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "15.2px",
+       "socle": "12.8px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "24.32px",
+       "socle": "20.48px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-textarea",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "paddingLeft",
+       "maquette": "40px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-amber",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "16.8px",
+       "socle": "15.2px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "14.4px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "32px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "14.4px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "32px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "12px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-label",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "21.76px",
+       "socle": "23.04px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".sidebar-link",
+     "statut": "écart attendu : numéro d’écran de démonstration retiré : disposition simplifiée",
+     "ecarts": [
+      {
+       "propriete": "fontWeight",
+       "maquette": "600",
+       "socle": "500"
+      },
+      {
+       "propriete": "color",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(203, 213, 225)"
+      },
+      {
+       "propriete": "backgroundImage",
+       "maquette": "linear-gradient(90deg, rgba(29, 78, 216, 0.25) 0%, rgba(56, 189, 248, 0.1) 100%)",
+       "socle": "none"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(203, 213, 225)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(203, 213, 225)"
+      },
+      {
+       "propriete": "gap",
+       "maquette": "normal",
+       "socle": "12px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".sidebar-link.active",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": ".dashboard-topbar",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "gap",
+       "maquette": "24px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-select",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "13.6px",
+       "socle": "15.2px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-danger",
+     "statut": "écart attendu : E-22 : couleur du texte ajustée pour le contraste",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(239, 68, 68)",
+       "socle": "rgb(252, 165, 165)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".modal-card",
+     "statut": "écart attendu : E-07 : styles absents du rendu de la maquette au-delà de 768 px",
+     "ecarts": [
+      {
+       "propriete": "backgroundColor",
+       "maquette": "rgba(0, 0, 0, 0)",
+       "socle": "rgb(15, 23, 42)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(248, 250, 252)",
+       "socle": "rgba(56, 189, 248, 0.18)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(248, 250, 252)",
+       "socle": "rgba(56, 189, 248, 0.18)"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "0px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "boxShadow",
+       "maquette": "none",
+       "socle": "rgba(0, 0, 0, 0.6) 0px 25px 50px -12px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-danger",
+     "statut": "écart attendu : E-21 et E-23 : fond assombri pour le contraste, interligne unifié",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "backgroundColor",
+       "maquette": "rgb(239, 68, 68)",
+       "socle": "rgb(220, 38, 38)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".skeleton",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    }
+   ]
+  },
+  "light": {
+   "compares": 50,
+   "identiques": 16,
+   "ecarts": [
+    {
+     "selecteur": "h1",
+     "statut": "écart attendu : la maquette mesure le titre de l’accueil, dimensionné en ligne",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "56px",
+       "socle": "48px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "61.6px",
+       "socle": "60px"
+      }
+     ]
+    },
+    {
+     "selecteur": "h2",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "gap",
+       "maquette": "12px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": "h4",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": "p",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "18.4px",
+       "socle": "16px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "29.44px",
+       "socle": "25.6px"
+      },
+      {
+       "propriete": "letterSpacing",
+       "maquette": "0.368px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": ".container",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": ".brand-logo-img",
+     "statut": "écart attendu : E-22 : couleur de lien héritée, sans effet sur une image",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(2, 132, 199)",
+       "socle": "rgb(3, 105, 161)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(2, 132, 199)",
+       "socle": "rgb(3, 105, 161)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(2, 132, 199)",
+       "socle": "rgb(3, 105, 161)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".brand-title-main",
+     "statut": "écart attendu : E-04 : interligne resserré, sous-titre sur deux lignes",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "26.88px",
+       "socle": "21.84px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".brand-title-sub",
+     "statut": "écart attendu : E-19 : ambre remplacé par le jeton d’accent ambre du thème (contraste en thème clair)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "14.976px"
+      },
+      {
+       "propriete": "color",
+       "maquette": "rgb(251, 191, 36)",
+       "socle": "rgb(180, 83, 9)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(251, 191, 36)",
+       "socle": "rgb(180, 83, 9)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(251, 191, 36)",
+       "socle": "rgb(180, 83, 9)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".nav-link",
+     "statut": "écart attendu : couleur de l’entrée active selon la page mesurée",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(29, 78, 216)",
+       "socle": "rgb(51, 65, 85)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(29, 78, 216)",
+       "socle": "rgb(51, 65, 85)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(29, 78, 216)",
+       "socle": "rgb(51, 65, 85)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".nav-link.active",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": ".btn",
+     "statut": "écart attendu : premier bouton de la page différent",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "13.6px",
+       "socle": "15.2px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-secondary",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "13.6px",
+       "socle": "15.2px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "4.8px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "9.6px",
+       "socle": "0px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-outline",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "23.04px",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "color",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(29, 78, 216)"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "7.2px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "14.4px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "7.2px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "14.4px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(29, 78, 216)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(29, 78, 216)"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-sm",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "21.76px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "4.8px",
+       "socle": "7.2px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "9.6px",
+       "socle": "14.4px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "4.8px",
+       "socle": "7.2px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "9.6px",
+       "socle": "14.4px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-lg",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "backgroundImage",
+       "maquette": "linear-gradient(90deg, rgb(0, 85, 255), rgb(0, 136, 255))",
+       "socle": "linear-gradient(135deg, rgb(29, 78, 216) 0%, rgb(37, 99, 235) 100%)"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "28.8px",
+       "socle": "32px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "28.8px",
+       "socle": "32px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "10px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-icon",
+     "statut": "écart attendu : E-23 : interligne unifié entre boutons et liens d’action",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "19.968px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-primary",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "19.968px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-amber",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "18.432px",
+       "socle": "19.968px"
+      },
+      {
+       "propriete": "color",
+       "maquette": "rgb(180, 83, 9)",
+       "socle": "rgb(146, 64, 14)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-success",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "10.88px",
+       "socle": "12.48px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "17.408px",
+       "socle": "19.968px"
+      },
+      {
+       "propriete": "color",
+       "maquette": "rgb(16, 185, 129)",
+       "socle": "rgb(6, 95, 70)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".glass-card",
+     "statut": "écart attendu : la maquette mesure une carte dimensionnée en ligne",
+     "ecarts": [
+      {
+       "propriete": "paddingTop",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "gap",
+       "maquette": "20px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": ".mobile-menu-toggle",
+     "statut": "écart attendu : cible tactile portée de 42 à 44 px",
+     "ecarts": [
+      {
+       "propriete": "fontFamily",
+       "maquette": "Arial",
+       "socle": "Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif"
+      },
+      {
+       "propriete": "fontSize",
+       "maquette": "13.3333px",
+       "socle": "16px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "25.6px"
+      }
+     ]
+    },
+    {
+     "selecteur": "h3",
+     "statut": "écart attendu : idem",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(15, 23, 42)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(15, 23, 42)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(56, 189, 248)",
+       "socle": "rgb(15, 23, 42)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".glass-panel",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "paddingTop",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "20px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "gap",
+       "maquette": "16px",
+       "socle": "normal"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-input",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "paddingLeft",
+       "maquette": "40px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-neutral",
+     "statut": "écart attendu : E-22 : idem en thème clair",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(100, 116, 139)",
+       "socle": "rgb(71, 85, 105)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".user-avatar",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "15.2px",
+       "socle": "12.8px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "24.32px",
+       "socle": "20.48px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-textarea",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "paddingLeft",
+       "maquette": "40px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-amber",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "16.8px",
+       "socle": "15.2px"
+      },
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "paddingTop",
+       "maquette": "14.4px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingRight",
+       "maquette": "32px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "paddingBottom",
+       "maquette": "14.4px",
+       "socle": "12px"
+      },
+      {
+       "propriete": "paddingLeft",
+       "maquette": "32px",
+       "socle": "22.4px"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "12px",
+       "socle": "10px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-label",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "21.76px",
+       "socle": "23.04px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".sidebar-link",
+     "statut": "écart attendu : numéro d’écran de démonstration retiré : disposition simplifiée",
+     "ecarts": [
+      {
+       "propriete": "fontWeight",
+       "maquette": "600",
+       "socle": "500"
+      },
+      {
+       "propriete": "color",
+       "maquette": "rgb(29, 78, 216)",
+       "socle": "rgb(51, 65, 85)"
+      },
+      {
+       "propriete": "backgroundColor",
+       "maquette": "rgb(239, 246, 255)",
+       "socle": "rgba(0, 0, 0, 0)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(29, 78, 216)",
+       "socle": "rgb(51, 65, 85)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(29, 78, 216)",
+       "socle": "rgb(51, 65, 85)"
+      },
+      {
+       "propriete": "gap",
+       "maquette": "normal",
+       "socle": "12px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".sidebar-link.active",
+     "statut": "non présent dans le socle"
+    },
+    {
+     "selecteur": ".dashboard-topbar",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "gap",
+       "maquette": "24px",
+       "socle": "16px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".form-select",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "fontSize",
+       "maquette": "13.6px",
+       "socle": "15.2px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".badge-danger",
+     "statut": "écart attendu : E-22 : couleur du texte ajustée pour le contraste",
+     "ecarts": [
+      {
+       "propriete": "color",
+       "maquette": "rgb(239, 68, 68)",
+       "socle": "rgb(153, 27, 27)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".modal-card",
+     "statut": "écart attendu : E-07 : styles absents du rendu de la maquette au-delà de 768 px",
+     "ecarts": [
+      {
+       "propriete": "backgroundColor",
+       "maquette": "rgba(0, 0, 0, 0)",
+       "socle": "rgb(255, 255, 255)"
+      },
+      {
+       "propriete": "borderTopColor",
+       "maquette": "rgb(15, 23, 42)",
+       "socle": "rgba(29, 78, 216, 0.15)"
+      },
+      {
+       "propriete": "borderBottomColor",
+       "maquette": "rgb(15, 23, 42)",
+       "socle": "rgba(29, 78, 216, 0.15)"
+      },
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "0px",
+       "socle": "24px"
+      },
+      {
+       "propriete": "boxShadow",
+       "maquette": "none",
+       "socle": "rgba(0, 0, 0, 0.6) 0px 25px 50px -12px"
+      }
+     ]
+    },
+    {
+     "selecteur": ".btn-danger",
+     "statut": "écart attendu : E-21 et E-23 : fond assombri pour le contraste, interligne unifié",
+     "ecarts": [
+      {
+       "propriete": "lineHeight",
+       "maquette": "normal",
+       "socle": "24.32px"
+      },
+      {
+       "propriete": "backgroundColor",
+       "maquette": "rgb(239, 68, 68)",
+       "socle": "rgb(220, 38, 38)"
+      }
+     ]
+    },
+    {
+     "selecteur": ".skeleton",
+     "statut": "écart attendu : instance mesurée dimensionnée en ligne dans la maquette (la règle de classe est identique)",
+     "ecarts": [
+      {
+       "propriete": "borderTopLeftRadius",
+       "maquette": "6px",
+       "socle": "10px"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "focusRestitue-dark": "Ouvrir la modale",
+ "focusRestitue-light": "Ouvrir la modale"
+}

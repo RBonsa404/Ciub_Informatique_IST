@@ -1,40 +1,27 @@
-# ===================================================================
-# Club Informatique IST — Frontend Angular Dockerfile (Multi-Stage)
-# ===================================================================
-# Stage 1: Build Angular static assets
-FROM node:22-alpine AS builder
+# Frontend du Club Informatique de l'IST : construction Angular, puis service par Nginx.
+# Variables lues au démarrage du conteneur :
+#   PORT     port d'écoute (fourni par l'hébergeur ; 8080 par défaut)
+#   API_URL  adresse interne du backend, sans barre finale (exemple : http://backend.railway.internal:8080)
 
+# ── Étape 1 : construction ──────────────────────────────────────────
+FROM node:24-alpine AS construction
 WORKDIR /app
-
-# Copy dependency definitions
-COPY package*.json ./
-
-# Install dependencies cleanly
-RUN npm ci --legacy-peer-deps
-
-# Copy full frontend source code
+COPY package.json package-lock.json ./
+RUN npm ci --no-audit --no-fund
 COPY . .
+RUN npm run check && npm run build && node deploiement/optimiser-pages.mjs
 
-# Build production Angular bundle with environment.prod.ts
-RUN npm run build
-
-# ── Stage 2: Serve static files with Nginx ──────────────────────────
-FROM nginx:alpine AS runtime
-
-# Install gettext for envsubst
-RUN apk add --no-cache gettext
-
-# Remove default nginx config
-RUN rm -f /etc/nginx/conf.d/default.conf
-
-# Copy nginx config template (BACKEND_URL will be substituted at startup)
-COPY nginx.conf.template /etc/nginx/templates/default.conf.template
-
-# Copy built Angular static assets to Nginx html folder
-COPY --from=builder /app/dist/club-informatique-frontend/browser /usr/share/nginx/html
-
-# Expose port 80
-EXPOSE 80
-
-# At startup: substitute BACKEND_URL env var into nginx config, then launch nginx
-CMD ["/bin/sh", "-c", "envsubst '${BACKEND_URL}' < /etc/nginx/templates/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"]
+# ── Étape 2 : service ───────────────────────────────────────────────
+FROM nginx:1.29-alpine AS service
+# Le gabarit est résolu au démarrage par l'image officielle (envsubst), pour les seules variables listées.
+# Les serveurs de noms du conteneur sont transmis au gabarit : l'adresse du backend est résolue de nouveau à intervalles courts.
+ENV PORT=8080 \
+    API_URL=http://localhost:8080 \
+    NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 \
+    NGINX_ENVSUBST_FILTER="^(PORT|API_URL|NGINX_LOCAL_RESOLVERS)$"
+COPY deploiement/nginx.conf.template /etc/nginx/templates/default.conf.template
+# En-têtes de sécurité complétés à la construction par l'empreinte du script du thème inscrit dans les pages.
+COPY --from=construction /app/dist/club-informatique-frontend/en-tetes.conf /etc/nginx/snippets/en-tetes.conf
+COPY --from=construction /app/dist/club-informatique-frontend/browser /usr/share/nginx/html
+EXPOSE 8080
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s CMD wget -q -O /dev/null "http://127.0.0.1:${PORT}/sante" || exit 1

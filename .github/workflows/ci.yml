@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'refonte/**']
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    name: Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: club-informatique-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: club-informatique-frontend/package-lock.json
+      - run: npm ci
+      - name: Garde anti-statistiques (auto-test puis analyse)
+        run: |
+          node scripts/check-no-hardcoded-stats.mjs --self-test
+          npm run check:stats
+      - name: Casse des fichiers (système sensible à la casse)
+        run: npm run check:casse
+      - name: Tests unitaires
+        run: npm test
+      - name: Construction de production
+        run: npm run build
+
+  backend:
+    name: Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: club-informatique-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+      - name: Tests
+        run: mvn -B -ntp verify
