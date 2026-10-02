@@ -59,6 +59,11 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     @Query(value = "SELECT nextval('numero_membre_seq')", nativeQuery = true)
     long prochainNumeroDeMembre();
 
+    /** Comptes actifs portant le rôle. */
+    @Query("SELECT DISTINCT u FROM Utilisateur u JOIN u.roles r WHERE u.deletedAt IS NULL " +
+           "AND u.statut = com.clubinfo.ist.user.entity.StatutUtilisateur.ACTIF AND r.nom = :role")
+    List<Utilisateur> actifsAvecRole(@Param("role") String role);
+
     /** Vrai si un compte réel (ni supprimé, ni de test) porte le rôle. */
     @Query("SELECT COUNT(u) > 0 FROM Utilisateur u JOIN u.roles r WHERE u.deletedAt IS NULL AND u.test = false AND r.nom = :role")
     boolean existeReelAvecRole(@Param("role") String role);

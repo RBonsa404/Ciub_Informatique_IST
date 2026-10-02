@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +69,13 @@ public class Projet extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "porteur_id", nullable = false)
     private Utilisateur porteur;
+
+    /** Motif de la décision du Responsable ; obligatoire pour un rejet. */
+    @Column(name = "motif_decision", length = 1000)
+    private String motifDecision;
+
+    @Column(name = "date_decision")
+    private LocalDateTime dateDecision;
 
     @Column(name = "suivi_formateur", columnDefinition = "TEXT")
     private String suiviFormateur;

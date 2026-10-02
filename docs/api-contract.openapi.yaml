@@ -1633,6 +1633,8 @@ paths:
           $ref: "#/components/responses/Erreur403"
         "404":
           $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
   "/projets/en-attente":
     get:
       tags: [Projets]
