@@ -276,6 +276,11 @@ class AdministrationIT extends IntegrationTest {
         assertThat(apres.path("repartitionMembresParRole").path("MEMBRE").asInt() - avant.path("repartitionMembresParRole").path("MEMBRE").asInt()).isEqualTo(1);
         assertThat(apres.path("repartitionProjetsParStatut").path("PROPOSE").asInt() - avant.path("repartitionProjetsParStatut").path("PROPOSE").asInt()).isEqualTo(1);
         assertThat(apres.path("repartitionMembresParRole").has("ROLE_MEMBRE")).isFalse();
+
+        // Un compte sans le rôle de membre (formateur invité, administrateur) est lui aussi un compte enregistré.
+        compte("FORMATEUR");
+        JsonNode avecFormateur = envoyer(get("/admin/statistiques"), admin, null, 200);
+        assertThat(avecFormateur.path("totalMembres").asInt() - apres.path("totalMembres").asInt()).isEqualTo(1);
         for (String champ : List.of("totalEvenements", "totalFormations", "totalRessources", "totalMessagesNonTraites")) {
             assertThat(apres.path(champ).isNumber()).as(champ).isTrue();
         }

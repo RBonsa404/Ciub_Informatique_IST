@@ -37,6 +37,8 @@ public class TableauxDeBordService {
             SELECT COUNT(DISTINCT u.id) FROM utilisateur u
             JOIN utilisateur_role ur ON ur.utilisateur_id = u.id JOIN role r ON r.id = ur.role_id
             WHERE u.deleted_at IS NULL AND NOT u.test AND r.nom = 'ROLE_MEMBRE'""";
+    /** Tous les comptes réels, quel que soit leur rôle : c'est ce que l'administration appelle « comptes enregistrés ». */
+    private static final String COMPTES = "SELECT COUNT(*) FROM utilisateur u WHERE u.deleted_at IS NULL AND NOT u.test";
     private static final int ECHECS_SIGNALES = 5;
     private static final int ECHECS_CRITIQUES = 20;
     private static final int JOURS_ENTRE_SAUVEGARDES = 8;
@@ -76,8 +78,8 @@ public class TableauxDeBordService {
             parStatut.put(ligne.getString("statut"), ligne.getLong("effectif"));
         });
         return new Statistiques(
-                compter(MEMBRES),
-                compter(MEMBRES + " AND u.statut = 'ACTIF'"),
+                compter(COMPTES),
+                compter(COMPTES + " AND u.statut = 'ACTIF'"),
                 compter(horsTest("evenement", "organisateur_id")),
                 compter(horsTest("formation", "formateur_id")),
                 compter("SELECT COUNT(*) FROM projet p JOIN utilisateur u ON u.id = p.porteur_id WHERE p.deleted_at IS NULL AND NOT u.test"),

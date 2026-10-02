@@ -29,8 +29,8 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 /**
- * Pages d'information rédigées par le club (accueil, présentation). Une page que personne n'a rédigée n'existe pas :
- * le site affiche alors un état vide, jamais un texte de remplissage.
+ * Pages d'information rédigées par le club (accueil, présentation). Une page que personne n'a encore rédigée est
+ * renvoyée vide : le site affiche alors un état vide, jamais un texte de remplissage.
  */
 @RestController
 @RequestMapping("/pages")
@@ -59,11 +59,12 @@ public class PageInfoController {
 
     @GetMapping("/{slug}")
     @Transactional(readOnly = true)
-    @Operation(summary = "Page d'information (accueil, présentation)")
+    @Operation(summary = "Page d'information (accueil, présentation) ; contenu vide tant que le club ne l'a pas rédigée")
     public ResponseEntity<PageInformation> lire(@PathVariable String slug) {
-        return pages.findBySlug(slug).filter(page -> PAGES.contains(page.getSlug()))
-                .map(page -> ResponseEntity.ok(PageInformation.de(page)))
-                .orElseThrow(PageInfoController::introuvable);
+        if (!PAGES.contains(slug)) {
+            throw introuvable();
+        }
+        return ResponseEntity.ok(pages.findBySlug(slug).map(PageInformation::de).orElseGet(() -> new PageInformation(slug, null, "", null)));
     }
 
     @PutMapping("/{slug}")

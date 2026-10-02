@@ -78,11 +78,12 @@ class ContenusPublicsIT extends IntegrationTest {
     // ---------------------------------------------------------------- Pages
 
     @Test
-    @DisplayName("Pages d'information : absentes tant que le club ne les a pas rédigées, puis lues telles qu'enregistrées")
+    @DisplayName("Pages d'information : vides tant que le club ne les a pas rédigées, puis lues telles qu'enregistrées")
     void pagesDInformation() throws Exception {
         String slug = "presentation";
         jdbc.update("delete from page_info where slug = ?", slug);
-        mvc.perform(get("/pages/" + slug)).andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("INTROUVABLE"));
+        mvc.perform(get("/pages/" + slug)).andExpect(status().isOk()).andExpect(jsonPath("$.slug").value(slug)).andExpect(jsonPath("$.contenu").value(""));
+        mvc.perform(get("/pages/page-libre")).andExpect(status().isNotFound()).andExpect(jsonPath("$.code").value("INTROUVABLE"));
 
         Map<String, Object> page = Map.of("titre", "Présentation du club", "contenu", "Texte rédigé par le bureau.");
         mvc.perform(corps(put("/pages/" + slug), page)).andExpect(status().isUnauthorized());
