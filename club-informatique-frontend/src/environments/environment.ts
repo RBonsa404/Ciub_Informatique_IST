@@ -1,11 +1,11 @@
 import { uniformFlags } from '../app/core/config/features';
 import { Environment } from './environment.model';
 
-/** Production : aucun module n'est exposé tant que son intégration n'est pas validée (Phase 4). */
+/** Production : chaque module est exposé une fois son intégration au backend réel prouvée (docs/recette/integration.md). */
 export const environment: Environment = {
   production: true,
-  apiBaseUrl: '/api',
+  apiBaseUrl: '/api/v1',
   siteUrl: '',
-  features: uniformFlags(false),
+  features: uniformFlags(true),
   internalRoutes: [],
 };

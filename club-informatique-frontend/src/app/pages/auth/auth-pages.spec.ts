@@ -66,11 +66,15 @@ describe('toSession', () => {
     expect(session.utilisateur).toEqual({ id: 7, email: 'e', nom: 'N', prenom: 'P', roles: ['FORMATEUR'], changementMotDePasseRequis: false });
   });
 
-  it('adapte la réponse du backend existant (champs à plat, rôles préfixés) et écarte les rôles inconnus', () => {
-    const session = toSession({ accessToken: 'a', refreshToken: 'r', expiresIn: 900, userId: 3, email: 'e', nom: 'N', prenom: 'P', roles: ['ROLE_MEMBRE', 'ROLE_INCONNU'] });
+  it('écarte les rôles inconnus et ne retient aucun champ hors contrat', () => {
+    const session = toSession({ accessToken: 'a', refreshToken: 'r', expiresIn: 900, utilisateur: { id: 3, email: 'e', nom: 'N', prenom: 'P', roles: ['MEMBRE', 'INCONNU'] } });
     expect(session.utilisateur.id).toBe(3);
     expect(session.utilisateur.roles).toEqual(['MEMBRE']);
     expect(JSON.stringify(session)).not.toContain('refreshToken');
+  });
+
+  it('rejette une réponse sans utilisateur', () => {
+    expect(() => toSession({ accessToken: 'a', expiresIn: 900 })).toThrow();
   });
 
   it('rejette une réponse sans jeton', () => {
@@ -90,12 +94,33 @@ describe('LoginPage', () => {
       type(root, 'input[type=email]', 'personne@exemple.invalid');
       type(root, 'input[type=password]', 'Secret@123');
       root.querySelector('form')!.dispatchEvent(new Event('submit'));
-      http.expectOne('/api/auth/login').flush({ status }, { status, statusText: 'x' });
+      http.expectOne('/api/v1/auth/login').flush({ status }, { status, statusText: 'x' });
       fixture.detectChanges();
       messages.push(root.querySelector('[role=alert] span')!.textContent!.trim());
     }
     expect(messages[0]).toBe('Adresse électronique ou mot de passe incorrect. Veuillez réessayer.');
     expect(messages[1]).toBe(messages[0]);
+  });
+
+  it('explique au titulaire pourquoi son compte est refusé', () => {
+    const { http } = setup();
+    const fixture = TestBed.createComponent(LoginPage);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+
+    const refus = (status: number, code?: string): string => {
+      type(root, 'input[type=email]', 'personne@exemple.invalid');
+      type(root, 'input[type=password]', 'Secret@123');
+      root.querySelector('form')!.dispatchEvent(new Event('submit'));
+      http.expectOne('/api/v1/auth/login').flush({ status, code, detail: 'Détail du serveur.' }, { status, statusText: 'x' });
+      fixture.detectChanges();
+      return root.querySelector('[role=alert] span')!.textContent!.trim();
+    };
+    expect(refus(403, 'ADRESSE_NON_VERIFIEE')).toBe('Votre adresse électronique n’est pas encore vérifiée. Ouvrez le lien reçu par courriel.');
+    expect(refus(403, 'COMPTE_SUSPENDU')).toBe('Ce compte est suspendu. Contactez le club.');
+    expect(refus(403, 'COMPTE_INACTIF')).toBe('Ce compte n’est pas actif. Contactez le club.');
+    expect(refus(423)).toContain('temporairement verrouillé');
+    expect(refus(503, 'MAINTENANCE')).toBe('La plateforme est en maintenance. Réessayez plus tard.');
   });
 
   it('n’envoie rien si un champ obligatoire manque', () => {
@@ -104,7 +129,7 @@ describe('LoginPage', () => {
     fixture.detectChanges();
     (fixture.nativeElement as HTMLElement).querySelector('form')!.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
-    http.expectNone('/api/auth/login');
+    http.expectNone('/api/v1/auth/login');
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('[aria-invalid=true]').length).toBe(2);
   });
 
@@ -118,7 +143,7 @@ describe('LoginPage', () => {
     type(root, 'input[type=password]', 'Secret@123');
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
 
-    const request = http.expectOne('/api/auth/login');
+    const request = http.expectOne('/api/v1/auth/login');
     expect(request.request.body.email).toBe('aminata.sawadogo@exemple.invalid');
     expect(request.request.withCredentials).toBe(true);
     request.flush({ accessToken: 'jeton', expiresIn: 900, utilisateur: { id: 1, email: 'e', nom: 'Sawadogo', prenom: 'Aminata', roles: ['MEMBRE'] } });
@@ -168,7 +193,7 @@ describe('RegisterPage', () => {
     fill(root);
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
-    http.expectNone('/api/auth/register');
+    http.expectNone('/api/v1/auth/register');
     expect(root.textContent).toContain('Votre accord est nécessaire');
   });
 
@@ -181,7 +206,7 @@ describe('RegisterPage', () => {
     root.querySelector<HTMLInputElement>('input[type=checkbox]')!.click();
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
-    http.expectNone('/api/auth/register');
+    http.expectNone('/api/v1/auth/register');
     expect(root.textContent).toContain('Les deux mots de passe ne sont pas identiques.');
   });
 
@@ -194,7 +219,7 @@ describe('RegisterPage', () => {
     root.querySelector<HTMLInputElement>('input[type=checkbox]')!.click();
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
 
-    const request = http.expectOne('/api/auth/register');
+    const request = http.expectOne('/api/v1/auth/register');
     expect(request.request.body).toEqual({
       nom: 'Kaboré',
       prenom: 'Issouf',
@@ -217,7 +242,7 @@ describe('RegisterPage', () => {
     fill(root);
     root.querySelector<HTMLInputElement>('input[type=checkbox]')!.click();
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
-    http.expectOne('/api/auth/register').flush({ status: 409, detail: 'Un compte existe déjà avec cette adresse' }, { status: 409, statusText: 'Conflict' });
+    http.expectOne('/api/v1/auth/register').flush({ status: 409, detail: 'Un compte existe déjà avec cette adresse' }, { status: 409, statusText: 'Conflict' });
     fixture.detectChanges();
     const alert = root.querySelector('[role=alert]')!.textContent!;
     expect(alert).toContain('existe peut-être déjà');
@@ -247,7 +272,7 @@ describe('ResetPasswordPage', () => {
     expect(root.querySelectorAll('.strength-bars .on').length).toBe(5);
 
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
-    const request = http.expectOne('/api/auth/reset-password');
+    const request = http.expectOne('/api/v1/auth/reset-password');
     expect(request.request.body).toEqual({ token: 'abc', nouveauMotDePasse: 'Secret@123' });
     request.flush({ status: 400 }, { status: 400, statusText: 'Bad Request' });
     fixture.detectChanges();

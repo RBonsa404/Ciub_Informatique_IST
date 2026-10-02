@@ -25,6 +25,8 @@ import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { webUrlValidator } from '../../shared/validators';
+import { FileUpload } from '../../shared/ui/file/file-upload';
+import { EXTENSIONS_IMAGES, estFichierDepose } from '../../core/api/files.api';
 
 type StatusFilter = '' | 'publie' | 'brouillon';
 const PAGE_SIZE = 10;
@@ -151,11 +153,7 @@ export class NewsListPage {
   protected readonly pendingKey = signal<string | null>(null);
 
   protected readonly state = new ResourceState<Page<Actualite>>(() => this.api.actualites({ page: this.page(), size: PAGE_SIZE, sort: 'createdAt,desc', publie: this.wanted() }));
-  /** Le filtre est appliqué par le serveur et revérifié sur la page reçue. */
-  protected readonly items = computed(() => {
-    const wanted = this.wanted();
-    return (this.state.data()?.content ?? []).filter((item) => wanted === null || !!item.publie === wanted);
-  });
+  protected readonly items = computed(() => this.state.data()?.content ?? []);
   protected readonly status = computed(() => (this.state.status() === 'ready' && this.items().length === 0 ? 'empty' : this.state.status()));
   protected readonly totalPages = computed(() => this.state.data()?.totalPages ?? 0);
   protected readonly emptyMessage = computed(() =>
@@ -186,7 +184,7 @@ export class NewsListPage {
   protected toggle(item: Actualite): void {
     if (this.pendingKey()) return;
     this.pendingKey.set(`publication-${item.id}`);
-    this.api.basculerPublication(item.id).subscribe({
+    this.api.definirPublication(item.id, !item.publie).subscribe({
       next: (updated) => {
         this.pendingKey.set(null);
         this.state.refresh();
@@ -246,7 +244,7 @@ export function appendBlock(content: string, snippet: string): string {
 @Component({
   selector: 'app-news-editor-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Icon, Button, Field, FieldControl, DataZone, Skeleton],
+  imports: [ReactiveFormsModule, RouterLink, Icon, Button, Field, FieldControl, DataZone, Skeleton, FileUpload],
   styles: `
     .layout {
       display: grid;
@@ -398,12 +396,19 @@ export function appendBlock(content: string, snippet: string): string {
             </app-field>
             <app-field
               label="Image de couverture"
-              hint="Facultatif : adresse web de l’image (https://…)."
-              [messages]="{ adresse: 'Saisissez une adresse complète commençant par http:// ou https://.' }"
+              hint="Facultatif : adresse web de l’image (https://…), ou image déposée ci-dessous."
+              [messages]="{ adresse: 'Saisissez une adresse complète commençant par http:// ou https://, ou déposez une image.' }"
               [serverError]="serverErrors()['image'] ?? null"
             >
-              <input appControl type="url" inputmode="url" formControlName="image" />
+              <input appControl type="text" inputmode="url" formControlName="image" />
             </app-field>
+            <app-file-upload
+              label="Déposer une image de couverture"
+              invite="Glissez l’image ici ou choisissez-la sur votre appareil."
+              [extensions]="imageExtensions"
+              (fileUploaded)="form.controls.image.setValue($event.url)"
+              (fileRemoved)="form.controls.image.setValue('')"
+            />
           </section>
         </div>
       </app-data-zone>
@@ -435,7 +440,12 @@ export class NewsEditorPage {
     image: new FormControl('', { nonNullable: true, validators: [webUrlValidator, Validators.maxLength(URL_MAX)] }),
   });
   private readonly image = toSignal(this.form.controls.image.valueChanges, { initialValue: '' });
-  protected readonly coverUrl = computed(() => (this.form.controls.image.valid ? safeUrl(this.image()) : null));
+  /** Aperçu d'une image externe seulement : une image déposée n'est lisible qu'une fois l'actualité publiée. */
+  protected readonly coverUrl = computed(() => {
+    const adresse = this.form.controls.image.valid ? safeUrl(this.image()) : null;
+    return adresse && !estFichierDepose(adresse) ? adresse : null;
+  });
+  protected readonly imageExtensions = EXTENSIONS_IMAGES;
 
   private readonly categoriesState = new ResourceState<readonly Categorie[]>(() => this.publicApi.categories());
   protected readonly categories = computed(() => this.categoriesState.data() ?? []);

@@ -5,6 +5,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MemberApi } from '../../core/api/member.api';
 import { PreferencesCompte } from '../../core/api/models';
 import { ResourceState } from '../../core/api/resource-state';
+import { AuthService } from '../../core/auth/auth.service';
 import { AuthStore } from '../../core/auth/auth.store';
 import { PASSWORD_POLICY_MESSAGE, matchValidator, passwordPolicyValidator } from '../../core/auth/password-policy';
 import { toApiError } from '../../core/http/problem';
@@ -221,6 +222,7 @@ export class SettingsPage {
   private readonly toasts = inject(ToastService);
   private readonly dialogs = inject(DialogService);
   protected readonly auth = inject(AuthStore);
+  private readonly sessions = inject(AuthService);
   protected readonly theme = inject(ThemeService);
   protected readonly policyMessage = PASSWORD_POLICY_MESSAGE;
 
@@ -275,15 +277,22 @@ export class SettingsPage {
     this.currentPasswordError.set(null);
     this.api.changerMotDePasse(ancien, nouveau).subscribe({
       next: () => {
-        this.passwordPending.set(false);
-        this.closePassword();
-        this.toasts.success('Votre mot de passe est modifié.');
+        // Le serveur a fermé les autres sessions et remplacé le cookie de celle-ci : elle est renouvelée aussitôt.
+        this.sessions.refresh().subscribe((renouvelee) => {
+          this.passwordPending.set(false);
+          this.closePassword();
+          this.toasts.success(renouvelee ? 'Votre mot de passe est modifié.' : 'Votre mot de passe est modifié. Reconnectez-vous.');
+          if (!renouvelee) void this.router.navigateByUrl('/connexion');
+        });
       },
       error: (failure: unknown) => {
         this.passwordPending.set(false);
-        const kind = toApiError(failure).kind;
-        if (kind === 'validation' || kind === 'unauthorized' || kind === 'forbidden' || kind === 'conflict') {
+        const apiError = toApiError(failure);
+        const kind = apiError.kind;
+        if (apiError.code === 'MOT_DE_PASSE_INCORRECT') {
           this.currentPasswordError.set('Le mot de passe actuel est incorrect.');
+        } else if (kind === 'validation') {
+          this.currentPasswordError.set(apiError.fieldMessage('nouveauMotDePasse') ?? apiError.userMessage);
         } else if (kind === 'network') {
           this.toasts.danger('La connexion au service a échoué. Vérifiez votre connexion, puis réessayez.');
         }

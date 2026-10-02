@@ -33,12 +33,16 @@ export class ApiError extends Error {
     return this.fieldMessages()[field] ?? null;
   }
 
-  /** Premier message par champ. Accepte le format cible (errors) et celui du backend existant (fieldErrors). */
+  /** Premier message par champ. */
   fieldMessages(): Record<string, string> {
     const result: Record<string, string> = {};
-    const legacy = (this.problem as { fieldErrors?: readonly FieldProblem[] } | null)?.fieldErrors;
-    for (const item of this.problem?.errors ?? legacy ?? []) result[item.field] ??= item.message;
+    for (const item of this.problem?.errors ?? []) result[item.field] ??= item.message;
     return result;
+  }
+
+  /** Code stable de l'erreur (« DEJA_INSCRIT », « COMPLET »…), quand le serveur en donne un. */
+  get code(): string | null {
+    return this.problem?.code ?? null;
   }
 }
 
@@ -61,7 +65,9 @@ export function toApiError(error: unknown): ApiError {
 
   const kind = kindOf(error.status);
   const problem = isProblem(error.error) ? error.error : null;
-  const businessDetail = (kind === 'conflict' || kind === 'validation') && problem?.detail ? problem.detail : null;
+  // Le détail est rédigé par le serveur pour l'utilisateur : refus métier, compte non actif, maintenance.
+  const explicite = kind === 'conflict' || kind === 'validation' || (kind === 'forbidden' && !!problem?.code && problem.code !== 'ACCES_REFUSE') || error.status === 503 || error.status === 423;
+  const businessDetail = explicite && problem?.detail ? problem.detail : null;
   return new ApiError(kind, error.status, businessDetail ?? MESSAGES[kind], problem);
 }
 

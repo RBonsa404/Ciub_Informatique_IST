@@ -18,7 +18,6 @@ import {
 import { toPage } from './public.api';
 
 export interface ActualitesQuery extends PageRequest {
-  /** Filtre de publication, à ajouter côté serveur. */
   readonly publie?: boolean | null;
 }
 
@@ -27,7 +26,7 @@ export interface MessagesQuery extends PageRequest {
 }
 
 export interface EvenementsQuery extends PageRequest {
-  /** Bornes de date (AAAA-MM-JJ), à ajouter côté serveur. */
+  /** Bornes de date (AAAA-MM-JJ) sur le début de l’événement. */
   readonly du?: string;
   readonly au?: string;
 }
@@ -37,12 +36,12 @@ export interface EvenementsQuery extends PageRequest {
 export class ManagementApi {
   private readonly api = inject(ApiClient);
 
-  /** Point d'accès à créer : effectif réel et fréquentation mensuelle. */
+  /** Effectif réel et fréquentation mensuelle. */
   indicateurs(): Observable<IndicateursGestion> {
     return this.api.get<IndicateursGestion>('/gestion/indicateurs', undefined, { silent: true });
   }
 
-  /** Composition du bureau : lecture publique, écriture réservée au Responsable (points d'accès à créer). */
+  /** Composition du bureau : lecture publique, écriture réservée au Responsable. */
   bureau(): Observable<readonly MembreBureau[]> {
     return this.api.get<readonly MembreBureau[]>('/bureau', undefined, { silent: true });
   }
@@ -60,16 +59,16 @@ export class ManagementApi {
   }
 
   messagesContact(query: MessagesQuery = {}): Observable<Page<MessageContact>> {
-    return this.api.get<unknown>('/contact/admin', { ...query }).pipe(map(toPage<MessageContact>));
+    return this.api.get<unknown>('/gestion/messages', { ...query }).pipe(map(toPage<MessageContact>));
   }
 
   marquerMessageTraite(id: number): Observable<MessageContact> {
-    return this.api.put<MessageContact>(`/contact/admin/${id}/traite`, null);
+    return this.api.put<MessageContact>(`/gestion/messages/${id}/traite`, null);
   }
 
   /** Toutes les actualités, publiées ou non. */
   actualites(query: ActualitesQuery = {}): Observable<Page<Actualite>> {
-    return this.api.get<unknown>('/actualites/admin/all', { ...query }).pipe(map(toPage<Actualite>));
+    return this.api.get<unknown>('/gestion/actualites', { ...query }).pipe(map(toPage<Actualite>));
   }
 
   actualite(id: number): Observable<Actualite> {
@@ -84,9 +83,9 @@ export class ManagementApi {
     return this.api.put<Actualite>(`/actualites/${id}`, payload);
   }
 
-  /** Publie un brouillon ou retire une actualité publiée. */
-  basculerPublication(id: number): Observable<Actualite> {
-    return this.api.patch<Actualite>(`/actualites/${id}/publication`, null);
+  /** Publie un brouillon (publie = true) ou retire une actualité publiée (publie = false). */
+  definirPublication(id: number, publie: boolean): Observable<Actualite> {
+    return this.api.patch<Actualite>(`/actualites/${id}/publication`, { publie });
   }
 
   supprimerActualite(id: number): Observable<void> {
@@ -100,7 +99,7 @@ export class ManagementApi {
 
   /** Tous les événements, publiés ou non. */
   evenements(query: EvenementsQuery = {}): Observable<Page<Evenement>> {
-    return this.api.get<unknown>('/evenements/admin/all', { ...query }).pipe(map(toPage<Evenement>));
+    return this.api.get<unknown>('/gestion/evenements', { ...query }).pipe(map(toPage<Evenement>));
   }
 
   creerEvenement(payload: EvenementPayload): Observable<Evenement> {
@@ -117,7 +116,7 @@ export class ManagementApi {
 
   /** Toutes les formations, pour le choix d'une séance. */
   formations(query: PageRequest = {}): Observable<Page<Formation>> {
-    return this.api.get<unknown>('/formations/admin/all', { ...query }).pipe(map(toPage<Formation>));
+    return this.api.get<unknown>('/gestion/formations', { ...query }).pipe(map(toPage<Formation>));
   }
 
   inscritsEvenement(evenementId: number): Observable<readonly Inscription[]> {

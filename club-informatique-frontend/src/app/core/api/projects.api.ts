@@ -4,6 +4,12 @@ import { ApiClient, Page, PageRequest } from './api-client';
 import { Projet, ProjetPayload, StatutProjet, SuiviPayload } from './models';
 import { toPage } from './public.api';
 
+export interface CompteursProjets {
+  readonly enAttente: number;
+  readonly valides: number;
+  readonly rejetes: number;
+}
+
 export interface MesProjetsQuery extends PageRequest {
   readonly statut?: StatutProjet | null;
   readonly categorieId?: number | null;
@@ -18,7 +24,7 @@ export class ProjectsApi {
     return this.api.post<Projet>('/projets', payload);
   }
 
-  /** Point d'accès à créer : projets proposés par l'utilisateur, quel que soit leur statut. */
+  /** Projets proposés par l'utilisateur, quel que soit leur statut. */
   mesProjets(query: MesProjetsQuery = {}): Observable<Page<Projet>> {
     return this.api.get<unknown>('/projets/mes-projets', { ...query }, { silent: true }).pipe(map(toPage<Projet>));
   }
@@ -41,8 +47,13 @@ export class ProjectsApi {
   }
 
   /** Tous les projets, tous statuts confondus (gestion). */
-  tous(query: PageRequest = {}): Observable<Page<Projet>> {
-    return this.api.get<unknown>('/projets/admin/all', { ...query }).pipe(map(toPage<Projet>));
+  tous(query: PageRequest & { statut?: StatutProjet | null } = {}): Observable<Page<Projet>> {
+    return this.api.get<unknown>('/gestion/projets', { ...query }).pipe(map(toPage<Projet>));
+  }
+
+  /** Décompte des projets par décision, calculé par le serveur. */
+  compteurs(): Observable<CompteursProjets> {
+    return this.api.get<CompteursProjets>('/gestion/projets/compteurs');
   }
 
   decider(id: number, statut: 'VALIDE' | 'REJETE', motif: string | null): Observable<Projet> {

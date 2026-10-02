@@ -15,6 +15,7 @@ import { IconName } from '../../shared/ui/icon/icon-names';
 import { Pagination } from '../../shared/ui/pagination/pagination';
 import { DataZone, PagedList } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
+import { FileLink } from '../../shared/ui/file/file-link';
 
 const SESSION_LABELS: Record<StatutSession, string> = { PLANIFIEE: 'Planifiée', EN_COURS: 'En cours', TERMINEE: 'Terminée', ANNULEE: 'Annulée' };
 
@@ -256,7 +257,7 @@ export class FormationsListPage {
                             [full]="(session.placesRestantes ?? 1) <= 0 && !!session.capaciteMax"
                             [closed]="closed(session)"
                             size="sm"
-                            (changed)="sessions.refresh()"
+                            (changed)="formation.refresh()"
                           />
                         </div>
                       </div>
@@ -282,7 +283,7 @@ export class FormationDetailPage {
   protected readonly formation = new ResourceState<Formation>(() => this.api.formation(this.slug()));
   protected readonly sessions = new ResourceState<readonly SessionFormation[]>(() => {
     const formation = this.formation.data();
-    return formation ? this.api.sessions(formation.id) : of([]);
+    return of(formation?.sessions ?? []);
   });
   protected readonly blocks = computed(() => toBlocks(this.formation.data()?.description));
   protected readonly errorMessage = computed(() =>
@@ -318,7 +319,7 @@ export class FormationDetailPage {
 @Component({
   selector: 'app-ressources-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [Icon, Badge, InputGroup, Pagination, DataZone, Skeleton],
+  imports: [Icon, Badge, InputGroup, Pagination, DataZone, Skeleton, FileLink],
   styles: `
     .tile {
       width: 48px;
@@ -387,10 +388,10 @@ export class FormationDetailPage {
                   <p class="media-text line-clamp-3" style="margin-bottom: 1rem">{{ resource.description }}</p>
                 }
                 <div style="margin-top: auto">
-                  <a class="btn btn-outline btn-sm" [href]="resource.urlFichier" target="_blank" rel="noopener noreferrer">
+                  <a class="btn btn-outline btn-sm" [appFileLink]="resource.urlFichier">
                     {{ resource.type === 'LIEN_EXTERNE' || resource.type === 'VIDEO' ? 'Consulter' : 'Télécharger' }}
                     <app-icon [name]="resource.type === 'LIEN_EXTERNE' || resource.type === 'VIDEO' ? 'external-link' : 'download'" [size]="14" />
-                    <span class="sr-only">{{ resource.titre }} (nouvel onglet)</span>
+                    <span class="sr-only">{{ resource.titre }}</span>
                   </a>
                 </div>
               </article>

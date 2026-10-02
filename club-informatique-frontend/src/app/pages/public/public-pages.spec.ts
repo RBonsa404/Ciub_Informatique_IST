@@ -14,7 +14,7 @@ import { HomePage } from './home-page';
 import { CONDITIONS_UTILISATION, MENTIONS_LEGALES, POLITIQUE_CONFIDENTIALITE } from './legal-content';
 import { MentionsLegalesPage } from './legal-pages';
 
-const page = <T>(content: T[]) => ({ content, number: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
+const page = <T>(content: T[]) => ({ content, page: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
 
 function setup() {
   localStorage.clear();
@@ -52,7 +52,7 @@ describe('formats', () => {
   });
 
   it('uniformise la pagination du backend', () => {
-    expect(toPage({ content: [1, 2], number: 3, size: 2, totalElements: 9, totalPages: 5 })).toEqual({ content: [1, 2], page: 3, size: 2, totalElements: 9, totalPages: 5 });
+    expect(toPage({ content: [1, 2], page: 3, size: 2, totalElements: 9, totalPages: 5 })).toEqual({ content: [1, 2], page: 3, size: 2, totalElements: 9, totalPages: 5 });
     expect(toPage(null).content).toEqual([]);
   });
 });
@@ -86,9 +86,9 @@ describe('HomePage', () => {
     const http = setup();
     const fixture = TestBed.createComponent(HomePage);
     fixture.detectChanges();
-    http.expectOne((r) => r.url === '/api/pages/accueil').flush({ slug: 'accueil', titre: 'Accueil', contenu: '' });
-    http.expectOne((r) => r.url === '/api/evenements').flush(page([]));
-    http.expectOne((r) => r.url === '/api/actualites').flush(page([]));
+    http.expectOne((r) => r.url === '/api/v1/pages/accueil').flush({ slug: 'accueil', titre: 'Accueil', contenu: '' });
+    http.expectOne((r) => r.url === '/api/v1/evenements').flush(page([]));
+    http.expectOne((r) => r.url === '/api/v1/actualites').flush(page([]));
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelectorAll('section').length).toBe(1);
@@ -100,10 +100,10 @@ describe('HomePage', () => {
     const http = setup();
     const fixture = TestBed.createComponent(HomePage);
     fixture.detectChanges();
-    http.expectOne((r) => r.url === '/api/pages/accueil').flush(null, { status: 404, statusText: 'Not Found' });
-    http.expectOne((r) => r.url === '/api/evenements').flush(null, { status: 500, statusText: 'Erreur' });
+    http.expectOne((r) => r.url === '/api/v1/pages/accueil').flush(null, { status: 404, statusText: 'Not Found' });
+    http.expectOne((r) => r.url === '/api/v1/evenements').flush(null, { status: 500, statusText: 'Erreur' });
     http
-      .expectOne((r) => r.url === '/api/actualites')
+      .expectOne((r) => r.url === '/api/v1/actualites')
       .flush(page([{ id: 1, titre: 'Titre réel', slug: 'titre-reel', contenu: 'x', datePublication: '2026-10-01T10:00:00' }]));
     fixture.detectChanges();
     expect(text(fixture)).not.toContain('Prochains événements');
@@ -114,7 +114,7 @@ describe('HomePage', () => {
   it('demande les événements à venir triés par date', () => {
     const http = setup();
     TestBed.createComponent(HomePage).detectChanges();
-    const request = http.expectOne((r) => r.url === '/api/evenements').request;
+    const request = http.expectOne((r) => r.url === '/api/v1/evenements').request;
     expect(request.params.get('aVenir')).toBe('true');
     expect(request.params.get('sort')).toBe('dateDebut,asc');
     http.match(() => true);
@@ -126,8 +126,8 @@ describe('ActualitesListPage', () => {
     const http = setup();
     const fixture = TestBed.createComponent(ActualitesListPage);
     fixture.detectChanges();
-    http.expectOne((r) => r.url === '/api/actualites').flush(page([]));
-    http.expectOne('/api/categories').flush([]);
+    http.expectOne((r) => r.url === '/api/v1/actualites').flush(page([]));
+    http.expectOne('/api/v1/categories').flush([]);
     fixture.detectChanges();
     expect(text(fixture)).toContain('Aucune publication n’a encore été diffusée.');
   });
@@ -136,25 +136,25 @@ describe('ActualitesListPage', () => {
     const http = setup();
     const fixture = TestBed.createComponent(ActualitesListPage);
     fixture.detectChanges();
-    http.expectOne((r) => r.url === '/api/actualites').flush(null, { status: 503, statusText: 'x' });
-    http.expectOne('/api/categories').flush([]);
+    http.expectOne((r) => r.url === '/api/v1/actualites').flush(null, { status: 503, statusText: 'x' });
+    http.expectOne('/api/v1/categories').flush([]);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('[role=alert]')!.textContent).toContain('Les données n’ont pas pu être chargées');
     root.querySelector<HTMLButtonElement>('[role=alert] button')!.click();
-    http.expectOne((r) => r.url === '/api/actualites').flush(page([]));
+    http.expectOne((r) => r.url === '/api/v1/actualites').flush(page([]));
   });
 
   it('filtre par catégorie réelle côté serveur', () => {
     const http = setup();
     const fixture = TestBed.createComponent(ActualitesListPage);
     fixture.detectChanges();
-    http.expectOne((r) => r.url === '/api/actualites').flush(page([{ id: 1, titre: 'A', slug: 'a', contenu: 'x' }]));
-    http.expectOne('/api/categories').flush([{ id: 7, nom: 'Vie du club', slug: 'vie-du-club' }]);
+    http.expectOne((r) => r.url === '/api/v1/actualites').flush(page([{ id: 1, titre: 'A', slug: 'a', contenu: 'x' }]));
+    http.expectOne('/api/v1/categories').flush([{ id: 7, nom: 'Vie du club', slug: 'vie-du-club' }]);
     fixture.detectChanges();
     const chip = [...(fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('.filter-chips button')].find((b) => b.textContent!.includes('Vie du club'))!;
     chip.click();
-    const request = http.expectOne((r) => r.url === '/api/actualites').request;
+    const request = http.expectOne((r) => r.url === '/api/v1/actualites').request;
     expect(request.params.get('categorieId')).toBe('7');
     expect(request.params.get('page')).toBe('0');
   });
@@ -174,7 +174,7 @@ describe('InscriptionAction', () => {
     const http = setup();
     const fixture = create(http, null);
     expect(text(fixture)).toContain('Se connecter pour participer');
-    http.expectNone('/api/inscriptions/me');
+    http.expectNone('/api/v1/inscriptions/me');
   });
 
   it('ne propose aucune action à un rôle sans espace Membre', () => {
@@ -186,12 +186,12 @@ describe('InscriptionAction', () => {
   it('inscrit un membre et affiche le statut renvoyé par le serveur', () => {
     const http = setup();
     const fixture = create(http, ['MEMBRE'], { full: true });
-    http.expectOne((r) => r.url === '/api/inscriptions/me').flush(page([]));
+    http.expectOne((r) => r.url === '/api/v1/inscriptions/me').flush(page([]));
     fixture.detectChanges();
     const button = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button')!;
     expect(button.textContent).toContain('Rejoindre la liste d’attente');
     button.click();
-    http.expectOne({ method: 'POST', url: '/api/inscriptions/evenements/12' }).flush({ id: 5, evenementId: 12, statut: 'LISTE_ATTENTE', dateInscription: '2026-10-01T10:00:00' });
+    http.expectOne({ method: 'POST', url: '/api/v1/inscriptions/evenements/12' }).flush({ id: 5, evenementId: 12, statut: 'LISTE_ATTENTE', dateInscription: '2026-10-01T10:00:00' });
     fixture.detectChanges();
     expect(text(fixture)).toContain('Liste d’attente');
     expect(text(fixture)).toContain('Annuler mon inscription');
@@ -200,7 +200,7 @@ describe('InscriptionAction', () => {
   it('reconnaît une inscription existante', () => {
     const http = setup();
     const fixture = create(http, ['MEMBRE']);
-    http.expectOne((r) => r.url === '/api/inscriptions/me').flush(page([{ id: 9, evenementId: 12, statut: 'CONFIRMEE', dateInscription: '2026-10-01T10:00:00' }]));
+    http.expectOne((r) => r.url === '/api/v1/inscriptions/me').flush(page([{ id: 9, evenementId: 12, statut: 'CONFIRMEE', dateInscription: '2026-10-01T10:00:00' }]));
     fixture.detectChanges();
     expect(text(fixture)).toContain('Inscription confirmée');
   });
@@ -227,7 +227,7 @@ describe('ContactPage', () => {
     fill(root);
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
     fixture.detectChanges();
-    http.expectNone('/api/contact');
+    http.expectNone('/api/v1/contact');
     expect(text(fixture)).toContain('Votre accord est nécessaire');
   });
 
@@ -239,7 +239,7 @@ describe('ContactPage', () => {
     fill(root);
     root.querySelector<HTMLInputElement>('input[type=checkbox]')!.click();
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
-    const request = http.expectOne('/api/contact');
+    const request = http.expectOne('/api/v1/contact');
     expect(request.request.body).toMatchObject({ nom: 'Rasmata Ilboudo', email: 'rasmata.ilboudo@exemple.invalid', sujet: 'Demande', siteWeb: '' });
     expect(typeof request.request.body.dureeSaisieMs).toBe('number');
     request.flush(null, { status: 201, statusText: 'Created' });

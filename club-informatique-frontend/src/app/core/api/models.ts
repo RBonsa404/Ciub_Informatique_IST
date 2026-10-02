@@ -20,7 +20,7 @@ export interface Actualite {
   readonly auteurNom?: string | null;
   readonly categorieId?: number | null;
   readonly categorieNom?: string | null;
-  /** Diffusion : site public ou membres connectés seulement (champ à créer côté serveur). */
+  /** Diffusion : site public ou membres connectés seulement. */
   readonly visibilite?: VisibiliteActualite | null;
   readonly createdAt?: string;
 }
@@ -61,7 +61,7 @@ export interface Evenement {
   readonly organisateurNom?: string | null;
 }
 
-export type NiveauFormation = 'DEBUTANT' | 'INTERMEDIAIRE' | 'AVANCE';
+export type NiveauFormation = 'DEBUTANT' | 'INTERMEDIAIRE' | 'AVANCE' | 'TOUS_NIVEAUX';
 export type StatutSession = 'PLANIFIEE' | 'EN_COURS' | 'TERMINEE' | 'ANNULEE';
 
 export interface SessionFormation {
@@ -115,7 +115,7 @@ export interface Projet {
   readonly statut: StatutProjet;
   readonly porteurId?: number | null;
   readonly porteurNom?: string | null;
-  /** Filière du porteur et motif de la décision du bureau : champs à ajouter côté serveur. */
+  /** Filière du porteur ; motif de la décision du bureau, lisible par le porteur et la gestion. */
   readonly porteurFiliere?: string | null;
   readonly motifDecision?: string | null;
   readonly suiviFormateur?: string | null;
@@ -149,7 +149,7 @@ export interface PageInfo {
   readonly updatedAt?: string | null;
 }
 
-/** Membre du bureau (point d'accès à créer). Aucune photo : avatar neutre. */
+/** Membre du bureau. Aucune photo : avatar neutre. */
 export interface MembreBureau {
   readonly id: number;
   readonly nom: string;
@@ -180,7 +180,7 @@ export interface MessageContact {
   readonly createdAt: string;
 }
 
-/** Indicateurs de gestion du club (point d'accès à créer). Les comptes de test en sont exclus par le serveur. */
+/** Indicateurs de gestion du club. Les comptes de test en sont exclus par le serveur. */
 export interface IndicateursGestion {
   readonly membresActifs: number;
   /** Inscriptions confirmées par mois (« AAAA-MM »), du plus ancien au plus récent. */
@@ -314,6 +314,8 @@ export interface Profil {
   readonly numeroMembre?: string | null;
   readonly dateAdhesion?: string | null;
   readonly statut: StatutCompte;
+  /** Adresse de téléchargement contrôlé de la photo de profil. */
+  readonly photo?: string | null;
 }
 
 export interface ProfilUpdate {
@@ -354,7 +356,7 @@ export interface NotificationItem {
   readonly createdAt: string;
 }
 
-/** Préférences du compte (point d'accès à créer). */
+/** Préférences du compte. */
 export interface PreferencesCompte {
   readonly notificationsCourriel: boolean;
 }
@@ -374,7 +376,7 @@ export const STATUT_COMPTE_LABELS: Record<StatutCompte, string> = {
   EN_ATTENTE_ACTIVATION: 'En attente d’activation',
 };
 
-export const NIVEAU_LABELS: Record<NiveauFormation, string> = { DEBUTANT: 'Débutant', INTERMEDIAIRE: 'Intermédiaire', AVANCE: 'Avancé' };
+export const NIVEAU_LABELS: Record<NiveauFormation, string> = { DEBUTANT: 'Débutant', INTERMEDIAIRE: 'Intermédiaire', AVANCE: 'Avancé', TOUS_NIVEAUX: 'Tous niveaux' };
 
 export const STATUT_PROJET_LABELS: Record<StatutProjet, string> = {
   PROPOSE: 'En attente de validation',

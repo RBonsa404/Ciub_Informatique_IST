@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiClient, Page, PageRequest } from './api-client';
-import { Actualite, Categorie, ContactPayload, Evenement, Formation, Inscription, MembreBureau, PageInfo, Projet, Ressource, SessionFormation, TypeRessource } from './models';
+import { Actualite, Categorie, ContactPayload, Evenement, Formation, Inscription, MembreBureau, PageInfo, Projet, Ressource, TypeRessource } from './models';
 
 export interface ListQuery extends PageRequest {
   readonly search?: string;
@@ -17,7 +17,7 @@ export class PublicApi {
     return this.api.get<PageInfo>(`/pages/${encodeURIComponent(slug)}`);
   }
 
-  /** Point d'accès à créer : composition du bureau, triée par ordre d'affichage. */
+  /** Composition du bureau, triée par ordre d'affichage. */
   bureau(): Observable<readonly MembreBureau[]> {
     return this.api.get<readonly MembreBureau[]>('/bureau');
   }
@@ -48,10 +48,6 @@ export class PublicApi {
 
   formation(slug: string): Observable<Formation> {
     return this.api.get<Formation>(`/formations/slug/${encodeURIComponent(slug)}`);
-  }
-
-  sessions(formationId: number): Observable<readonly SessionFormation[]> {
-    return this.api.get<readonly SessionFormation[]>(`/formations/${formationId}/sessions`);
   }
 
   projets(query: ListQuery = {}): Observable<Page<Projet>> {
@@ -89,13 +85,13 @@ export class PublicApi {
   }
 }
 
-/** Uniformise la pagination : accepte le format cible ({ page }) et celui de Spring Data ({ number }). */
+/** Lit l'enveloppe de pagination du contrat ; une réponse sans contenu donne une page vide. */
 export function toPage<T>(raw: unknown): Page<T> {
   const r = (raw ?? {}) as Record<string, unknown>;
   const content = Array.isArray(r['content']) ? (r['content'] as T[]) : [];
   return {
     content,
-    page: Number(r['page'] ?? r['number'] ?? 0),
+    page: Number(r['page'] ?? 0),
     size: Number(r['size'] ?? content.length),
     totalElements: Number(r['totalElements'] ?? content.length),
     totalPages: Number(r['totalPages'] ?? (content.length ? 1 : 0)),

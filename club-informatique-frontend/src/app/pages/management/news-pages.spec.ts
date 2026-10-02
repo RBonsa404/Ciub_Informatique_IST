@@ -14,7 +14,7 @@ import { PublicationsListPage } from '../member/publications-pages';
 import { BroadcastPage } from './broadcast-page';
 import { NewsEditorPage, NewsListPage, appendBlock } from './news-pages';
 
-const page = <T>(content: T[]) => ({ content, number: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
+const page = <T>(content: T[]) => ({ content, page: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
 
 const article = (id: number, extra: Partial<Actualite> = {}): Actualite => ({
@@ -125,21 +125,21 @@ describe('gestion des actualités', () => {
   it('filtre par statut et bascule la publication', async () => {
     const http = setup();
     const fixture = TestBed.createComponent(NewsListPage);
-    http.expectOne((r) => r.url.endsWith('/actualites/admin/all')).flush(page([article(1), article(2, { publie: false, datePublication: null })]));
+    http.expectOne((r) => r.url.endsWith('/gestion/actualites')).flush(page([article(1), article(2, { publie: false, datePublication: null })]));
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelectorAll('tbody tr').length).toBe(2);
 
     button(root, 'Publier').click();
     http.expectOne((r) => r.url.endsWith('/actualites/2/publication') && r.method === 'PATCH').flush(article(2));
-    http.expectOne((r) => r.url.endsWith('/actualites/admin/all')).flush(page([article(1), article(2)]));
+    http.expectOne((r) => r.url.endsWith('/gestion/actualites')).flush(page([article(1), article(2)]));
 
     const select = root.querySelector<HTMLSelectElement>('select')!;
     select.value = 'brouillon';
     select.dispatchEvent(new Event('change'));
-    const request = http.expectOne((r) => r.url.endsWith('/actualites/admin/all'));
+    const request = http.expectOne((r) => r.url.endsWith('/gestion/actualites'));
     expect(request.request.params.get('publie')).toBe('false');
-    request.flush(page([article(1)]));
+    request.flush(page([]));
     await fixture.whenStable();
     expect(text(fixture)).toContain('Aucune actualité n’est en brouillon.');
   });

@@ -12,6 +12,7 @@ import { Icon } from '../../shared/ui/icon/icon';
 import { Pagination } from '../../shared/ui/pagination/pagination';
 import { DataZone, PagedList } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
+import { environment } from '../../../environments/environment';
 
 const isPast = (event: Evenement): boolean => (parseApiDate(event.dateFin)?.getTime() ?? 0) < Date.now();
 
@@ -166,8 +167,14 @@ export class EvenementsListPage {
                   <app-badge variant="amber" style="margin-bottom: 1rem">{{ item.categorieNom }}</app-badge>
                 }
                 <h1 style="font-size: clamp(1.8rem, 3.5vw, 2.5rem); margin-bottom: 1.25rem">{{ item.titre }}</h1>
-                <div style="margin-bottom: 2.5rem">
+                <div style="margin-bottom: 2.5rem; display: flex; flex-wrap: wrap; align-items: flex-start; gap: 1rem">
                   <app-inscription-action [target]="{ kind: 'evenement', id: item.id }" [full]="full()" [closed]="past()" size="lg" (changed)="event.refresh()" />
+                  @if (!past()) {
+                    <a class="btn btn-secondary" [href]="calendarUrl(item.id)" [attr.download]="'evenement-' + item.id + '.ics'">
+                      <app-icon name="calendar" [size]="16" />
+                      Ajouter au calendrier
+                    </a>
+                  }
                 </div>
                 <div class="glass-panel" style="padding: 1.5rem">
                   <h2 style="font-size: 1.25rem; margin-bottom: 1.25rem">Description</h2>
@@ -231,6 +238,11 @@ export class EvenementsListPage {
   `,
 })
 export class EvenementDetailPage {
+  /** Fichier iCalendar de l'événement, servi par l'API. */
+  protected calendarUrl(id: number): string {
+    return `${environment.apiBaseUrl}/evenements/${id}/calendrier`;
+  }
+
   readonly slug = input.required<string>();
 
   private readonly api = inject(PublicApi);

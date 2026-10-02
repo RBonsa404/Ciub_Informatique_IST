@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, effect, inject, signal, untracked } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { AuthService } from '../core/auth/auth.service';
@@ -217,7 +217,11 @@ export class DashboardLayout {
   });
 
   constructor() {
-    if (this.nav.notificationsEnabled()) this.notifications.refresh();
+    // Tant que le changement de mot de passe est imposé, le serveur refuse toute autre requête : rien n'est demandé.
+    effect(() => {
+      const user = this.auth.user();
+      if (user && !user.changementMotDePasseRequis && this.nav.notificationsEnabled()) untracked(() => this.notifications.refresh());
+    });
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => this.sidebarOpen.set(false));
   }
 

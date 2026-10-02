@@ -11,7 +11,7 @@ import { RegistrationsPage, splitRegistrations } from './registrations-page';
 
 const DAY = 86_400_000;
 const iso = (offset: number) => new Date(Date.now() + offset).toISOString().slice(0, 19);
-const page = <T>(content: T[]) => ({ content, number: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
+const page = <T>(content: T[]) => ({ content, page: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
 
 const event = (id: number, extra: Partial<Evenement> = {}): Evenement => ({
@@ -76,7 +76,7 @@ describe('EventsManagementPage', () => {
   it('liste les événements réels et valide le formulaire de création', async () => {
     const http = setup();
     const fixture = TestBed.createComponent(EventsManagementPage);
-    for (const request of http.match((r) => r.url.endsWith('/evenements/admin/all'))) request.flush(page([event(1), event(2, { publie: false })]));
+    for (const request of http.match((r) => r.url.endsWith('/gestion/evenements'))) request.flush(page([event(1), event(2, { publie: false })]));
     http.expectOne((r) => r.url.endsWith('/categories')).flush([]);
     await fixture.whenStable();
     expect(text(fixture)).toContain('Événement 1');
@@ -138,8 +138,8 @@ describe('inscriptions et listes d’attente', () => {
     const fixture = TestBed.createComponent(RegistrationsPage);
     fixture.componentRef.setInput('evenement', '1');
     await fixture.whenStable();
-    http.expectOne((r) => r.url.endsWith('/evenements/admin/all')).flush(page([event(1)]));
-    http.expectOne((r) => r.url.endsWith('/formations/admin/all')).flush(page([]));
+    http.expectOne((r) => r.url.endsWith('/gestion/evenements')).flush(page([event(1)]));
+    http.expectOne((r) => r.url.endsWith('/gestion/formations')).flush(page([]));
     await fixture.whenStable();
     http.expectOne((r) => r.url.endsWith('/inscriptions/evenements/1')).flush(list);
     await fixture.whenStable();
@@ -157,8 +157,8 @@ describe('inscriptions et listes d’attente', () => {
     const http = setup();
     const fixture = TestBed.createComponent(RegistrationsPage);
     await fixture.whenStable();
-    http.expectOne((r) => r.url.endsWith('/evenements/admin/all')).flush(page([event(1)]));
-    http.expectOne((r) => r.url.endsWith('/formations/admin/all')).flush(page([]));
+    http.expectOne((r) => r.url.endsWith('/gestion/evenements')).flush(page([event(1)]));
+    http.expectOne((r) => r.url.endsWith('/gestion/formations')).flush(page([]));
     await fixture.whenStable();
     expect(text(fixture)).toContain('Choisissez une activité pour afficher ses inscriptions.');
     http.expectNone((r) => r.url.includes('/inscriptions/'));

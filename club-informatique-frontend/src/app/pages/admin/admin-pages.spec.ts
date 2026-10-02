@@ -14,7 +14,7 @@ import { AuditLogPage, StatisticsPage, matchesEntry, sortAlerts } from './insigh
 import { RolesMatrixPage, toMatrix } from './reference-pages';
 import { UserDetailPage, UsersListPage, matchesAccount } from './users-pages';
 
-const page = <T>(content: T[]) => ({ content, number: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
+const page = <T>(content: T[]) => ({ content, page: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
 const button = (root: HTMLElement, label: string) => [...root.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes(label))!;
 
@@ -40,7 +40,7 @@ const STATS = {
   totalProjets: 3,
   totalRessources: 4,
   totalMessagesNonTraites: 9,
-  repartitionMembresParRole: { ROLE_MEMBRE: 3, ROLE_ADMIN: 1 },
+  repartitionMembresParRole: { MEMBRE: 3, ADMIN: 1 },
   repartitionProjetsParStatut: { PROPOSE: 1, EN_COURS: 2 },
 };
 
@@ -61,9 +61,9 @@ function setup(roles: Role[] = ['ADMIN'], id = 12) {
 
 describe('modèle de l’administration', () => {
   it('lit un rôle avec ou sans préfixe et écarte un rôle inconnu', () => {
-    expect(toRole('ROLE_FORMATEUR')).toBe('FORMATEUR');
+    expect(toRole('FORMATEUR')).toBe('FORMATEUR');
     expect(toRole('ADMIN')).toBe('ADMIN');
-    expect(toRole('ROLE_INCONNU')).toBeNull();
+    expect(toRole('INCONNU')).toBeNull();
   });
 
   it('réserve Super Admin et DSI au Super Admin', () => {
@@ -114,12 +114,12 @@ describe('AdminApi', () => {
     const api = TestBed.inject(AdminApi);
     let received: CompteUtilisateur | undefined;
     api.compte(9).subscribe((value) => (received = value));
-    http.expectOne((r) => r.url.endsWith('/admin/users/9')).flush(raw(9, ['ROLE_MEMBRE', 'ROLE_FORMATEUR']));
+    http.expectOne((r) => r.url.endsWith('/admin/users/9')).flush(raw(9, ['MEMBRE', 'FORMATEUR']));
     expect(received?.roles).toEqual(['MEMBRE', 'FORMATEUR']);
 
     api.changerRoles(9, ['MEMBRE']).subscribe();
     const request = http.expectOne((r) => r.url.endsWith('/admin/users/9/roles'));
-    expect(request.request.body).toEqual({ roles: ['ROLE_MEMBRE'] });
+    expect(request.request.body).toEqual({ roles: ['MEMBRE'] });
   });
 });
 
@@ -153,7 +153,7 @@ describe('comptes utilisateurs', () => {
   it('transmet la recherche et le rôle au serveur', async () => {
     const http = setup();
     const fixture = TestBed.createComponent(UsersListPage);
-    http.expectOne((r) => r.url.endsWith('/admin/users')).flush(page([raw(9, ['ROLE_MEMBRE']), raw(10, ['ROLE_FORMATEUR', 'ROLE_MEMBRE'], { nom: 'Ouédraogo', prenom: 'Issouf' })]));
+    http.expectOne((r) => r.url.endsWith('/admin/users')).flush(page([raw(9, ['MEMBRE']), raw(10, ['FORMATEUR', 'MEMBRE'], { nom: 'Ouédraogo', prenom: 'Issouf' })]));
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelectorAll('tbody tr').length).toBe(2);
@@ -163,7 +163,7 @@ describe('comptes utilisateurs', () => {
     select.dispatchEvent(new Event('change'));
     const request = http.expectOne((r) => r.url.endsWith('/admin/users'));
     expect(request.request.params.get('role')).toBe('FORMATEUR');
-    request.flush(page([raw(9, ['ROLE_MEMBRE']), raw(10, ['ROLE_FORMATEUR', 'ROLE_MEMBRE'])]));
+    request.flush(page([raw(9, ['MEMBRE']), raw(10, ['FORMATEUR', 'MEMBRE'])]));
     await fixture.whenStable();
     expect(root.querySelectorAll('tbody tr').length).toBe(1);
   });
@@ -173,7 +173,7 @@ describe('comptes utilisateurs', () => {
     const fixture = TestBed.createComponent(UserDetailPage);
     fixture.componentRef.setInput('id', '9');
     await fixture.whenStable();
-    http.expectOne((r) => r.url.endsWith('/admin/users/9')).flush(raw(9, ['ROLE_MEMBRE']));
+    http.expectOne((r) => r.url.endsWith('/admin/users/9')).flush(raw(9, ['MEMBRE']));
     await fixture.whenStable();
     http.expectOne((r) => r.url.endsWith('/admin/security/audit-logs')).flush(page([]));
     await fixture.whenStable();
@@ -196,9 +196,9 @@ describe('comptes utilisateurs', () => {
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
     const identity = http.expectOne((r) => r.url.endsWith('/admin/users/9') && r.method === 'PUT');
     expect(identity.request.body).toEqual({ prenom: 'Aminata', nom: 'Sawadogo', filiere: 'Informatique de gestion' });
-    identity.flush(raw(9, ['ROLE_MEMBRE']));
+    identity.flush(raw(9, ['MEMBRE']));
     const roles = http.expectOne((r) => r.url.endsWith('/admin/users/9/roles'));
-    expect(roles.request.body).toEqual({ roles: ['ROLE_FORMATEUR', 'ROLE_MEMBRE'] });
+    expect(roles.request.body).toEqual({ roles: ['FORMATEUR', 'MEMBRE'] });
   });
 
   it('interdit de se suspendre ou de modifier ses propres rôles', async () => {
@@ -206,7 +206,7 @@ describe('comptes utilisateurs', () => {
     const fixture = TestBed.createComponent(UserDetailPage);
     fixture.componentRef.setInput('id', '12');
     await fixture.whenStable();
-    http.expectOne((r) => r.url.endsWith('/admin/users/12')).flush(raw(12, ['ROLE_ADMIN']));
+    http.expectOne((r) => r.url.endsWith('/admin/users/12')).flush(raw(12, ['ADMIN']));
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;
     expect(button(root, 'Suspendre')).toBeUndefined();
@@ -219,7 +219,7 @@ describe('rôles et journal', () => {
   it('affiche la matrice en lecture seule', async () => {
     const http = setup();
     const fixture = TestBed.createComponent(RolesMatrixPage);
-    http.expectOne((r) => r.url.endsWith('/admin/roles')).flush([{ id: 1, nom: 'ROLE_MEMBRE', description: '', permissions: ['ACTUALITE_READ'] }]);
+    http.expectOne((r) => r.url.endsWith('/admin/roles')).flush([{ id: 1, nom: 'MEMBRE', description: '', permissions: ['ACTUALITE_READ'] }]);
     http.expectOne((r) => r.url.endsWith('/admin/permissions')).flush([{ id: 1, nom: 'ACTUALITE_READ', description: 'Lire les actualités' }]);
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;

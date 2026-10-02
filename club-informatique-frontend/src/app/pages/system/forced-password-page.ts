@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MemberApi } from '../../core/api/member.api';
-import { AuthStore } from '../../core/auth/auth.store';
+import { AuthService } from '../../core/auth/auth.service';
 import { PASSWORD_POLICY_MESSAGE, matchValidator, passwordPolicyValidator } from '../../core/auth/password-policy';
 import { toApiError } from '../../core/http/problem';
 import { SeoService } from '../../core/seo/seo.service';
@@ -74,7 +74,7 @@ import { ToastService } from '../../shared/ui/toast/toast.service';
 })
 export class ForcedPasswordPage {
   private readonly api = inject(MemberApi);
-  private readonly auth = inject(AuthStore);
+  private readonly sessions = inject(AuthService);
   private readonly router = inject(Router);
   private readonly toasts = inject(ToastService);
 
@@ -113,15 +113,23 @@ export class ForcedPasswordPage {
     this.currentError.set(null);
     this.api.changerMotDePasse(ancien, nouveau).subscribe({
       next: () => {
-        this.auth.patchUser({ changementMotDePasseRequis: false });
-        this.toasts.success('Votre mot de passe est enregistré.');
-        void this.router.navigateByUrl('/espace');
+        // Le serveur a fermé les sessions et remplacé le cookie : la session est renouvelée avant de poursuivre.
+        this.sessions.refresh().subscribe((renouvelee) => {
+          if (renouvelee) {
+            this.toasts.success('Votre mot de passe est enregistré.');
+            void this.router.navigateByUrl('/espace');
+          } else {
+            this.toasts.success('Votre mot de passe est enregistré. Reconnectez-vous.');
+            void this.router.navigateByUrl('/connexion');
+          }
+        });
       },
       error: (failure: unknown) => {
         this.pending.set(false);
-        const kind = toApiError(failure).kind;
-        if (kind === 'validation' || kind === 'unauthorized' || kind === 'forbidden' || kind === 'conflict') this.currentError.set('Le mot de passe initial est incorrect.');
-        else if (kind === 'network') this.error.set('La connexion au service a échoué. Vérifiez votre connexion, puis réessayez.');
+        const apiError = toApiError(failure);
+        if (apiError.code === 'MOT_DE_PASSE_INCORRECT') this.currentError.set('Le mot de passe initial est incorrect.');
+        else if (apiError.kind === 'network') this.error.set('La connexion au service a échoué. Vérifiez votre connexion, puis réessayez.');
+        else if (apiError.kind === 'validation') this.error.set(apiError.fieldMessage('nouveauMotDePasse') ?? apiError.userMessage);
       },
     });
   }

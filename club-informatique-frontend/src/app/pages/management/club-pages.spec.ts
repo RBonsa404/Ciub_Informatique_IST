@@ -11,7 +11,7 @@ import { BureauManagementPage, nextOrder } from './bureau-management-page';
 import { ContactMessagesPage, replyLink } from './contact-messages-page';
 import { ManagementDashboardPage, toMonthBars } from './management-dashboard-page';
 
-const page = <T>(content: T[], totalElements = content.length) => ({ content, number: 0, size: 10, totalElements, totalPages: content.length ? 1 : 0 });
+const page = <T>(content: T[], totalElements = content.length) => ({ content, page: 0, size: 10, totalElements, totalPages: content.length ? 1 : 0 });
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
 const button = (root: HTMLElement, label: string) => [...root.querySelectorAll<HTMLButtonElement>('button')].find((b) => b.textContent?.includes(label))!;
 
@@ -63,8 +63,8 @@ describe('tableau de bord du Responsable', () => {
     const root = fixture.nativeElement as HTMLElement;
     expect(root.querySelector('.tiles')!.textContent).not.toMatch(/\d/);
 
-    http.expectOne((r) => r.url.endsWith('/actualites/admin/all')).flush(page([], 12));
-    for (const request of http.match((r) => r.url.endsWith('/evenements/admin/all'))) request.flush(page([], 4));
+    http.expectOne((r) => r.url.endsWith('/gestion/actualites')).flush(page([], 12));
+    for (const request of http.match((r) => r.url.endsWith('/gestion/evenements'))) request.flush(page([], 4));
     http.expectOne((r) => r.url.endsWith('/projets/en-attente')).flush([]);
     http.expectOne((r) => r.url.endsWith('/gestion/indicateurs')).flush(null, { status: 500, statusText: 'Erreur' });
     await fixture.whenStable();
@@ -115,7 +115,7 @@ describe('ContactMessagesPage', () => {
   it('transmet le filtre au serveur et marque un message comme traité', async () => {
     const http = setup();
     const fixture = TestBed.createComponent(ContactMessagesPage);
-    const first = http.expectOne((r) => r.url.endsWith('/contact/admin'));
+    const first = http.expectOne((r) => r.url.endsWith('/gestion/messages'));
     expect(first.request.params.has('traite')).toBe(false);
     first.flush(page([message(1), message(2, { traite: true, reponseParNom: 'Salif Kaboré' })]));
     await fixture.whenStable();
@@ -123,11 +123,11 @@ describe('ContactMessagesPage', () => {
     expect(text(fixture)).toContain('Traité par Salif Kaboré');
 
     button(root, 'Marquer comme traité').click();
-    http.expectOne((r) => r.url.endsWith('/contact/admin/1/traite') && r.method === 'PUT').flush(message(1, { traite: true }));
-    http.expectOne((r) => r.url.endsWith('/contact/admin')).flush(page([message(1, { traite: true })]));
+    http.expectOne((r) => r.url.endsWith('/gestion/messages/1/traite') && r.method === 'PUT').flush(message(1, { traite: true }));
+    http.expectOne((r) => r.url.endsWith('/gestion/messages')).flush(page([message(1, { traite: true })]));
 
     button(root, 'Nouveaux').click();
-    const request = http.expectOne((r) => r.url.endsWith('/contact/admin'));
+    const request = http.expectOne((r) => r.url.endsWith('/gestion/messages'));
     expect(request.request.params.get('traite')).toBe('false');
     request.flush(page([]));
     await fixture.whenStable();

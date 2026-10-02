@@ -18,6 +18,7 @@ import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { Checkbox } from '../../shared/ui/toggle/toggle';
 import { webUrlValidator } from '../../shared/validators';
+import { FileUpload } from '../../shared/ui/file/file-upload';
 
 type ItemType = 'DEVOIR' | TypeRessource;
 
@@ -36,7 +37,7 @@ const URL_MAX = 500;
 @Component({
   selector: 'app-publish-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Button, Field, FieldControl, Checkbox, DataZone, Skeleton],
+  imports: [ReactiveFormsModule, RouterLink, Button, Field, FieldControl, Checkbox, DataZone, Skeleton, FileUpload],
   styles: `
     .card {
       padding: 2.5rem;
@@ -122,14 +123,21 @@ const URL_MAX = 500;
             <textarea appControl rows="5" formControlName="description"></textarea>
           </app-field>
 
+          <app-file-upload
+            [label]="isDevoir() ? 'Fichier du sujet' : 'Fichier joint'"
+            [invite]="isDevoir() ? 'Glissez votre énoncé ici ou choisissez-le sur votre appareil.' : 'Glissez votre document ici ou choisissez-le sur votre appareil.'"
+            (fileUploaded)="form.controls.adresse.setValue($event.url)"
+            (fileRemoved)="form.controls.adresse.setValue('')"
+          />
+
           <app-field
-            [label]="isDevoir() ? 'Adresse du sujet' : 'Adresse du fichier ou du lien'"
-            [hint]="isDevoir() ? 'Facultatif : lien vers l’énoncé (https://…).' : 'Lien vers le document (https://…).'"
+            [label]="isDevoir() ? 'Ou adresse du sujet' : 'Ou adresse du document'"
+            [hint]="isDevoir() ? 'Facultatif : lien vers l’énoncé (https://…), si aucun fichier n’est déposé.' : 'Lien vers le document (https://…), si aucun fichier n’est déposé.'"
             [required]="!isDevoir()"
-            [messages]="{ adresse: 'Saisissez une adresse complète commençant par http:// ou https://.', required: 'Indiquez l’adresse du document.' }"
+            [messages]="{ adresse: 'Saisissez une adresse complète commençant par http:// ou https://, ou déposez un fichier.', required: 'Déposez un fichier ou indiquez l’adresse du document.' }"
             [serverError]="serverErrors()[isDevoir() ? 'fichierConsigne' : 'urlFichier'] ?? null"
           >
-            <input appControl type="url" inputmode="url" formControlName="adresse" />
+            <input appControl type="text" inputmode="url" formControlName="adresse" />
           </app-field>
 
           @if (!isDevoir()) {

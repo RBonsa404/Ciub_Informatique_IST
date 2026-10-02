@@ -5,7 +5,6 @@ import { Devoir, DevoirPayload, Formation, FormationPayload, Inscription, Pointa
 import { toPage } from './public.api';
 
 export interface CoursQuery extends PageRequest {
-  /** Filtre de publication, à ajouter côté serveur. */
   readonly publie?: boolean | null;
 }
 
@@ -16,7 +15,7 @@ export class TrainerApi {
 
   /** Formations gérées par l'utilisateur. Le serveur restreint la liste aux cours du formateur connecté. */
   cours(query: CoursQuery = {}): Observable<Page<Formation>> {
-    return this.api.get<unknown>('/formations/admin/all', { ...query }).pipe(map(toPage<Formation>));
+    return this.api.get<unknown>('/gestion/formations', { ...query }).pipe(map(toPage<Formation>));
   }
 
   formation(id: number): Observable<Formation> {

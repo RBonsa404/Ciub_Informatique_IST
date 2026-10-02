@@ -19,25 +19,7 @@ import { Icon } from '../../shared/ui/icon/icon';
 import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
-
-export interface ProjectCounters {
-  readonly valides: number;
-  readonly rejetes: number;
-}
-
-const COUNTERS_FETCH_SIZE = 200;
-
-/**
- * Décompte des projets validés et rejetés, uniquement si la liste reçue est complète :
- * un total partiel ne serait pas un chiffre exact.
- */
-export function countDecided(projects: readonly Projet[], totalElements: number): ProjectCounters | null {
-  if (totalElements > projects.length) return null;
-  return {
-    valides: projects.filter((p) => p.statut === 'VALIDE' || p.statut === 'EN_COURS' || p.statut === 'TERMINE').length,
-    rejetes: projects.filter((p) => p.statut === 'REJETE').length,
-  };
-}
+import { CompteursProjets } from '../../core/api/projects.api';
 
 /** Validation des projets, liste (écran 46, UC-20) : propositions en attente d'une décision du bureau. */
 @Component({
@@ -164,7 +146,7 @@ export class ProjectsReviewListPage {
   protected readonly pending = new ResourceState<readonly Projet[]>(() =>
     this.api.enAttente().pipe(map((list) => [...list].sort((a, b) => (parseApiDate(a.createdAt)?.getTime() ?? 0) - (parseApiDate(b.createdAt)?.getTime() ?? 0)))),
   );
-  protected readonly counters = new ResourceState<ProjectCounters | null>(() => this.api.tous({ size: COUNTERS_FETCH_SIZE }).pipe(map((page) => countDecided(page.content, page.totalElements))));
+  protected readonly counters = new ResourceState<CompteursProjets>(() => this.api.compteurs());
   protected readonly hasFiliere = computed(() => (this.pending.data() ?? []).some((project) => !!project.porteurFiliere));
 
   constructor() {

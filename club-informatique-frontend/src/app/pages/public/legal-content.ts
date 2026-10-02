@@ -99,7 +99,7 @@ export const POLITIQUE_CONFIDENTIALITE: LegalDocumentContent = {
       shortTitle: 'Données',
       paragraphs: [{ text: 'Le site ne collecte que les données nécessaires à son fonctionnement :' }],
       items: [
-        'compte : nom, prénom, adresse électronique, filière d’études, mot de passe conservé sous forme d’empreinte non réversible ;',
+        'compte : nom, prénom, adresse électronique, filière d’études, mot de passe conservé sous forme d’empreinte non réversible ; présentation et photo de profil, si vous choisissez d’en ajouter ;',
         'activité au sein du club : inscriptions aux formations et aux événements, présences, propositions de projets et participation à un projet ;',
         'formulaire de contact : nom, adresse électronique, objet et message ;',
         'sécurité : date des connexions, tentatives de connexion échouées et adresse IP associée, actions d’administration sensibles.',

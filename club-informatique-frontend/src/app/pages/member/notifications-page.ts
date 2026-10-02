@@ -201,7 +201,7 @@ export class NotificationsPage {
   protected readonly state = new ResourceState<Page<NotificationItem>>(() =>
     this.api.notifications({ page: this.page(), size: PAGE_SIZE, type: this.type(), lue: this.unreadOnly() ? false : null }),
   );
-  /** Les filtres sont appliqués par le serveur et revérifiés sur la page reçue. */
+  /** Les filtres sont appliqués par le serveur ; une notification marquée lue quitte aussitôt la liste des non lues. */
   protected readonly items = computed(() =>
     (this.state.data()?.content ?? []).filter((item) => (!this.type() || item.type === this.type()) && (!this.unreadOnly() || !item.lue)),
   );

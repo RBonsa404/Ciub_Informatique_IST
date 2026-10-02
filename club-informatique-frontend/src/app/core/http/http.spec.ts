@@ -60,25 +60,25 @@ describe('intercepteurs HTTP', () => {
 
   it('ajoute le jeton d’accès aux appels d’API uniquement', () => {
     store.setSession(session);
-    http.get('/api/formations').subscribe();
+    http.get('/api/v1/formations').subscribe();
     http.get('/icons/sprite.svg').subscribe();
 
-    expect(controller.expectOne('/api/formations').request.headers.get('Authorization')).toBe('Bearer jeton-1');
+    expect(controller.expectOne('/api/v1/formations').request.headers.get('Authorization')).toBe('Bearer jeton-1');
     expect(controller.expectOne('/icons/sprite.svg').request.headers.has('Authorization')).toBe(false);
   });
 
   it('rafraîchit la session sur une réponse 401 puis rejoue la requête', () => {
     store.setSession(session);
     let result: unknown;
-    http.get('/api/inscriptions/me').subscribe((value) => (result = value));
+    http.get('/api/v1/inscriptions/me').subscribe((value) => (result = value));
 
-    controller.expectOne('/api/inscriptions/me').flush(null, { status: 401, statusText: 'Unauthorized' });
-    const refresh = controller.expectOne('/api/auth/refresh');
+    controller.expectOne('/api/v1/inscriptions/me').flush(null, { status: 401, statusText: 'Unauthorized' });
+    const refresh = controller.expectOne('/api/v1/auth/refresh');
     expect(refresh.request.withCredentials).toBe(true);
     expect(refresh.request.headers.has('Authorization')).toBe(false);
     refresh.flush({ ...session, accessToken: 'jeton-2' });
 
-    const retried = controller.expectOne('/api/inscriptions/me');
+    const retried = controller.expectOne('/api/v1/inscriptions/me');
     expect(retried.request.headers.get('Authorization')).toBe('Bearer jeton-2');
     retried.flush({ ok: true });
     expect(result).toEqual({ ok: true });
@@ -88,10 +88,10 @@ describe('intercepteurs HTTP', () => {
     store.setSession(session);
     const navigate = vi.spyOn(TestBed.inject(Router), 'navigate').mockResolvedValue(true);
     let failure: unknown;
-    http.get('/api/inscriptions/me').subscribe({ error: (error: unknown) => (failure = error) });
+    http.get('/api/v1/inscriptions/me').subscribe({ error: (error: unknown) => (failure = error) });
 
-    controller.expectOne('/api/inscriptions/me').flush(null, { status: 401, statusText: 'Unauthorized' });
-    controller.expectOne('/api/auth/refresh').flush(null, { status: 401, statusText: 'Unauthorized' });
+    controller.expectOne('/api/v1/inscriptions/me').flush(null, { status: 401, statusText: 'Unauthorized' });
+    controller.expectOne('/api/v1/auth/refresh').flush(null, { status: 401, statusText: 'Unauthorized' });
 
     expect(store.isAuthenticated()).toBe(false);
     expect(navigate).toHaveBeenCalledWith(['/connexion'], expect.objectContaining({ queryParams: expect.objectContaining({ motif: 'session-expiree' }) }));
@@ -100,16 +100,16 @@ describe('intercepteurs HTTP', () => {
 
   it('ne tente aucun rafraîchissement pour un visiteur', () => {
     let failure: unknown;
-    http.get('/api/inscriptions/me').subscribe({ error: (error: unknown) => (failure = error) });
-    controller.expectOne('/api/inscriptions/me').flush(null, { status: 401, statusText: 'Unauthorized' });
+    http.get('/api/v1/inscriptions/me').subscribe({ error: (error: unknown) => (failure = error) });
+    controller.expectOne('/api/v1/inscriptions/me').flush(null, { status: 401, statusText: 'Unauthorized' });
 
-    controller.expectNone('/api/auth/refresh');
+    controller.expectNone('/api/v1/auth/refresh');
     expect((failure as ApiError).kind).toBe('unauthorized');
   });
 
   it('notifie une erreur serveur avec le message générique', () => {
-    http.get('/api/actualites').subscribe({ error: () => {} });
-    controller.expectOne('/api/actualites').flush({ status: 500, detail: 'trace interne' }, { status: 500, statusText: 'Server Error' });
+    http.get('/api/v1/actualites').subscribe({ error: () => {} });
+    controller.expectOne('/api/v1/actualites').flush({ status: 500, detail: 'trace interne' }, { status: 500, statusText: 'Server Error' });
 
     expect(toasts.toasts().map((toast) => toast.message)).toEqual(['Un problème est survenu de notre côté. Réessayez dans quelques instants.']);
   });

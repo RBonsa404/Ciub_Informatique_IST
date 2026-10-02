@@ -14,8 +14,8 @@ import { ForcedPasswordPage } from './forced-password-page';
 import { CompliancePage, SystemConfigPage, formatSize } from './system-pages';
 
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
-const page = <T>(content: T[]) => ({ content, number: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
-const CONFIG = { nomPlateforme: 'Club Informatique IST', version: '1.0.0', maintenanceMode: false, maxLoginAttempts: 5, lockoutDurationMinutes: 15 };
+const page = <T>(content: T[]) => ({ content, page: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
+const CONFIG = { nomPlateforme: 'Club Informatique IST', version: '1.0.0', maintenanceMode: false, inscriptionsOuvertes: true, maxLoginAttempts: 5, lockoutDurationMinutes: 15 };
 
 function setup(roles: Role[], forced = false, confirm = true) {
   localStorage.clear();
@@ -42,19 +42,11 @@ const fill = (root: HTMLElement, name: string, value: string) => {
 };
 
 describe('conformité', () => {
-  it('lit le format du contrat et celui du backend existant, sans reprendre la double authentification', () => {
-    const legacy = toConformite({
-      statutSecurite: 'CONFORME',
-      totalComptesActifs: 7,
-      totalTentativesEchouees: 0,
-      verificationsConformite: { CHIFFREMENT_MDP_BCRYPT_12: true, DOUBLE_AUTHENTIFICATION_DISPONIBLE: true, POLITIQUE_RATE_LIMITING_ACTIVE: false },
-    });
-    expect(legacy.statut).toBe('CONFORME');
-    expect(legacy.comptesActifs).toBe(7);
-    expect(legacy.verifications.map((v) => [v.code, v.conforme])).toEqual([
-      ['CHIFFREMENT_MDP_BCRYPT_12', true],
-      ['POLITIQUE_RATE_LIMITING_ACTIVE', false],
-    ]);
+  it('lit le rapport du contrat ; une liste de contrôles absente donne une liste vide', () => {
+    const sansControles = toConformite({ statut: 'CONFORME', comptesActifs: 7, tentativesEchouees: 0 });
+    expect(sansControles.statut).toBe('CONFORME');
+    expect(sansControles.comptesActifs).toBe(7);
+    expect(sansControles.verifications).toEqual([]);
 
     const target = toConformite({ statut: 'A_EXAMINER', verifications: [{ code: 'A', libelle: 'Contrôle', conforme: false }] });
     expect(target.verifications).toEqual([{ code: 'A', libelle: 'Contrôle', conforme: false }]);
@@ -87,7 +79,7 @@ describe('SystemConfigPage', () => {
     await fixture.whenStable();
     const root = fixture.nativeElement as HTMLElement;
     expect(text(fixture)).toContain('L’état des sauvegardes n’est pas disponible.');
-    expect(root.querySelectorAll('input[type="checkbox"]').length).toBe(1);
+    expect(root.querySelectorAll('input[type="checkbox"]').length).toBe(2);
 
     const box = root.querySelector<HTMLInputElement>('input[type="checkbox"]')!;
     box.checked = true;
@@ -113,7 +105,7 @@ describe('SystemConfigPage', () => {
     fill(root, 'maxLoginAttempts', '4');
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
     const request = http.expectOne((r) => r.url.endsWith('/admin/system/config') && r.method === 'PUT');
-    expect(request.request.body).toEqual({ nomPlateforme: 'Club Informatique IST', maxLoginAttempts: 4, lockoutDurationMinutes: 15, maintenanceMode: false });
+    expect(request.request.body).toEqual({ nomPlateforme: 'Club Informatique IST', maxLoginAttempts: 4, lockoutDurationMinutes: 15, maintenanceMode: false, inscriptionsOuvertes: true });
   });
 });
 
@@ -154,7 +146,10 @@ describe('changement de mot de passe imposé', () => {
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
     const request = http.expectOne((r) => r.url.endsWith('/users/me/password'));
     expect(request.request.body).toEqual({ ancienMotDePasse: 'Initial@2026x', nouveauMotDePasse: 'Nouveau@2026x' });
-    request.flush({ message: 'ok' });
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    // Le serveur a fermé les sessions : la page renouvelle la sienne, et la réponse lève l'indicateur.
+    http.expectOne((r) => r.url.endsWith('/auth/refresh'))
+      .flush({ accessToken: 'jeton-2', expiresIn: 900, utilisateur: { id: 1, email: 'admin@essai.invalid', nom: 'Zongo', prenom: 'Boukary', roles: ['ADMIN', 'SUPER_ADMIN'], changementMotDePasseRequis: false } });
     expect(TestBed.inject(AuthStore).user()?.changementMotDePasseRequis).toBe(false);
   });
 });

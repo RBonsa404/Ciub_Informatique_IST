@@ -1,3 +1,4 @@
+import { estFichierDepose } from '../../core/api/files.api';
 import { Pipe, PipeTransform } from '@angular/core';
 
 /** Interprète une date d'API. Une valeur sans fuseau est lue en UTC (fuseau d'Ouagadougou). */
@@ -92,9 +93,11 @@ export function toBlocks(text: string | null | undefined): TextBlock[] {
     });
 }
 
-/** Seules les adresses web (http ou https) sont proposées à l'ouverture. */
+/** Seuls les adresses web (http ou https) et les fichiers déposés sur la plateforme sont proposés à l'ouverture. */
 export function safeUrl(value: string | null | undefined): string | null {
-  return value && /^https?:\/\//i.test(value.trim()) ? value.trim() : null;
+  if (!value) return null;
+  const adresse = value.trim();
+  return /^https?:\/\//i.test(adresse) || estFichierDepose(adresse) ? adresse : null;
 }
 
 /** Valeur d'un champ « datetime-local » (heure d'Ouagadougou, UTC) au format attendu par l'API. */

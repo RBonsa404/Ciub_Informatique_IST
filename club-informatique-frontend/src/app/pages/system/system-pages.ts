@@ -244,7 +244,7 @@ export class SystemConfigPage {
           maxLoginAttempts: Math.round(value.maxLoginAttempts ?? 0),
           lockoutDurationMinutes: Math.round(value.lockoutDurationMinutes ?? 0),
           maintenanceMode: value.maintenanceMode,
-          ...(this.hasRegistrationSwitch() ? { inscriptionsOuvertes: value.inscriptionsOuvertes } : {}),
+          inscriptionsOuvertes: value.inscriptionsOuvertes,
         })
         .subscribe({
           next: () => {

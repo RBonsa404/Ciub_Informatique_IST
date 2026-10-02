@@ -21,17 +21,8 @@ export interface RegistrationResult {
 }
 
 /**
- * Contrat cible du backend (docs/besoins-backend.md) :
- * - POST /auth/login        : identifiants ; renvoie SessionResponse et pose le cookie de rafraîchissement HttpOnly ;
- * - POST /auth/refresh      : sans corps, lit le cookie, renvoie SessionResponse et fait tourner le cookie ;
- * - POST /auth/logout       : révoque le jeton de rafraîchissement et efface le cookie ;
- * - POST /auth/register     : crée le compte et envoie le courriel de vérification ;
- * - POST /auth/verification : active le compte à partir du jeton reçu par courriel ;
- * - POST /auth/forgot-password, POST /auth/reset-password.
- *
- * Transition : le backend existant renvoie encore le jeton de rafraîchissement dans le corps de la réponse.
- * Il est alors conservé en mémoire uniquement (jamais dans un stockage du navigateur) : la session ne survit
- * pas à un rechargement tant que le cookie n'est pas en place. Cette adaptation disparaît avec la reprise du backend.
+ * Session : le jeton d'accès vit en mémoire ; le jeton de rafraîchissement voyage dans un cookie HttpOnly
+ * que le serveur pose à la connexion et remplace à chaque renouvellement. Aucun jeton n'est écrit dans un stockage du navigateur.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -39,7 +30,6 @@ export class AuthService {
   private readonly store = inject(AuthStore);
   private readonly base = `${environment.apiBaseUrl}/auth`;
   private refreshInFlight: Observable<boolean> | null = null;
-  private legacyRefreshToken: string | null = null;
 
   login(credentials: Credentials & { seSouvenir?: boolean }): Observable<SessionResponse> {
     return this.http.post<unknown>(`${this.base}/login`, credentials, { withCredentials: true, context: skipAuth() }).pipe(
@@ -49,13 +39,7 @@ export class AuthService {
 
   register(payload: RegistrationPayload): Observable<RegistrationResult> {
     return this.http.post<unknown>(`${this.base}/register`, payload, { withCredentials: true, context: skipAuth() }).pipe(
-      map((raw) => {
-        if (isRecord(raw) && typeof raw['accessToken'] === 'string') {
-          this.accept(raw);
-          return { verificationRequise: false };
-        }
-        return { verificationRequise: true };
-      }),
+      map(() => ({ verificationRequise: true })),
     );
   }
 
@@ -75,24 +59,19 @@ export class AuthService {
     return this.http.post<unknown>(`${this.base}/logout`, null, { withCredentials: true }).pipe(
       map(() => undefined),
       catchError(() => of(undefined)),
-      finalize(() => {
-        this.legacyRefreshToken = null;
-        this.store.clear();
-      }),
+      finalize(() => this.store.clear()),
     );
   }
 
   /** Renouvelle la session. Les appels simultanés partagent une seule requête. */
   refresh(): Observable<boolean> {
     if (!this.refreshInFlight) {
-      const body = this.legacyRefreshToken ? { refreshToken: this.legacyRefreshToken } : null;
-      this.refreshInFlight = this.http.post<unknown>(`${this.base}/refresh`, body, { withCredentials: true, context: skipAuth().set(SILENT_ERRORS, true) }).pipe(
+      this.refreshInFlight = this.http.post<unknown>(`${this.base}/refresh`, null, { withCredentials: true, context: skipAuth().set(SILENT_ERRORS, true) }).pipe(
         map((raw) => {
           this.accept(raw);
           return true;
         }),
         catchError(() => {
-          this.legacyRefreshToken = null;
           this.store.clear();
           return of(false);
         }),
@@ -110,7 +89,6 @@ export class AuthService {
 
   private accept(raw: unknown): SessionResponse {
     const session = toSession(raw);
-    if (isRecord(raw) && typeof raw['refreshToken'] === 'string') this.legacyRefreshToken = raw['refreshToken'];
     this.store.setSession(session);
     return session;
   }
@@ -124,18 +102,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
-/** Accepte le contrat cible ({ utilisateur }) et la réponse du backend existant (champs à plat, rôles préfixés). */
+/** Lit la réponse de session ; un rôle inconnu de l'application est ignoré. */
 export function toSession(raw: unknown): SessionResponse {
-  if (!isRecord(raw) || typeof raw['accessToken'] !== 'string') throw new Error('Réponse d’authentification invalide');
-  const source = isRecord(raw['utilisateur']) ? raw['utilisateur'] : raw;
-  const roles = (Array.isArray(source['roles']) ? source['roles'] : [])
-    .map((role) => String(role).replace(/^ROLE_/, ''))
-    .filter((role): role is Role => (ROLES as readonly string[]).includes(role));
+  if (!isRecord(raw) || typeof raw['accessToken'] !== 'string' || !isRecord(raw['utilisateur'])) throw new Error('Réponse d’authentification invalide');
+  const source = raw['utilisateur'];
+  const roles = (Array.isArray(source['roles']) ? source['roles'] : []).filter((role): role is Role => (ROLES as readonly string[]).includes(String(role)));
   return {
     accessToken: raw['accessToken'],
     expiresIn: Number(raw['expiresIn'] ?? 0),
     utilisateur: {
-      id: Number(source['id'] ?? source['userId'] ?? 0),
+      id: Number(source['id'] ?? 0),
       email: String(source['email'] ?? ''),
       nom: String(source['nom'] ?? ''),
       prenom: String(source['prenom'] ?? ''),

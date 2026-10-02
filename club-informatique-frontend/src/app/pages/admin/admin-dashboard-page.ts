@@ -163,7 +163,7 @@ const JOURNAL_LIMIT = 5;
           <ul class="rows">
             @for (entry of journal.data() ?? []; track entry.id) {
               <li class="glass-card glass-card-static entry">
-                <div class="min-w-0" style="flex: 1 1 260px">
+                <div class="min-w-0" style="flex: 1 1 260px; overflow-wrap: anywhere">
                   <strong style="font-size: 0.9rem; display: block">{{ entry.action }}{{ entry.utilisateurEmail ? ' : ' + entry.utilisateurEmail : '' }}</strong>
                   @if (entry.description) {
                     <span style="font-size: 0.78rem; color: var(--text-muted)">{{ entry.description }}</span>

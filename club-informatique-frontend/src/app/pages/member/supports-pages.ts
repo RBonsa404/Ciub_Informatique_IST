@@ -14,6 +14,7 @@ import { Icon } from '../../shared/ui/icon/icon';
 import { IconName } from '../../shared/ui/icon/icon-names';
 import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
+import { FileLink } from '../../shared/ui/file/file-link';
 
 /** Entrée de la liste : un support de cours ou un devoir, rattaché à sa formation. */
 export interface SupportItem {
@@ -202,7 +203,7 @@ const fromDevoir = (d: Devoir): SupportDetail => ({
 @Component({
   selector: 'app-support-detail-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, Badge, DataZone, Skeleton, FrDatePipe],
+  imports: [RouterLink, Icon, Badge, DataZone, Skeleton, FrDatePipe, FileLink],
   styles: `
     .stack {
       max-width: 1000px;
@@ -360,10 +361,9 @@ const fromDevoir = (d: Devoir): SupportDetail => ({
               <h2 id="titre-fichier"><app-icon name="download" [size]="18" /> Téléchargement et consultation</h2>
               <div class="drop">
                 @if (item.url; as url) {
-                  <a class="btn btn-primary btn-sm" [href]="url" target="_blank" rel="noopener noreferrer">
+                  <a class="btn btn-primary btn-sm" [appFileLink]="url">
                     <app-icon name="external-link" [size]="14" />
                     {{ item.kind === 'devoir' ? 'Ouvrir la consigne' : 'Ouvrir le support' }}
-                    <span class="sr-only">(nouvel onglet)</span>
                   </a>
                 } @else {
                   <strong style="display: block; font-size: 0.92rem; margin-bottom: 0.25rem">Aucun fichier disponible</strong>

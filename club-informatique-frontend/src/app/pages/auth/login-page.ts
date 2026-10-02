@@ -148,12 +148,18 @@ function messageFor(error: ApiError): string {
     case 'rate-limit':
       return 'Trop de tentatives. Réessayez dans quelques minutes.';
     case 'forbidden':
-      return 'Ce compte n’est pas actif. Vérifiez votre adresse électronique ou contactez le club.';
+      // Le serveur ne précise l'état du compte qu'à son titulaire, une fois le mot de passe reconnu.
+      return REFUS[error.code ?? ''] ?? 'Ce compte n’est pas actif. Contactez le club.';
     case 'network':
       return 'La connexion au service a échoué. Vérifiez votre connexion, puis réessayez.';
     default:
-      return error.status === 423
-        ? 'Ce compte est temporairement verrouillé après plusieurs tentatives. Réessayez plus tard.'
-        : 'Un problème est survenu de notre côté. Réessayez dans quelques instants.';
+      if (error.status === 423) return 'Ce compte est temporairement verrouillé après plusieurs tentatives. Réessayez plus tard.';
+      if (error.status === 503) return 'La plateforme est en maintenance. Réessayez plus tard.';
+      return 'Un problème est survenu de notre côté. Réessayez dans quelques instants.';
   }
 }
+
+const REFUS: Record<string, string> = {
+  ADRESSE_NON_VERIFIEE: 'Votre adresse électronique n’est pas encore vérifiée. Ouvrez le lien reçu par courriel.',
+  COMPTE_SUSPENDU: 'Ce compte est suspendu. Contactez le club.',
+};

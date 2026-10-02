@@ -10,9 +10,9 @@ import { progressValue } from '../../shared/project/project-summary';
 import { DialogService } from '../../shared/ui/dialog/confirm-dialog';
 import { MyProjectsPage, ProposeProjectPage } from '../member/projects-pages';
 import { TrainerProjectFollowPage, TrainerProjectsPage } from '../trainer/trainer-projects-pages';
-import { ProjectReviewPage, ProjectsReviewListPage, countDecided } from './projects-review-pages';
+import { ProjectReviewPage, ProjectsReviewListPage } from './projects-review-pages';
 
-const page = <T>(content: T[], totalElements = content.length) => ({ content, number: 0, size: 10, totalElements, totalPages: content.length ? 1 : 0 });
+const page = <T>(content: T[], totalElements = content.length) => ({ content, page: 0, size: 10, totalElements, totalPages: content.length ? 1 : 0 });
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
 
 const project = (id: number, extra: Partial<Projet> = {}): Projet => ({
@@ -60,11 +60,6 @@ describe('modèle des projets', () => {
     expect(progressValue(project(1, { avancementPourcentage: null }))).toBeNull();
   });
 
-  it('ne compte les projets décidés que si la liste est complète', () => {
-    const list = [project(1), project(2, { statut: 'REJETE' }), project(3, { statut: 'TERMINE' }), project(4, { statut: 'PROPOSE' })];
-    expect(countDecided(list, 4)).toEqual({ valides: 2, rejetes: 1 });
-    expect(countDecided(list, 250)).toBeNull();
-  });
 });
 
 describe('ProposeProjectPage', () => {
@@ -162,7 +157,7 @@ describe('validation par le Responsable', () => {
     const http = setup();
     const fixture = TestBed.createComponent(ProjectsReviewListPage);
     http.expectOne((r) => r.url.endsWith('/projets/en-attente')).flush([project(3, { statut: 'PROPOSE' })]);
-    http.expectOne((r) => r.url.endsWith('/projets/admin/all')).flush(page([project(1), project(2), project(3, { statut: 'PROPOSE' })]));
+    http.expectOne((r) => r.url.endsWith('/gestion/projets/compteurs')).flush({ enAttente: 1, valides: 2, rejetes: 0 });
     await fixture.whenStable();
     expect((fixture.nativeElement as HTMLElement).querySelectorAll('tbody tr').length).toBe(1);
     expect(text(fixture)).toContain('validés');

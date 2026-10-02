@@ -17,7 +17,7 @@ import { enrolledLabel, enrolledOf, ownedBy, progressOf, upcomingSessions } from
 
 const DAY = 86_400_000;
 const iso = (offset: number) => new Date(Date.now() + offset).toISOString().slice(0, 19);
-const page = <T>(content: T[]) => ({ content, number: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
+const page = <T>(content: T[]) => ({ content, page: 0, size: 10, totalElements: content.length, totalPages: content.length ? 1 : 0 });
 const text = (fixture: ComponentFixture<unknown>) => (fixture.nativeElement as HTMLElement).textContent ?? '';
 
 const session = (id: number, days: number, extra: Partial<SessionFormation> = {}): SessionFormation => ({
@@ -88,7 +88,7 @@ describe('TrainerDashboardPage et CoursesListPage', () => {
     const fixture = TestBed.createComponent(TrainerDashboardPage);
     await fixture.whenStable();
     expect(fixture.nativeElement.querySelectorAll('[aria-busy="true"]').length).toBe(2);
-    http.expectOne((r) => r.url.endsWith('/formations/admin/all')).flush(page([formation(1), formation(2, { formateurId: 99 })]));
+    http.expectOne((r) => r.url.endsWith('/gestion/formations')).flush(page([formation(1), formation(2, { formateurId: 99 })]));
     await fixture.whenStable();
     expect(text(fixture)).toContain('Bienvenue, Issouf');
     expect(text(fixture)).toContain('Séance 2 / 2');
@@ -99,12 +99,12 @@ describe('TrainerDashboardPage et CoursesListPage', () => {
   it('transmet le filtre de publication et affiche le message vide du filtre', async () => {
     const http = setup();
     const fixture = TestBed.createComponent(CoursesListPage);
-    http.expectOne((r) => r.url.endsWith('/formations/admin/all')).flush(page([formation(1)]));
+    http.expectOne((r) => r.url.endsWith('/gestion/formations')).flush(page([formation(1)]));
     await fixture.whenStable();
     expect(text(fixture)).toContain('1 / 2 séances');
 
     (fixture.nativeElement as HTMLElement).querySelectorAll<HTMLButtonElement>('[role="group"] button')[2].click();
-    const request = http.expectOne((r) => r.url.endsWith('/formations/admin/all'));
+    const request = http.expectOne((r) => r.url.endsWith('/gestion/formations'));
     expect(request.request.params.get('publie')).toBe('false');
     request.flush(page([formation(1)]));
     await fixture.whenStable();
@@ -259,7 +259,7 @@ describe('PublishPage', () => {
     root.querySelector('form')!.dispatchEvent(new Event('submit'));
     await fixture.whenStable();
     http.expectNone((r) => r.method === 'POST');
-    expect(text(fixture)).toContain('Indiquez l’adresse du document.');
+    expect(text(fixture)).toContain('Déposez un fichier ou indiquez l’adresse du document.');
 
     fill('adresse', 'https://exemple.invalid/support.pdf');
     root.querySelector('form')!.dispatchEvent(new Event('submit'));

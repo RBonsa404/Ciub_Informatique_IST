@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signa
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { tap } from 'rxjs';
+import { EXTENSIONS_IMAGES, TAILLE_MAXIMALE_PHOTO_OCTETS } from '../../core/api/files.api';
 import { MemberApi } from '../../core/api/member.api';
 import { Profil, STATUT_COMPTE_LABELS } from '../../core/api/models';
 import { ResourceState } from '../../core/api/resource-state';
@@ -13,6 +14,7 @@ import { FrDatePipe } from '../../shared/format/format';
 import { Badge } from '../../shared/ui/card/card';
 import { Button } from '../../shared/ui/button/button';
 import { Field, FieldControl, revealErrors } from '../../shared/ui/field/field';
+import { ProfilePhoto } from '../../shared/ui/file/profile-photo';
 import { Icon } from '../../shared/ui/icon/icon';
 import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
@@ -31,11 +33,11 @@ const AVATAR_STYLES = `
 
 const initials = (profil: Profil) => `${profil.prenom.charAt(0)}${profil.nom.charAt(0)}`.toUpperCase();
 
-/** Profil, consultation (écran 25). Avatar neutre à initiales ; seules les informations du compte sont affichées. */
+/** Profil, consultation (écran 25). Photo de profil, ou initiales à défaut ; seules les informations du compte sont affichées. */
 @Component({
   selector: 'app-profile-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, Badge, DataZone, Skeleton, FrDatePipe],
+  imports: [RouterLink, Icon, Badge, DataZone, Skeleton, FrDatePipe, ProfilePhoto],
   styles: `
     ${AVATAR_STYLES}
     .avatar {
@@ -93,7 +95,7 @@ const initials = (profil: Profil) => `${profil.prenom.charAt(0)}${profil.nom.cha
       @if (profil.data(); as user) {
         <div class="glass-panel card">
           <div class="identity">
-            <div class="avatar" aria-hidden="true">{{ initialsOf(user) }}</div>
+            <div class="avatar" aria-hidden="true"><app-profile-photo [src]="user.photo">{{ initialsOf(user) }}</app-profile-photo></div>
             <div style="flex: 1; min-width: min(100%, 240px)">
               <div class="flex flex-wrap items-center gap-3" style="margin-bottom: 0.35rem">
                 <h2 style="font-size: 1.6rem; font-weight: 800">{{ user.prenom }} {{ user.nom }}</h2>
@@ -152,12 +154,13 @@ export class ProfilePage {
 }
 
 const BIO_MAX = 500;
+const PHOTO_MAX_MO = TAILLE_MAXIMALE_PHOTO_OCTETS / (1024 * 1024);
 
-/** Profil, édition (écran 26) : prénom, nom, filière en saisie libre et présentation. */
+/** Profil, édition (écran 26) : photo, prénom, nom, filière en saisie libre et présentation. */
 @Component({
   selector: 'app-profile-edit-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Button, Field, FieldControl, DataZone, Skeleton],
+  imports: [ReactiveFormsModule, RouterLink, Button, Field, FieldControl, DataZone, Skeleton, ProfilePhoto],
   styles: `
     ${AVATAR_STYLES}
     .avatar {
@@ -179,6 +182,13 @@ const BIO_MAX = 500;
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0 1rem;
+    }
+    .photo-input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
     }
     .actions {
       display: flex;
@@ -217,10 +227,22 @@ const BIO_MAX = 500;
       @if (profil.data(); as user) {
         <div class="glass-panel card">
           <div class="flex items-center gap-6" style="margin-bottom: 2rem">
-            <div class="avatar" aria-hidden="true">{{ initials() }}</div>
+            <div class="avatar" aria-hidden="true"><app-profile-photo [src]="photo()">{{ initials() }}</app-profile-photo></div>
             <div class="min-w-0">
-              <strong style="display: block; overflow-wrap: anywhere">{{ user.email }}</strong>
-              <span style="font-size: 0.78rem; color: var(--text-muted)">L’avatar reprend vos initiales.</span>
+              <strong style="display: block; overflow-wrap: anywhere; margin-bottom: 0.5rem">{{ user.email }}</strong>
+              <input #champPhoto class="photo-input" type="file" [accept]="photoAccept" aria-label="Photo de profil" aria-describedby="aide-photo" tabindex="-1" (change)="onPhoto($event)" />
+              <div class="flex flex-wrap gap-2">
+                <button appBtn variant="secondary" size="sm" type="button" [loading]="photoPending()" (click)="champPhoto.click()">Changer la photo</button>
+                @if (photo()) {
+                  <button appBtn variant="ghost" size="sm" type="button" [disabled]="photoPending()" (click)="removePhoto()">Retirer la photo</button>
+                }
+              </div>
+              <span id="aide-photo" style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-top: 0.4rem">{{ photoHint }}</span>
+              <div aria-live="assertive">
+                @if (photoError(); as message) {
+                  <p class="form-error" role="alert">{{ message }}</p>
+                }
+              </div>
             </div>
           </div>
 
@@ -287,10 +309,60 @@ export class ProfileEditPage {
   protected readonly error = signal<string | null>(null);
   protected readonly serverErrors = signal<Record<string, string>>({});
 
+  protected readonly photoAccept = EXTENSIONS_IMAGES.join(',');
+  protected readonly photoHint = `PNG, JPG ou WebP, ${PHOTO_MAX_MO} Mo au plus. Sans photo, l’avatar reprend vos initiales.`;
+  /** Photo modifiée depuis le chargement de la page ; « undefined » tant qu'elle ne l'a pas été. */
+  private readonly photoChanged = signal<string | null | undefined>(undefined);
+  protected readonly photo = computed(() => (this.photoChanged() === undefined ? (this.profil.data()?.photo ?? null) : (this.photoChanged() ?? null)));
+  protected readonly photoPending = signal(false);
+  protected readonly photoError = signal<string | null>(null);
+
   constructor() {
     inject(SeoService).apply({ title: 'Édition du profil', noindex: true });
     this.profil.load();
     inject(DestroyRef).onDestroy(() => this.profil.destroy());
+  }
+
+  protected onPhoto(event: Event): void {
+    const champ = event.target as HTMLInputElement;
+    const fichier = champ.files?.[0];
+    champ.value = '';
+    if (!fichier || this.photoPending()) return;
+    const refus = photoRefusal(fichier);
+    if (refus) {
+      this.photoError.set(refus);
+      return;
+    }
+    this.photoPending.set(true);
+    this.photoError.set(null);
+    this.api.deposerPhoto(fichier).subscribe({
+      next: (user) => {
+        this.photoPending.set(false);
+        this.photoChanged.set(user.photo ?? null);
+        this.toasts.success('Votre photo de profil est enregistrée.');
+      },
+      error: (failure: unknown) => {
+        this.photoPending.set(false);
+        this.photoError.set(photoFailure(toApiError(failure).status));
+      },
+    });
+  }
+
+  protected removePhoto(): void {
+    if (this.photoPending()) return;
+    this.photoPending.set(true);
+    this.photoError.set(null);
+    this.api.retirerPhoto().subscribe({
+      next: () => {
+        this.photoPending.set(false);
+        this.photoChanged.set(null);
+        this.toasts.success('Votre photo de profil est retirée.');
+      },
+      error: (failure: unknown) => {
+        this.photoPending.set(false);
+        this.photoError.set(photoFailure(toApiError(failure).status));
+      },
+    });
   }
 
   protected submit(): void {
@@ -316,4 +388,20 @@ export class ProfileEditPage {
         },
       });
   }
+}
+
+/** Contrôle local avant l’envoi ; le serveur reste seul juge du type réel du contenu. */
+export function photoRefusal(fichier: File): string | null {
+  const nom = fichier.name.toLowerCase();
+  if (!EXTENSIONS_IMAGES.some((extension) => nom.endsWith(extension))) return 'Choisissez une image au format PNG, JPG ou WebP.';
+  if (fichier.size === 0) return 'Ce fichier est vide.';
+  if (fichier.size > TAILLE_MAXIMALE_PHOTO_OCTETS) return `Cette image dépasse ${PHOTO_MAX_MO} Mo.`;
+  return null;
+}
+
+function photoFailure(statut: number): string {
+  if (statut === 413) return `Cette image dépasse ${PHOTO_MAX_MO} Mo.`;
+  if (statut === 415) return 'Ce fichier n’est pas une image acceptée : son contenu ne correspond pas à son extension.';
+  if (statut === 0) return 'L’envoi a échoué. Vérifiez votre connexion, puis réessayez.';
+  return 'Votre photo n’a pas pu être enregistrée. Réessayez dans quelques instants.';
 }

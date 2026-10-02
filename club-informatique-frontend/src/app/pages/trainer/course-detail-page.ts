@@ -19,6 +19,7 @@ import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
 import { enrolledLabel, enrolledOf, sessionsOf } from './trainer-model';
+import { FileLink } from '../../shared/ui/file/file-link';
 
 interface Materials {
   readonly ressources: readonly Ressource[];
@@ -31,7 +32,7 @@ const SESSION_BADGES: Record<StatutSession, BadgeVariant> = { PLANIFIEE: 'neutra
 @Component({
   selector: 'app-course-detail-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [ReactiveFormsModule, RouterLink, Icon, Badge, Button, Field, FieldControl, DataZone, Skeleton, FrDatePipe, FrNumberPipe],
+  imports: [ReactiveFormsModule, RouterLink, Icon, Badge, Button, Field, FieldControl, DataZone, Skeleton, FrDatePipe, FrNumberPipe, FileLink],
   styles: `
     .layout {
       display: grid;
@@ -252,7 +253,7 @@ const SESSION_BADGES: Record<StatutSession, BadgeVariant> = { PLANIFIEE: 'neutra
                       <li class="glass-card glass-card-static file">
                         <span class="min-w-0" style="font-size: 0.85rem">
                           @if (url(ressource.urlFichier); as href) {
-                            <a [href]="href" target="_blank" rel="noopener noreferrer" style="font-weight: 600">{{ ressource.titre }}<span class="sr-only"> (nouvel onglet)</span></a>
+                            <a [appFileLink]="href" style="font-weight: 600">{{ ressource.titre }}</a>
                           } @else {
                             <strong>{{ ressource.titre }}</strong>
                           }

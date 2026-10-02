@@ -43,19 +43,6 @@ const EMPTY_MESSAGES: Record<InscriptionFilter, string> = {
 const BADGES: Record<StatutInscription, BadgeVariant> = { CONFIRMEE: 'success', LISTE_ATTENTE: 'amber', ANNULEE: 'neutral' };
 const PAGE_SIZE = 10;
 
-/** Le filtre est appliqué par le serveur ; il est revérifié ici pour qu'une ligne hors filtre ne soit jamais affichée. */
-export function matchesFilter(inscription: Inscription, filter: InscriptionFilter): boolean {
-  switch (filter) {
-    case 'formations':
-      return !!inscription.sessionFormationId;
-    case 'evenements':
-      return !!inscription.evenementId;
-    case 'attente':
-      return inscription.statut === 'LISTE_ATTENTE';
-    default:
-      return true;
-  }
-}
 
 /** Mes inscriptions (écran 28) : historique paginé, filtres et annulation d'une inscription à venir. */
 @Component({
@@ -172,7 +159,7 @@ export class InscriptionsPage {
   protected readonly pendingId = signal<number | null>(null);
 
   protected readonly state = new ResourceState<Page<Inscription>>(() => this.api.inscriptions({ page: this.page(), size: PAGE_SIZE, ...QUERIES[this.filter()] }));
-  protected readonly items = computed(() => (this.state.data()?.content ?? []).filter((item) => matchesFilter(item, this.filter())));
+  protected readonly items = computed(() => this.state.data()?.content ?? []);
   protected readonly status = computed(() => (this.state.status() === 'ready' && this.items().length === 0 ? 'empty' : this.state.status()));
   protected readonly totalPages = computed(() => this.state.data()?.totalPages ?? 0);
   protected readonly offset = computed(() => (this.state.data()?.page ?? 0) * PAGE_SIZE);
