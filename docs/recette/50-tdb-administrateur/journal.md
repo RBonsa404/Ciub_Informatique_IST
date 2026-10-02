@@ -7,7 +7,7 @@ Référence : écran `50-tdb-administrateur` de la maquette (`maquette-sombre.pn
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (totaux du serveur, journal réel vide) ; Journal alimenté selon le contrat d’API ; Chargement ; Service injoignable |
+| Scénarios | Contenu réel (totaux du serveur hors comptes de test, dernières entrées du journal) ; Journal vide ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,8 +25,8 @@ Aucun.
 
 ## Captures
 
-- Contenu réel (totaux du serveur, journal réel vide) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
-- Journal alimenté selon le contrat d’API : `journal-sombre-1440.png`, `journal-clair-1440.png`, `journal-sombre-390.png`, `journal-clair-390.png`
+- Contenu réel (totaux du serveur hors comptes de test, dernières entrées du journal) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Journal vide : `journal-vide-sombre-1440.png`, `journal-vide-clair-1440.png`, `journal-vide-sombre-390.png`, `journal-vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 

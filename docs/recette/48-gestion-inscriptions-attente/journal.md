@@ -1,6 +1,6 @@
 # Journal de recette : Inscriptions et listes d’attente
 
-Identifiant : 48-gestion-inscriptions-attente. Route : `/espace/gestion/inscriptions`. Date : 2026-10-01.
+Identifiant : 48-gestion-inscriptions-attente. Route : `/espace/gestion/inscriptions`. Date : 2026-10-02.
 Référence : écran `48-gestion-inscriptions-attente` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

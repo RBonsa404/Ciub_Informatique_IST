@@ -1,29 +1,19 @@
 // Scénarios de recette des projets (écrans 31, 32, 41, 46 et 47). Chaque scénario ouvre une session réelle.
-import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, listesReelles, pageVide } from './_outils.mjs';
+import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
 
-const MES_PROJETS = '**/api/projets/mes-projets*';
-const PUBLIES = '**/api/projets?*';
-const EN_ATTENTE = '**/api/projets/en-attente';
-const PROJET = '**/api/projets/*';
+const MES_PROJETS = '**/api/v1/projets/mes-projets*';
+const PUBLIES = '**/api/v1/projets?*';
+const EN_ATTENTE = '**/api/v1/projets/en-attente';
+const PROJET = '**/api/v1/projets/*';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
   ['Barre supérieure', 'champ de recherche globale, pastille à valeur fixe', 'fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte', 'assumé (E-31)'],
 ];
 
-const tous = async () => (await lire('/projets/admin/all?size=100', 'responsable')).content;
+const tous = async () => (await lire('/gestion/projets?size=100', 'responsable')).content;
 const propose = async () => (await tous()).find((p) => p.statut === 'PROPOSE');
 const suivi = async () => (await tous()).find((p) => p.statut === 'EN_COURS' || p.statut === 'VALIDE');
-
-/**
- * Réponse conforme au contrat de « mes projets » (point d'accès à créer en Phase 3), composée à partir
- * des projets réels du membre de recette lus sur le backend.
- */
-async function mesProjetsContrat(page) {
-  const moi = await lire('/users/me', 'membre');
-  const content = (await tous()).filter((p) => p.porteurId === moi.id).map((p) => (p.statut === 'REJETE' ? { ...p, motifDecision: 'Motif d’essai.' } : p));
-  await page.route(MES_PROJETS, (route) => json(route, { content, page: 0, size: 8, totalElements: content.length, totalPages: 1 }));
-}
 
 export const PAGES = {
   '31-proposer-projet': {
@@ -60,13 +50,15 @@ export const PAGES = {
     scenarios: [
       {
         id: 'contenu',
-        titre: 'Contenu selon le contrat d’API, à partir des projets réels du membre',
-        before: mesProjetsContrat,
-        check: async (page) => ((await page.locator('main li').count()) >= 3 ? null : 'les projets du membre doivent être listés'),
+        titre: 'Contenu réel (projets proposés par le membre de recette, motif du rejet compris)',
+        check: async (page) => {
+          if ((await page.locator('main li').count()) < 4) return 'les projets du membre doivent être listés';
+          return (await page.locator('main').innerText()).includes('Motif d’essai') ? null : 'le motif du rejet doit être affiché';
+        },
       },
       { id: 'vide', titre: 'Aucun projet proposé', before: (page) => page.route(MES_PROJETS, (route) => json(route, pageVide)) },
       { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, MES_PROJETS) },
-      { id: 'backend-actuel', titre: 'Backend actuel : point d’accès absent (erreur 400, état d’erreur affiché)', expectedConsole: ['400'] },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, MES_PROJETS) },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
@@ -87,7 +79,6 @@ export const PAGES = {
       {
         id: 'contenu',
         titre: 'Contenu réel (projets validés de la base de recette)',
-        before: listesReelles,
         check: async (page) => ((await page.locator('main li').count()) >= 2 ? null : 'les projets validés doivent être listés'),
       },
       { id: 'vide', titre: 'Aucun projet validé', before: (page) => page.route(PUBLIES, (route) => json(route, pageVide)) },
@@ -134,7 +125,7 @@ export const PAGES = {
     ],
     ecarts: [
       ...ECARTS_ESPACE,
-      ['Compteurs « 5 », « 12 », « 2 »', 'valeurs fixes', 'décomptes réels ; validés et rejetés affichés seulement si la liste reçue est complète', 'assumé (section 1)'],
+      ['Compteurs « 5 », « 12 », « 2 »', 'valeurs fixes', 'décomptes calculés par le serveur (en attente, validés, rejetés)', 'assumé (section 1)'],
       ['Colonne « Filière »', 'présente', 'affichée seulement si le serveur fournit la filière du porteur', 'assumé'],
     ],
     etats: ['Chargement : squelettes, compteurs absents.', 'Vide : message.', 'Erreur : message et « Réessayer ».', 'Contenu : tableau défilant sur petit écran.'],
@@ -171,7 +162,7 @@ export const PAGES = {
     ecarts: [
       ...ECARTS_ESPACE,
       ['Description', 'texte fictif', 'description, objectifs, technologies et catégorie réels', 'assumé (section 1)'],
-      ['« Fichiers joints » avec poids', 'deux fichiers', 'liens réels du projet (dépôt, documentation) s’ils existent', 'assumé (aucun stockage de fichier)'],
+      ['« Fichiers joints » avec poids', 'deux fichiers', 'liens réels du projet (dépôt, documentation) s’ils existent', 'assumé (modèle existant)'],
       ['Participants', 'pastilles et « Équipe de 3 étudiants »', 'membres réels du projet, nommés', 'assumé'],
       ['Motif du rejet', 'champ facultatif sur une ligne', 'obligatoire pour un rejet, communiqué à l’auteur', 'assumé (UC-20)'],
       ['Approuver, rejeter', 'action immédiate', 'confirmation préalable', 'assumé'],

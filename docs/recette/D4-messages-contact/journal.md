@@ -36,7 +36,7 @@ Aucun.
 | Élément | Maquette | Produit | Classement |
 |---|---|---|---|
 | Page dérivée | aucun écran dans la maquette | cartes reprises du centre de notifications (écran 33) | dérivation (section 8.8.1) |
-| État « archivé » | prévu par l’inventaire | non repris : le modèle ne connaît que « nouveau » et « traité » | à arbitrer en Phase 2 |
+| État « archivé » | prévu par l’inventaire | non repris : le modèle ne connaît que « nouveau » et « traité » | assumé (modèle existant) |
 
 ## États
 

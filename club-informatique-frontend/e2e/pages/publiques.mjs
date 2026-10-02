@@ -1,30 +1,21 @@
 // Scénarios de recette des pages publiques et légales.
-import { CONSOLE_PANNE, ECARTS_COMMUNS, aller, connecter, enAttente, injoignable, json, listesReelles, pageVide, premier } from './_outils.mjs';
-
-const bureauContrat = [
-  { id: 1, nom: 'Kaboré', prenom: 'Salif', fonction: 'Président', filiere: 'Génie logiciel', ordre: 1 },
-  { id: 2, nom: 'Sawadogo', prenom: 'Aminata', fonction: 'Vice-présidente', filiere: 'Informatique de gestion', ordre: 2 },
-  { id: 3, nom: 'Traoré', prenom: 'Fatoumata', fonction: 'Secrétaire générale', filiere: 'Réseaux et télécommunications', ordre: 3 },
-  { id: 4, nom: 'Nikiéma', prenom: 'Boukary', fonction: 'Trésorier', filiere: 'Génie logiciel', ordre: 4 },
-  { id: 5, nom: 'Sanou', prenom: 'Mariam', fonction: 'Responsable technique', filiere: 'Systèmes et réseaux', ordre: 5 },
-];
+import { CONSOLE_PANNE, ECARTS_COMMUNS, aller, connecter, enAttente, injoignable, json, pageVide, premier } from './_outils.mjs';
 
 /** Scénarios types d'une liste : contenu réel, vide, chargement, erreur. */
-function etatsDeListe(ressource, motif = `**/api/${ressource}*`) {
+function etatsDeListe(ressource, motif = `**/api/v1/${ressource}*`) {
   return [
-    { id: 'contenu', titre: 'Contenu réel (backend et base de recette)', before: listesReelles },
+    { id: 'contenu', titre: 'Contenu réel (backend et base de recette)' },
     { id: 'vide', titre: 'État vide', before: (page) => page.route(motif, (route) => json(route, pageVide)) },
     { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, motif) },
     { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, motif) },
-    { id: 'backend-actuel', titre: 'Backend actuel sans contournement (bogue B-30 : erreur 500, état d’erreur affiché)', expectedConsole: ['500'] },
   ];
 }
 
 function etatsDeDetail(ressource, liste) {
-  const motif = `**/api/${ressource}/slug/*`;
+  const motif = `**/api/v1/${ressource}/slug/*`;
   const chemin = async () => `/${liste}/${(await premier(ressource)).slug}`;
   return [
-    { id: 'contenu', titre: 'Contenu réel (backend et base de recette)', path: chemin, before: listesReelles },
+    { id: 'contenu', titre: 'Contenu réel (backend et base de recette)', path: chemin },
     { id: 'introuvable', titre: 'Élément introuvable (réponse réelle du backend)', path: `/${liste}/element-inexistant`, expectedConsole: ['404'] },
     { id: 'chargement', titre: 'Chargement', path: chemin, waitUntil: 'load', before: (page) => enAttente(page, motif) },
     { id: 'erreur', titre: 'Service injoignable', path: chemin, expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, motif) },
@@ -39,14 +30,14 @@ export const PAGES = {
     path: '/',
     maquette: '01-accueil',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu réel (backend et base de recette)', before: listesReelles },
+      { id: 'contenu', titre: 'Contenu réel (backend et base de recette)' },
       {
         id: 'base-vide',
         titre: 'Aucun événement ni actualité : sections masquées',
         before: async (page) => {
-          await page.route('**/api/evenements*', (route) => json(route, pageVide));
-          await page.route('**/api/actualites*', (route) => json(route, pageVide));
-          await page.route('**/api/pages/accueil', (route) => json(route, { status: 404 }, 404));
+          await page.route('**/api/v1/evenements*', (route) => json(route, pageVide));
+          await page.route('**/api/v1/actualites*', (route) => json(route, pageVide));
+          await page.route('**/api/v1/pages/accueil', (route) => json(route, { status: 404 }, 404));
         },
         expectedConsole: ['404'],
         check: async (page) => ((await page.locator('main section').count()) === 1 ? null : 'les sections sans donnée doivent être masquées'),
@@ -56,9 +47,9 @@ export const PAGES = {
         titre: 'Chargement',
         waitUntil: 'load',
         before: async (page) => {
-          await enAttente(page, '**/api/evenements*');
-          await enAttente(page, '**/api/actualites*');
-          await enAttente(page, '**/api/pages/accueil');
+          await enAttente(page, '**/api/v1/evenements*');
+          await enAttente(page, '**/api/v1/actualites*');
+          await enAttente(page, '**/api/v1/pages/accueil');
         },
         check: async (page) => (/\b0\b/.test(await page.locator('main').innerText()) ? 'un zéro est affiché pendant le chargement' : null),
       },
@@ -66,7 +57,7 @@ export const PAGES = {
         id: 'erreur',
         titre: 'Service injoignable : sections masquées',
         expectedConsole: CONSOLE_PANNE,
-        before: (page) => injoignable(page, '**/api/**'),
+        before: (page) => injoignable(page, '**/api/v1/**'),
         check: async (page) => ((await page.locator('main section').count()) === 1 ? null : 'les sections en erreur doivent être masquées'),
       },
     ],
@@ -86,22 +77,14 @@ export const PAGES = {
     path: '/presentation',
     maquette: '02-presentation',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu réel (texte présent en base)' },
       {
-        id: 'sections',
-        titre: 'Contenu structuré en sections (réponse conforme au contrat)',
-        before: (page) =>
-          page.route('**/api/pages/presentation', (route) =>
-            json(route, {
-              slug: 'presentation',
-              titre: 'Présentation',
-              contenu: 'Texte d’introduction d’essai, saisi par l’administration.\n\n# Première section\n\nTexte d’essai de la première section.\n\n# Deuxième section\n\nTexte d’essai de la deuxième section.\n\n# Troisième section\n\nTexte d’essai de la troisième section.',
-            }),
-          ),
+        id: 'contenu',
+        titre: 'Contenu réel, structuré en sections (texte saisi par l’administration dans la base de recette)',
+        check: async (page) => ((await page.locator('main h2').count()) >= 3 ? null : 'chaque titre du contenu doit ouvrir une section'),
       },
-      { id: 'vide', titre: 'Contenu non renseigné', before: (page) => page.route('**/api/pages/presentation', (route) => json(route, { slug: 'presentation', titre: 'Présentation', contenu: '' })) },
-      { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, '**/api/pages/presentation') },
-      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/pages/presentation') },
+      { id: 'vide', titre: 'Contenu non renseigné', before: (page) => page.route('**/api/v1/pages/presentation', (route) => json(route, { slug: 'presentation', titre: 'Présentation', contenu: '' })) },
+      { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, '**/api/v1/pages/presentation') },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/v1/pages/presentation') },
     ],
     ecarts: [
       ...ECARTS_COMMUNS,
@@ -117,14 +100,18 @@ export const PAGES = {
     path: '/bureau',
     maquette: '03-bureau',
     scenarios: [
-      { id: 'backend-actuel', titre: 'Backend actuel : point d’accès à créer, état d’erreur affiché', expectedConsole: ['401', '500'] },
-      { id: 'contenu', titre: 'Composition renseignée (réponse conforme au contrat cible)', before: (page) => page.route('**/api/bureau', (route) => json(route, bureauContrat)) },
-      { id: 'vide', titre: 'Bureau non renseigné', before: (page) => page.route('**/api/bureau', (route) => json(route, [])) },
-      { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, '**/api/bureau') },
+      {
+        id: 'contenu',
+        titre: 'Composition réelle (bureau saisi dans la base de recette)',
+        check: async (page) => ((await page.locator('main').innerText()).includes('Présidente') ? null : 'les fonctions réelles du bureau doivent être affichées'),
+      },
+      { id: 'vide', titre: 'Bureau non renseigné', before: (page) => page.route('**/api/v1/bureau', (route) => json(route, [])) },
+      { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, '**/api/v1/bureau') },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/v1/bureau') },
     ],
     ecarts: [
       ...ECARTS_COMMUNS,
-      ['Membres', 'cinq personnes fictives', 'liste renvoyée par l’API ; état vide tant que le club ne l’a pas renseignée (E.5)', 'assumé'],
+      ['Membres', 'cinq personnes fictives', 'composition saisie par le responsable du club ; état vide tant qu’elle n’est pas renseignée (E.5)', 'assumé'],
       ['Photo', 'avatar neutre', 'avatar neutre, aucune photo', 'conforme (règle 6.4)'],
       ['Emoji de fonction', 'présents dans les badges', 'retirés', 'corrigé (E-01)'],
     ],
@@ -140,7 +127,6 @@ export const PAGES = {
       {
         id: 'recherche',
         titre: 'Recherche sans résultat (backend réel)',
-        before: listesReelles,
         run: async (page) => {
           await page.getByLabel('Rechercher une actualité').fill('zzzz');
           await page.getByText('Aucun résultat pour').waitFor();
@@ -168,7 +154,7 @@ export const PAGES = {
     ecarts: [
       ...ECARTS_COMMUNS,
       ['Événement « à la une »', 'choix éditorial', 'prochain événement dans l’ordre chronologique', 'assumé (aucune donnée de mise en avant)'],
-      ['« Ajouter au calendrier »', 'bouton', 'reporté avec le point d’accès d’export (D-06)', 'à faire en Phase 3'],
+      ['« Ajouter au calendrier »', 'bouton', 'lien vers le fichier iCalendar réel de l’événement (D-06)', 'conforme'],
     ],
     etats: ETATS_LISTE,
   },
@@ -182,7 +168,6 @@ export const PAGES = {
       {
         id: 'membre-inscription',
         titre: 'Membre connecté : inscription puis annulation réelles',
-        before: listesReelles,
         path: '/connexion',
         run: async (page, { base, width, theme }) => {
           if (width !== 1440 || theme !== 'dark') return;
@@ -265,7 +250,7 @@ export const PAGES = {
     titre: 'Ressources publiques',
     path: '/ressources',
     maquette: '12-ressources-publiques',
-    scenarios: etatsDeListe('ressources/publiques', '**/api/ressources/publiques*'),
+    scenarios: etatsDeListe('ressources/publiques', '**/api/v1/ressources/publiques*'),
     ecarts: [...ECARTS_COMMUNS, ['Compteurs de téléchargements', '900, 750, 645', 'retirés (aucune mesure)', 'retrait'], ['Recherche', 'absente', 'recherche côté serveur', 'dérivation']],
     etats: ETATS_LISTE,
   },
@@ -301,7 +286,7 @@ export const PAGES = {
         id: 'erreur',
         titre: 'Service injoignable',
         expectedConsole: CONSOLE_PANNE,
-        before: (page) => injoignable(page, '**/api/contact'),
+        before: (page) => injoignable(page, '**/api/v1/contact'),
         run: async (page) => {
           await page.getByLabel(/Nom complet/).fill('Rasmata Ilboudo');
           await page.getByLabel(/Adresse électronique/).fill('rasmata.ilboudo@recette.invalid');

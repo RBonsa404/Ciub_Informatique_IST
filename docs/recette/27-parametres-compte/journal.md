@@ -1,13 +1,13 @@
 # Journal de recette : Paramètres du compte
 
-Identifiant : 27-parametres-compte. Route : `/espace/parametres`. Date : 2026-10-01.
+Identifiant : 27-parametres-compte. Route : `/espace/parametres`. Date : 2026-10-02.
 Référence : écran `27-parametres-compte` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu (préférences selon le contrat d’API) ; Changement de mot de passe : mot de passe actuel erroné (réponse réelle du backend) ; Suppression du compte : confirmation par mot de passe puis modale (non confirmée) ; Chargement des préférences ; Backend actuel : préférences absentes (erreur 500, état d’erreur dans le panneau) |
+| Scénarios | Contenu réel (préférences du compte de recette) ; Alertes par courriel : désactivation puis réactivation réelles (backend) ; Changement de mot de passe : mot de passe actuel erroné (réponse réelle du backend) ; Suppression du compte : confirmation par mot de passe puis modale (non confirmée) ; Chargement des préférences ; Préférences injoignables : état d’erreur dans le panneau |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,11 +25,12 @@ Aucun.
 
 ## Captures
 
-- Contenu (préférences selon le contrat d’API) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Contenu réel (préférences du compte de recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Alertes par courriel : désactivation puis réactivation réelles (backend) : `preference-sombre-1440.png`, `preference-clair-1440.png`, `preference-sombre-390.png`, `preference-clair-390.png`
 - Changement de mot de passe : mot de passe actuel erroné (réponse réelle du backend) : `mot-de-passe-sombre-1440.png`, `mot-de-passe-clair-1440.png`, `mot-de-passe-sombre-390.png`, `mot-de-passe-clair-390.png`
 - Suppression du compte : confirmation par mot de passe puis modale (non confirmée) : `suppression-sombre-1440.png`, `suppression-clair-1440.png`, `suppression-sombre-390.png`, `suppression-clair-390.png`
 - Chargement des préférences : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
-- Backend actuel : préférences absentes (erreur 500, état d’erreur dans le panneau) : `backend-actuel-sombre-1440.png`, `backend-actuel-clair-1440.png`, `backend-actuel-sombre-390.png`, `backend-actuel-clair-390.png`
+- Préférences injoignables : état d’erreur dans le panneau : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 
 ## Écarts avec la maquette
 

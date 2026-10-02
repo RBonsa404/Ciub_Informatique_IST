@@ -1,6 +1,6 @@
 # Journal de recette : Mes inscriptions
 
-Identifiant : 28-mes-inscriptions. Route : `/espace/inscriptions`. Date : 2026-10-01.
+Identifiant : 28-mes-inscriptions. Route : `/espace/inscriptions`. Date : 2026-10-02.
 Référence : écran `28-mes-inscriptions` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

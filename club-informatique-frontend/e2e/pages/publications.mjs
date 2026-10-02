@@ -1,52 +1,21 @@
 // Scénarios de recette des publications et des notifications (écrans 23, 24, 33, 43, 44 et 49).
 import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
 
-const NOTIFICATIONS = '**/api/notifications?*';
-const PUBLICATIONS = '**/api/publications?*';
-const PUBLICATION = '**/api/publications/slug/*';
-const ACTUALITES = '**/api/actualites/admin/all*';
-const ACTUALITE = '**/api/actualites/*';
+const NOTIFICATIONS = '**/api/v1/notifications?*';
+const PUBLICATIONS = '**/api/v1/publications?*';
+const PUBLICATION = '**/api/v1/publications/slug/*';
+const ACTUALITES = '**/api/v1/gestion/actualites*';
+const ACTUALITE = '**/api/v1/actualites/*';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
   ['Barre supérieure', 'champ de recherche globale, pastille à valeur fixe', 'fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte', 'assumé (E-31)'],
 ];
 
-/** Publications conformes au contrat (point d'accès à créer en Phase 3) : données d'essai de l'outil de recette. */
-const publicationsContrat = {
-  content: [
-    {
-      id: 101,
-      titre: 'Réunion de préparation de la journée des projets',
-      slug: 'reunion-de-preparation',
-      resume: 'Les membres porteurs d’un projet sont invités à une réunion de préparation.',
-      contenu: 'Les membres porteurs d’un projet sont invités à une réunion de préparation.\n\n# Ordre du jour\n\nRépartition des stands et calendrier des répétitions.\n\n> Merci de confirmer votre présence auprès du bureau.',
-      publie: true,
-      visibilite: 'MEMBRES',
-      datePublication: '2026-10-01T09:00:00',
-      auteurNom: 'Salif Kaboré',
-      categorieNom: 'Vie du club',
-    },
-    {
-      id: 102,
-      titre: 'Calendrier des permanences du bureau',
-      slug: 'calendrier-des-permanences',
-      resume: 'Les permanences du bureau reprennent chaque mercredi après-midi.',
-      contenu: 'Les permanences du bureau reprennent chaque mercredi après-midi.',
-      publie: true,
-      visibilite: 'MEMBRES',
-      datePublication: '2026-09-28T09:00:00',
-      auteurNom: 'Fatoumata Traoré',
-      categorieNom: null,
-    },
-  ],
-  page: 0,
-  size: 8,
-  totalElements: 2,
-  totalPages: 1,
-};
+const publications = async () => (await lire('/publications?size=20', 'membre')).content;
+const cheminPublication = async () => `/espace/publications/${(await publications())[0].slug}`;
 
-const actualites = async () => (await lire('/actualites/admin/all?size=50', 'responsable')).content;
+const actualites = async () => (await lire('/gestion/actualites?size=50', 'responsable')).content;
 const brouillon = async () => (await actualites()).find((a) => !a.publie);
 const cheminBrouillon = async () => `/espace/gestion/actualites/${(await brouillon()).id}/modifier`;
 
@@ -76,12 +45,20 @@ export const PAGES = {
       { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, NOTIFICATIONS) },
       {
         id: 'lecture',
-        titre: 'Marquage réel comme lue (backend) : plus aucune notification non lue',
+        titre: 'Marquage réel d’une notification, puis de toutes (backend) : plus aucune notification non lue',
         run: async (page) => {
           const bouton = page.getByRole('button', { name: /^Marquer comme lue/ }).first();
           if (await bouton.count()) {
+            const avant = (await lire('/notifications?lue=false&size=1', 'membre')).totalElements;
             await bouton.click();
             await page.waitForLoadState('networkidle');
+            const apres = (await lire('/notifications?lue=false&size=1', 'membre')).totalElements;
+            if (apres !== avant - 1) throw new Error(`une seule notification devait passer à « lue » : ${avant} puis ${apres} non lues`);
+          }
+          const toutes = page.getByRole('button', { name: 'Tout marquer comme lu' });
+          if (await toutes.isEnabled()) {
+            await toutes.click();
+            await page.getByText('Toutes vos notifications sont marquées comme lues.').waitFor();
           }
           await page.getByRole('button', { name: /^Non lues/ }).click();
           await page.waitForLoadState('networkidle');
@@ -107,10 +84,18 @@ export const PAGES = {
     role: 'membre',
     maquette: '23-feed',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu selon le contrat d’API (point d’accès à créer)', before: (page) => page.route(PUBLICATIONS, (route) => json(route, publicationsContrat)) },
+      {
+        id: 'contenu',
+        titre: 'Contenu réel (annonces réservées aux membres de la base de recette)',
+        check: async (page) => {
+          const texte = await page.locator('main').innerText();
+          if (!texte.includes('Annonce aux membres : calendrier des permanences')) return 'les annonces réservées aux membres doivent être listées';
+          return texte.includes('Brouillon') ? 'un brouillon ne doit pas apparaître' : null;
+        },
+      },
       { id: 'vide', titre: 'Aucune publication', before: (page) => page.route(PUBLICATIONS, (route) => json(route, pageVide)) },
       { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, PUBLICATIONS) },
-      { id: 'backend-actuel', titre: 'Backend actuel : point d’accès absent (erreur 500, état d’erreur affiché)', expectedConsole: ['500'] },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, PUBLICATIONS) },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
@@ -124,14 +109,14 @@ export const PAGES = {
 
   '24-feed-detail': {
     titre: 'Publication, détail',
-    path: '/espace/publications/reunion-de-preparation',
+    path: '/espace/publications/:slug',
     role: 'membre',
     maquette: '24-feed-detail',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu selon le contrat d’API (point d’accès à créer)', before: (page) => page.route(PUBLICATION, (route) => json(route, publicationsContrat.content[0])) },
-      { id: 'introuvable', titre: 'Publication introuvable', expectedConsole: ['404'], before: (page) => page.route(PUBLICATION, (route) => json(route, { status: 404 }, 404)) },
-      { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, PUBLICATION) },
-      { id: 'backend-actuel', titre: 'Backend actuel : point d’accès absent (erreur 500, état d’erreur affiché)', expectedConsole: ['500'] },
+      { id: 'contenu', titre: 'Contenu réel (annonce réservée aux membres)', path: cheminPublication },
+      { id: 'introuvable', titre: 'Publication introuvable (réponse réelle du backend)', path: '/espace/publications/element-inexistant', expectedConsole: ['404'] },
+      { id: 'chargement', titre: 'Chargement', path: cheminPublication, waitUntil: 'load', before: (page) => enAttente(page, PUBLICATION) },
+      { id: 'erreur', titre: 'Service injoignable', path: cheminPublication, expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, PUBLICATION) },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
@@ -239,10 +224,10 @@ export const PAGES = {
     ],
     ecarts: [
       ...ECARTS_ESPACE,
-      ['Composition par blocs glisser-déposer', 'six blocs (image, vidéo, texte, citation, galerie, bouton)', 'texte structuré : paragraphe, titre de section, citation, insérés d’un clic ; image de couverture par adresse web', 'dérivation (D-02)'],
+      ['Composition par blocs glisser-déposer', 'six blocs (image, vidéo, texte, citation, galerie, bouton)', 'texte structuré : paragraphe, titre de section, citation, insérés d’un clic ; image de couverture déposée ou désignée par son adresse web', 'dérivation (D-02)'],
       ['« Date de publication »', 'champ de date', 'retiré : la date est fixée par le serveur à la publication', 'retrait (modèle existant)'],
       ['« Épingler en haut du feed »', 'case à cocher', 'retirée', 'retrait (D-01)'],
-      ['Visibilité', '« Tout le monde » ou « Membres IST uniquement »', 'même choix, proposé si le module des publications internes est ouvert', 'assumé (champ à créer côté serveur)'],
+      ['Visibilité', '« Tout le monde » ou « Membres IST uniquement »', 'même choix, proposé si le module des publications internes est ouvert', 'conforme'],
       ['Catégorie', 'liste fixe', 'catégories réelles du serveur', 'assumé (section 1)'],
       ['Résumé', 'absent', 'champ facultatif, affiché dans les listes', 'assumé (modèle existant)'],
     ],

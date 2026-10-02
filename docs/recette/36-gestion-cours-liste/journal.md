@@ -1,13 +1,13 @@
 # Journal de recette : Gestion des cours, liste
 
-Identifiant : 36-gestion-cours-liste. Route : `/espace/formateur/cours`. Date : 2026-10-01.
+Identifiant : 36-gestion-cours-liste. Route : `/espace/formateur/cours`. Date : 2026-10-02.
 Référence : écran `36-gestion-cours-liste` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (cours du formateur de recette) ; Filtre « Brouillons » (aucun brouillon en base de recette) ; Aucun cours ; Chargement ; Service injoignable |
+| Scénarios | Contenu réel (cours du formateur de recette) ; Filtre « Brouillons » (filtre réel du serveur) ; Aucun cours ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -26,7 +26,7 @@ Aucun.
 ## Captures
 
 - Contenu réel (cours du formateur de recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
-- Filtre « Brouillons » (aucun brouillon en base de recette) : `filtre-sombre-1440.png`, `filtre-clair-1440.png`, `filtre-sombre-390.png`, `filtre-clair-390.png`
+- Filtre « Brouillons » (filtre réel du serveur) : `filtre-sombre-1440.png`, `filtre-clair-1440.png`, `filtre-sombre-390.png`, `filtre-clair-390.png`
 - Aucun cours : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`

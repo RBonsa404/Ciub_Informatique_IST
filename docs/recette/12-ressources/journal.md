@@ -1,6 +1,6 @@
 # Journal de recette : Ressources publiques
 
-Identifiant : 12-ressources. Route : `/ressources`. Date : 2026-10-01.
+Identifiant : 12-ressources. Route : `/ressources`. Date : 2026-10-02.
 Référence : écran `12-ressources-publiques` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

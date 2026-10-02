@@ -1,6 +1,6 @@
 # Journal de recette : Accès refusé
 
-Identifiant : D3-acces-refuse. Route : `/acces-refuse`. Date : 2026-10-01.
+Identifiant : D3-acces-refuse. Route : `/acces-refuse`. Date : 2026-10-02.
 Référence : page dérivée, sans écran dans la maquette.
 
 ## Résultats automatisés

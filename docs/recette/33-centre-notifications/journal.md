@@ -1,13 +1,13 @@
 # Journal de recette : Centre de notifications
 
-Identifiant : 33-centre-notifications. Route : `/espace/notifications`. Date : 2026-10-01.
+Identifiant : 33-centre-notifications. Route : `/espace/notifications`. Date : 2026-10-02.
 Référence : écran `33-centre-notifications` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (notifications du compte de recette) ; Filtre par type sans résultat ; Aucune notification ; Chargement ; Service injoignable ; Marquage réel comme lue (backend) : plus aucune notification non lue |
+| Scénarios | Contenu réel (notifications du compte de recette) ; Filtre par type sans résultat ; Aucune notification ; Chargement ; Service injoignable ; Marquage réel d’une notification, puis de toutes (backend) : plus aucune notification non lue |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -30,7 +30,7 @@ Aucun.
 - Aucune notification : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
-- Marquage réel comme lue (backend) : plus aucune notification non lue : `lecture-sombre-1440.png`, `lecture-clair-1440.png`, `lecture-sombre-390.png`, `lecture-clair-390.png`
+- Marquage réel d’une notification, puis de toutes (backend) : plus aucune notification non lue : `lecture-sombre-1440.png`, `lecture-clair-1440.png`, `lecture-sombre-390.png`, `lecture-clair-390.png`
 
 ## Écarts avec la maquette
 

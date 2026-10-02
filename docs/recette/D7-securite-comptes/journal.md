@@ -7,7 +7,7 @@ Référence : page dérivée, sans écran dans la maquette.
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (aucune alerte en base de recette) ; Alertes selon le contrat d’API ; Chargement ; Service injoignable |
+| Scénarios | Contenu réel (compte suspendu et connexions refusées de la base de recette) ; Aucune alerte ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,8 +25,8 @@ Aucun.
 
 ## Captures
 
-- Contenu réel (aucune alerte en base de recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
-- Alertes selon le contrat d’API : `alertes-sombre-1440.png`, `alertes-clair-1440.png`, `alertes-sombre-390.png`, `alertes-clair-390.png`
+- Contenu réel (compte suspendu et connexions refusées de la base de recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Aucune alerte : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 

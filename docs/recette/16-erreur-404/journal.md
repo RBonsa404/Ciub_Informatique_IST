@@ -1,6 +1,6 @@
 # Journal de recette : Page introuvable
 
-Identifiant : 16-erreur-404. Route : `/adresse-inexistante`. Date : 2026-10-01.
+Identifiant : 16-erreur-404. Route : `/adresse-inexistante`. Date : 2026-10-02.
 Référence : écran `16-erreur-404` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

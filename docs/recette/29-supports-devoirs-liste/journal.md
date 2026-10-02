@@ -1,6 +1,6 @@
 # Journal de recette : Supports et devoirs, liste
 
-Identifiant : 29-supports-devoirs-liste. Route : `/espace/supports`. Date : 2026-10-01.
+Identifiant : 29-supports-devoirs-liste. Route : `/espace/supports`. Date : 2026-10-02.
 Référence : écran `29-supports-devoirs-liste` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

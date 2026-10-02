@@ -7,7 +7,7 @@ Référence : écran `57-supervision-conformite-dsi` de la maquette (`maquette-s
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (contrôles du serveur, journal réel vide) ; Journal alimenté selon le contrat d’API ; Contrôle non conforme (format du contrat) ; Chargement ; Service injoignable |
+| Scénarios | Contenu réel (contrôles calculés par le serveur, journal réel) ; Journal vide ; Contrôles non conformes signalés (pile de recette : cookie non sécurisé, comptes de test présents) ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,9 +25,9 @@ Aucun.
 
 ## Captures
 
-- Contenu réel (contrôles du serveur, journal réel vide) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
-- Journal alimenté selon le contrat d’API : `journal-sombre-1440.png`, `journal-clair-1440.png`, `journal-sombre-390.png`, `journal-clair-390.png`
-- Contrôle non conforme (format du contrat) : `non-conforme-sombre-1440.png`, `non-conforme-clair-1440.png`, `non-conforme-sombre-390.png`, `non-conforme-clair-390.png`
+- Contenu réel (contrôles calculés par le serveur, journal réel) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Journal vide : `journal-vide-sombre-1440.png`, `journal-vide-clair-1440.png`, `journal-vide-sombre-390.png`, `journal-vide-clair-390.png`
+- Contrôles non conformes signalés (pile de recette : cookie non sécurisé, comptes de test présents) : `non-conforme-sombre-1440.png`, `non-conforme-clair-1440.png`, `non-conforme-sombre-390.png`, `non-conforme-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 
@@ -43,10 +43,10 @@ Aucun.
 | Badge « Conforme DSI-IST » | fixe | déduit des contrôles renvoyés : conformes ou à examiner | assumé |
 | « Certificat de Conformité » | bouton | retiré : aucun certificat n’est produit par la plateforme | retrait |
 | Colonne « Hash Cryptographique », emplacement géographique | présents | retirés : données absentes du journal | retrait (section 1) |
-| Contrôle de double authentification | non prévu | non repris même s’il est renvoyé par le backend actuel | retrait (6.6) |
+| Contrôle de double authentification | non prévu | absent : aucune double authentification dans le produit | conforme (6.6) |
 
 ## États
 
 - Contrôles : squelettes, erreur avec « Réessayer », contenu.
 - Journal : squelettes, vide, erreur, contenu paginé côté serveur.
-- Le backend actuel renvoie des contrôles codés en dur (audit) : ils devront être calculés en Phase 3 avant l’ouverture du module.
+- Les contrôles sont calculés par le serveur à chaque consultation.

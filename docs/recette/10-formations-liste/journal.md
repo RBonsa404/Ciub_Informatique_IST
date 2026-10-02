@@ -1,6 +1,6 @@
 # Journal de recette : Formations, liste
 
-Identifiant : 10-formations-liste. Route : `/formations`. Date : 2026-10-01.
+Identifiant : 10-formations-liste. Route : `/formations`. Date : 2026-10-02.
 Référence : écran `10-formations-liste` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

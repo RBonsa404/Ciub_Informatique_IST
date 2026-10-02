@@ -41,7 +41,7 @@ Aucun.
 | Contenus | textes, noms, dates et chiffres d’illustration | données renvoyées par l’API | assumé (section 1) |
 | Barre supérieure | champ de recherche globale, pastille à valeur fixe | fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte | assumé (E-31) |
 | Description | texte fictif | description, objectifs, technologies et catégorie réels | assumé (section 1) |
-| « Fichiers joints » avec poids | deux fichiers | liens réels du projet (dépôt, documentation) s’ils existent | assumé (aucun stockage de fichier) |
+| « Fichiers joints » avec poids | deux fichiers | liens réels du projet (dépôt, documentation) s’ils existent | assumé (modèle existant) |
 | Participants | pastilles et « Équipe de 3 étudiants » | membres réels du projet, nommés | assumé |
 | Motif du rejet | champ facultatif sur une ligne | obligatoire pour un rejet, communiqué à l’auteur | assumé (UC-20) |
 | Approuver, rejeter | action immédiate | confirmation préalable | assumé |

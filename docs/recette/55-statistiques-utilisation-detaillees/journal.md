@@ -47,4 +47,4 @@ Aucun.
 - Chargement : squelettes, aucun chiffre.
 - Erreur : message et « Réessayer ».
 - Contenu : totaux et répartitions.
-- Les comptes de test doivent être exclus par le serveur (règle 7) : à corriger en Phase 3.
+- Les comptes de test et ce qu’ils ont créé sont exclus par le serveur (règle 7).

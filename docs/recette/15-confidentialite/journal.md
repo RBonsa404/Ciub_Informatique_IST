@@ -1,6 +1,6 @@
 # Journal de recette : Politique de confidentialité
 
-Identifiant : 15-confidentialite. Route : `/confidentialite`. Date : 2026-10-01.
+Identifiant : 15-confidentialite. Route : `/confidentialite`. Date : 2026-10-02.
 Référence : écran `15-politique-confidentialite` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

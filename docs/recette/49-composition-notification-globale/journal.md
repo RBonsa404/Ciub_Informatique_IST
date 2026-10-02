@@ -1,6 +1,6 @@
 # Journal de recette : Notification globale
 
-Identifiant : 49-composition-notification-globale. Route : `/espace/gestion/notifications`. Date : 2026-10-01.
+Identifiant : 49-composition-notification-globale. Route : `/espace/gestion/notifications`. Date : 2026-10-02.
 Référence : écran `49-composition-notification-globale` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

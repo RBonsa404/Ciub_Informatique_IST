@@ -1,46 +1,23 @@
 // Scénarios de recette du Super Admin et de la DSI : configuration (écran 56), supervision (écran 57), mot de passe imposé (D8).
-import { COMPTES, CONSOLE_PANNE, ECARTS_COMMUNS, PASSWORD, aller, enAttente, injoignable, json } from './_outils.mjs';
+import { API, CONSOLE_PANNE, ECARTS_COMMUNS, PASSWORD, aller, enAttente, injoignable, json, lire } from './_outils.mjs';
 
-const CONFIG = '**/api/admin/system/config';
-const SAUVEGARDES = '**/api/admin/system/sauvegardes';
-const CONFORMITE = '**/api/dsi/conformite';
-const JOURNAL = '**/api/dsi/conformite/logs*';
+const CONFIG = '**/api/v1/admin/system/config';
+const SAUVEGARDES = '**/api/v1/admin/system/sauvegardes';
+const CONFORMITE = '**/api/v1/dsi/conformite';
+const JOURNAL = '**/api/v1/dsi/conformite/logs*';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
   ['Barre supérieure', 'champ de recherche globale, pastille à valeur fixe', 'fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte', 'assumé (E-31)'],
 ];
 
-/** Sauvegardes conformes au contrat (point d'accès à créer en Phase 3) : valeurs d'essai de l'outil de recette. */
-const sauvegardesContrat = [
-  { id: 2, date: '2026-10-02T02:00:00', tailleOctets: 14890000, statut: 'REUSSIE' },
-  { id: 1, date: '2026-10-01T02:00:00', tailleOctets: null, statut: 'ECHOUEE' },
-];
-const sauvegardes = (page) => page.route(SAUVEGARDES, (route) => json(route, sauvegardesContrat));
-
-const journalContrat = {
-  content: [
-    { id: 2, action: 'CONNEXION', utilisateurEmail: COMPTES.admin, ipAddress: '192.0.2.10', dateAction: '2026-10-02T08:40:00', statut: 'SUCCES' },
-    { id: 1, action: 'ATTRIBUTION_ROLE', utilisateurEmail: COMPTES.superadmin, ipAddress: '192.0.2.11', dateAction: '2026-10-01T16:05:00', statut: 'SUCCES' },
-  ],
-  page: 0,
-  size: 15,
-  totalElements: 2,
-  totalPages: 1,
-};
-
-/** La réponse réelle de connexion est complétée par l'indicateur du contrat : changement de mot de passe imposé. */
-async function connexionAvecMotDePasseImpose(page) {
-  await page.route('**/api/auth/login', async (route) => {
-    const response = await route.fetch();
-    const body = await response.json();
-    await route.fulfill({ response, json: { ...body, changementMotDePasseRequis: true } });
-  });
-}
+/** Premier Super Admin créé au démarrage par l'amorçage (variables d'environnement) : son mot de passe initial doit être changé. */
+const PREMIER_ADMIN = process.env.RECETTE_ADMIN_EMAIL ?? 'premier.admin@club.test';
+const MOT_DE_PASSE_INITIAL = process.env.RECETTE_ADMIN_MOT_DE_PASSE ?? `${PASSWORD}-initial`;
 
 async function seConnecter(page) {
-  await page.getByLabel(/Adresse électronique/).fill(COMPTES.superadmin);
-  await page.getByLabel(/^\s*Mot de passe/).fill(PASSWORD);
+  await page.getByLabel(/Adresse électronique/).fill(PREMIER_ADMIN);
+  await page.getByLabel(/^\s*Mot de passe/).fill(MOT_DE_PASSE_INITIAL);
   await page.getByRole('button', { name: 'Se connecter' }).click();
   await page.waitForURL((url) => url.pathname === '/espace/mot-de-passe');
   await page.waitForTimeout(500);
@@ -53,11 +30,19 @@ export const PAGES = {
     role: 'superadmin',
     maquette: '56-configuration-systeme-sauvegardes',
     scenarios: [
-      { id: 'contenu', titre: 'Réglages réels ; sauvegardes selon le contrat d’API', before: sauvegardes },
+      {
+        id: 'contenu',
+        titre: 'Réglages et sauvegardes réels (sauvegarde réalisée par le script d’exploitation)',
+        check: async (page) => {
+          const liste = await lire('/admin/system/sauvegardes', 'superadmin');
+          if (liste.length === 0) return 'la base de recette doit contenir une sauvegarde réelle';
+          return (await page.locator('main').innerText()).toLowerCase().includes('réussie') ? null : 'le résultat de la sauvegarde réelle doit être affiché';
+        },
+      },
+      { id: 'sans-sauvegarde', titre: 'Aucune sauvegarde enregistrée', before: (page) => page.route(SAUVEGARDES, (route) => json(route, [])) },
       {
         id: 'validation',
         titre: 'Valeurs hors bornes',
-        before: sauvegardes,
         run: async (page) => {
           await page.getByLabel(/Nom de la plateforme/).fill('');
           await page.getByLabel(/Tentatives de connexion/).fill('50');
@@ -68,7 +53,6 @@ export const PAGES = {
       {
         id: 'enregistrement',
         titre: 'Enregistrement réel des réglages (backend)',
-        before: sauvegardes,
         run: async (page) => {
           await page.getByLabel(/Durée du verrouillage/).fill('15');
           await page.getByRole('button', { name: 'Enregistrer les réglages' }).click();
@@ -78,7 +62,6 @@ export const PAGES = {
       {
         id: 'maintenance',
         titre: 'Mode maintenance : modale de confirmation (non confirmée)',
-        before: sauvegardes,
         run: async (page) => {
           await page.getByRole('checkbox', { name: 'Activer le mode maintenance' }).check();
           await page.getByRole('button', { name: 'Enregistrer les réglages' }).click();
@@ -86,7 +69,7 @@ export const PAGES = {
           await page.waitForTimeout(400);
         },
       },
-      { id: 'backend-actuel', titre: 'Backend actuel : état des sauvegardes absent (erreur 500, message dans le panneau)', expectedConsole: ['500'] },
+      { id: 'sauvegardes-indisponibles', titre: 'État des sauvegardes injoignable : message dans le panneau', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, SAUVEGARDES) },
       {
         id: 'chargement',
         titre: 'Chargement',
@@ -96,12 +79,12 @@ export const PAGES = {
           await enAttente(page, SAUVEGARDES);
         },
       },
-      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/admin/system/**') },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/v1/admin/system/**') },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
       ['« Expiration JWT (minutes) »', 'champ modifiable', 'retiré : réglage de sécurité fixé par variable d’environnement', 'retrait (6.11)'],
-      ['Réglages', 'nom, expiration, maintenance, inscriptions', 'nom, tentatives avant verrouillage, durée du verrouillage, maintenance ; inscriptions si le serveur gère ce réglage', 'assumé (modèle existant)'],
+      ['Réglages', 'nom, expiration, maintenance, inscriptions', 'nom, tentatives avant verrouillage, durée du verrouillage, maintenance, ouverture des inscriptions', 'assumé (modèle existant)'],
       ['« Créer un snapshot SQL immédiat »', 'bouton', 'retiré : sauvegarde par tâche planifiée hors application', 'retrait (D-09)'],
       ['Archives « backup_auto_…sql », « 14.2 Mo », téléchargement', 'liste fixe', 'date, taille et résultat réels des dernières sauvegardes ; aucun téléchargement', 'assumé (D-09, section 1)'],
       ['Mode maintenance', 'case à cocher', 'confirmation avant activation', 'assumé'],
@@ -115,25 +98,21 @@ export const PAGES = {
     role: 'dsi',
     maquette: '57-supervision-conformite-dsi',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu réel (contrôles du serveur, journal réel vide)' },
-      { id: 'journal', titre: 'Journal alimenté selon le contrat d’API', before: (page) => page.route(JOURNAL, (route) => json(route, journalContrat)) },
+      {
+        id: 'contenu',
+        titre: 'Contenu réel (contrôles calculés par le serveur, journal réel)',
+        check: async (page) => {
+          const conformite = await lire('/dsi/conformite', 'dsi');
+          const texte = await page.locator('main').innerText();
+          const manquant = conformite.verifications.find((v) => !texte.includes(v.libelle));
+          if (manquant) return `contrôle du serveur non affiché : ${manquant.libelle}`;
+          return (await page.locator('tbody tr').count()) >= 1 ? null : 'les entrées réelles du journal doivent être listées';
+        },
+      },
+      { id: 'journal-vide', titre: 'Journal vide', before: (page) => page.route(JOURNAL, (route) => json(route, { content: [], page: 0, size: 15, totalElements: 0, totalPages: 0 })) },
       {
         id: 'non-conforme',
-        titre: 'Contrôle non conforme (format du contrat)',
-        before: (page) =>
-          page.route(CONFORMITE, (route) =>
-            json(route, {
-              statut: 'A_EXAMINER',
-              versionBackend: '2.0.0',
-              versionJava: '17',
-              comptesActifs: 3,
-              tentativesEchouees: 4,
-              verifications: [
-                { code: 'CHIFFREMENT', libelle: 'Mots de passe chiffrés', conforme: true },
-                { code: 'SAUVEGARDE', libelle: 'Sauvegarde de moins de vingt-quatre heures', conforme: false },
-              ],
-            }),
-          ),
+        titre: 'Contrôles non conformes signalés (pile de recette : cookie non sécurisé, comptes de test présents)',
         check: async (page) => ((await page.locator('main').innerText()).toLowerCase().includes('non conforme') ? null : 'le contrôle en échec doit être signalé'),
       },
       {
@@ -145,7 +124,7 @@ export const PAGES = {
           await enAttente(page, JOURNAL);
         },
       },
-      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/dsi/**') },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/v1/dsi/**') },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
@@ -153,33 +132,36 @@ export const PAGES = {
       ['Badge « Conforme DSI-IST »', 'fixe', 'déduit des contrôles renvoyés : conformes ou à examiner', 'assumé'],
       ['« Certificat de Conformité »', 'bouton', 'retiré : aucun certificat n’est produit par la plateforme', 'retrait'],
       ['Colonne « Hash Cryptographique », emplacement géographique', 'présents', 'retirés : données absentes du journal', 'retrait (section 1)'],
-      ['Contrôle de double authentification', 'non prévu', 'non repris même s’il est renvoyé par le backend actuel', 'retrait (6.6)'],
+      ['Contrôle de double authentification', 'non prévu', 'absent : aucune double authentification dans le produit', 'conforme (6.6)'],
     ],
-    etats: ['Contrôles : squelettes, erreur avec « Réessayer », contenu.', 'Journal : squelettes, vide, erreur, contenu paginé côté serveur.', 'Le backend actuel renvoie des contrôles codés en dur (audit) : ils devront être calculés en Phase 3 avant l’ouverture du module.'],
+    etats: ['Contrôles : squelettes, erreur avec « Réessayer », contenu.', 'Journal : squelettes, vide, erreur, contenu paginé côté serveur.', 'Les contrôles sont calculés par le serveur à chaque consultation.'],
   },
 
   'D8-mot-de-passe-impose': {
     titre: 'Changement de mot de passe imposé',
     path: '/connexion',
     scenarios: [
-      { id: 'initial', titre: 'Première connexion : redirection vers le choix du mot de passe', before: connexionAvecMotDePasseImpose, run: seConnecter },
+      { id: 'initial', titre: 'Première connexion du Super Admin créé par l’amorçage : redirection vers le choix du mot de passe', run: seConnecter },
       {
         id: 'verrou',
         titre: 'Aucune autre page de l’espace n’est accessible',
-        // Le backend actuel répond 500 au renouvellement de session sans jeton (rechargement de la page de connexion).
-        expectedConsole: ['500'],
-        before: connexionAvecMotDePasseImpose,
         run: async (page) => {
           await seConnecter(page);
           await aller(page, '/espace/admin/utilisateurs', false);
         },
-        check: async (page) => (new URL(page.url()).pathname === '/espace/mot-de-passe' ? null : `la navigation aurait dû être refusée : ${page.url()}`),
+        check: async (page) => {
+          if (new URL(page.url()).pathname !== '/espace/mot-de-passe') return `la navigation aurait dû être refusée : ${page.url()}`;
+          // Le serveur refuse lui aussi toute autre requête tant que le mot de passe initial n'est pas changé.
+          const session = await (await fetch(`${API}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: PREMIER_ADMIN, motDePasse: MOT_DE_PASSE_INITIAL }) })).json();
+          const refus = await fetch(`${API}/admin/users`, { headers: { Authorization: `Bearer ${session.accessToken}` } });
+          const corps = await refus.json();
+          return refus.status === 403 && corps.code === 'CHANGEMENT_MOT_DE_PASSE_REQUIS' ? null : `le serveur aurait dû refuser la requête : ${refus.status} ${corps.code}`;
+        },
       },
       {
         id: 'validation',
         titre: 'Mot de passe initial erroné (réponse réelle du backend)',
-        expectedConsole: ['400', '500'],
-        before: connexionAvecMotDePasseImpose,
+        expectedConsole: ['400'],
         run: async (page) => {
           await seConnecter(page);
           await page.getByLabel(/Mot de passe initial/).fill('Inexact@2026');
@@ -191,6 +173,6 @@ export const PAGES = {
       },
     ],
     ecarts: [['Page dérivée', 'aucun écran dans la maquette', 'carte reprise de l’écran 21 (réinitialisation du mot de passe)', 'dérivation (section 8.7.9)']],
-    etats: ['Formulaire : validation par champ, refus du même mot de passe, erreur du serveur sous le champ.', 'Succès : indicateur levé, retour à l’accueil du rôle.', 'L’indicateur de changement obligatoire est à créer côté serveur (Phase 3) ; la recette l’ajoute à la réponse réelle de connexion.'],
+    etats: ['Formulaire : validation par champ, refus du même mot de passe, erreur du serveur sous le champ.', 'Succès : indicateur levé, retour à l’accueil du rôle.', 'Le compte utilisé est le premier Super Admin créé par l’amorçage ; le changement réussi est rejoué dans le parcours du Super Admin (base neuve).'],
   },
 };

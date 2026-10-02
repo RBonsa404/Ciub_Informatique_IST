@@ -1,6 +1,6 @@
 # Journal de recette : Création et édition d’un cours
 
-Identifiant : 37-creation-edition-cours. Route : `/espace/formateur/cours/nouveau`. Date : 2026-10-01.
+Identifiant : 37-creation-edition-cours. Route : `/espace/formateur/cours/nouveau`. Date : 2026-10-02.
 Référence : écran `37-creation-edition-cours` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
@@ -43,7 +43,7 @@ Aucun.
 | « Code Module », « Filières recommandées », « Volume horaire » | présents | retirés | retrait (D-05) |
 | « Salle / Amphi », « Capacité maximale » | dans le formulaire du cours | saisis par séance, dans le détail du cours (modèle : une formation, plusieurs séances) | assumé (D-05) |
 | Domaine d’apprentissage | liste fixe | catégories réelles du serveur | assumé (section 1) |
-| Syllabus (dépôt de fichier) | zone de dépôt | retirée : aucun stockage de fichier ; les documents se publient comme ressources | retrait (stockage à créer) |
+| Syllabus (dépôt de fichier) | zone de dépôt | les documents du cours se déposent comme supports, depuis le détail du cours | assumé (D-05) |
 | « Enregistrer & Publier le cours » | un bouton | interrupteur « Publier le cours » et bouton « Enregistrer le cours » | assumé (brouillon possible) |
 | Objectifs et prérequis | un seul champ « Description & Objectifs » | description, objectifs et prérequis distincts, comme sur la fiche publique | assumé |
 

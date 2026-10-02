@@ -1,6 +1,6 @@
 # Journal de recette : Erreur générique
 
-Identifiant : 17-erreur-service. Route : `/erreur`. Date : 2026-10-01.
+Identifiant : 17-erreur-service. Route : `/erreur`. Date : 2026-10-02.
 Référence : écran `17-erreur-500` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

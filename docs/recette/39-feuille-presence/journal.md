@@ -1,6 +1,6 @@
 # Journal de recette : Feuille d’émargement
 
-Identifiant : 39-feuille-presence. Route : `/espace/formateur/cours/:id/sessions/:sessionId/presences`. Date : 2026-10-01.
+Identifiant : 39-feuille-presence. Route : `/espace/formateur/cours/:id/sessions/:sessionId/presences`. Date : 2026-10-02.
 Référence : écran `39-feuille-presence` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

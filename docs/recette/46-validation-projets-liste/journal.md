@@ -38,7 +38,7 @@ Aucun.
 | Pictogrammes | emoji et tracés au trait | famille unique au trait | corrigé (E-01) |
 | Contenus | textes, noms, dates et chiffres d’illustration | données renvoyées par l’API | assumé (section 1) |
 | Barre supérieure | champ de recherche globale, pastille à valeur fixe | fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte | assumé (E-31) |
-| Compteurs « 5 », « 12 », « 2 » | valeurs fixes | décomptes réels ; validés et rejetés affichés seulement si la liste reçue est complète | assumé (section 1) |
+| Compteurs « 5 », « 12 », « 2 » | valeurs fixes | décomptes calculés par le serveur (en attente, validés, rejetés) | assumé (section 1) |
 | Colonne « Filière » | présente | affichée seulement si le serveur fournit la filière du porteur | assumé |
 
 ## États

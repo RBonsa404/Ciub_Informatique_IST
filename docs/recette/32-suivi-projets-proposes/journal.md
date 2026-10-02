@@ -7,7 +7,7 @@ Référence : écran `32-suivi-projets-proposes` de la maquette (`maquette-sombr
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu selon le contrat d’API, à partir des projets réels du membre ; Aucun projet proposé ; Chargement ; Backend actuel : point d’accès absent (erreur 400, état d’erreur affiché) |
+| Scénarios | Contenu réel (projets proposés par le membre de recette, motif du rejet compris) ; Aucun projet proposé ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,10 +25,10 @@ Aucun.
 
 ## Captures
 
-- Contenu selon le contrat d’API, à partir des projets réels du membre : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Contenu réel (projets proposés par le membre de recette, motif du rejet compris) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
 - Aucun projet proposé : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
-- Backend actuel : point d’accès absent (erreur 400, état d’erreur affiché) : `backend-actuel-sombre-1440.png`, `backend-actuel-clair-1440.png`, `backend-actuel-sombre-390.png`, `backend-actuel-clair-390.png`
+- Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 
 ## Écarts avec la maquette
 

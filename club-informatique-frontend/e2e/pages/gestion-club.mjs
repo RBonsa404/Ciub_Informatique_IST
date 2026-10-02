@@ -1,32 +1,13 @@
 // Scénarios de recette de la gestion du club : tableau de bord du Responsable (écran 42), bureau (D5), messages de contact (D4).
-import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, pageVide } from './_outils.mjs';
+import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
 
-const INDICATEURS = '**/api/gestion/indicateurs';
-const BUREAU = '**/api/bureau';
-const MESSAGES = '**/api/contact/admin*';
+const INDICATEURS = '**/api/v1/gestion/indicateurs';
+const BUREAU = '**/api/v1/bureau';
+const MESSAGES = '**/api/v1/gestion/messages*';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
   ['Barre supérieure', 'champ de recherche globale, pastille à valeur fixe', 'fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte', 'assumé (E-31)'],
-];
-
-/** Indicateurs conformes au contrat (point d'accès à créer en Phase 3) : valeurs d'essai de l'outil de recette. */
-const indicateursContrat = {
-  membresActifs: 3,
-  frequentation: [
-    { mois: '2026-06', inscriptions: 0 },
-    { mois: '2026-07', inscriptions: 1 },
-    { mois: '2026-08', inscriptions: 0 },
-    { mois: '2026-09', inscriptions: 2 },
-    { mois: '2026-10', inscriptions: 4 },
-  ],
-};
-
-/** Composition conforme au contrat (point d'accès à créer) : noms d'essai de l'outil de recette, jamais livrés. */
-const bureauContrat = [
-  { id: 1, nom: 'Kaboré', prenom: 'Salif', fonction: 'Président', filiere: 'Génie logiciel', ordre: 1 },
-  { id: 2, nom: 'Sawadogo', prenom: 'Aminata', fonction: 'Vice-présidente', filiere: 'Informatique de gestion', ordre: 2 },
-  { id: 3, nom: 'Traoré', prenom: 'Fatoumata', fonction: 'Secrétaire générale', filiere: null, ordre: 3 },
 ];
 
 export const PAGES = {
@@ -38,29 +19,33 @@ export const PAGES = {
     scenarios: [
       {
         id: 'contenu',
-        titre: 'Contenu réel ; effectif et fréquentation selon le contrat d’API',
-        before: (page) => page.route(INDICATEURS, (route) => json(route, indicateursContrat)),
-        check: async (page) => ((await page.locator('.bar-col').count()) === 5 && (await page.locator('.tile').count()) === 4 ? null : 'quatre tuiles et cinq barres attendues'),
+        titre: 'Contenu réel : totaux, effectif et fréquentation calculés par le serveur (hors comptes de test)',
+        check: async (page) => {
+          const indicateurs = await lire('/gestion/indicateurs', 'responsable');
+          if ((await page.locator('.tile').count()) !== 4) return 'quatre tuiles attendues';
+          if ((await page.locator('.bar-col').count()) !== indicateurs.frequentation.length) return 'une barre par mois renvoyé par le serveur';
+          return (await page.locator('.tiles').innerText()).includes(String(indicateurs.membresActifs)) ? null : 'la tuile « Membres » doit afficher l’effectif du serveur';
+        },
       },
       {
-        id: 'backend-actuel',
-        titre: 'Backend actuel : indicateurs absents, tuile « Membres » et graphique retirés',
-        expectedConsole: ['500'],
+        id: 'indicateurs-indisponibles',
+        titre: 'Indicateurs injoignables : tuile « Membres » et graphique retirés',
+        expectedConsole: CONSOLE_PANNE,
+        before: (page) => injoignable(page, INDICATEURS),
         check: async (page) => ((await page.locator('.tile').count()) === 3 && (await page.locator('.chart').count()) === 0 ? null : 'la tuile et le graphique sans donnée doivent être retirés'),
       },
       {
         id: 'chargement',
         titre: 'Chargement',
         waitUntil: 'load',
-        before: (page) => enAttente(page, '**/api/**/admin/all*'),
-        expectedConsole: ['500'],
+        before: (page) => enAttente(page, '**/api/v1/gestion/*'),
         check: async (page) => (/\b0\b/.test(await page.locator('.tiles').innerText()) ? 'un zéro est affiché pendant le chargement' : null),
       },
-      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/**') },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/v1/**') },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
-      ['Compteurs « 12 », « 4 », « 5 », « 148 »', 'valeurs fixes et tendances (« +3 publiées ce mois »)', 'totaux réels du serveur, sans tendance ; « Membres » retiré tant que l’indicateur n’existe pas', 'assumé (section 1)'],
+      ['Compteurs « 12 », « 4 », « 5 », « 148 »', 'valeurs fixes et tendances (« +3 publiées ce mois »)', 'totaux réels du serveur, sans tendance ; une tuile dont la donnée est indisponible est retirée', 'assumé (section 1)'],
       ['« Activité & Fréquentation globale »', 'barres fixes, « Moyenne : 28 étudiants / session »', 'inscriptions confirmées par mois selon le serveur, valeur au-dessus de chaque barre ; graphique retiré sans donnée ; moyenne retirée', 'assumé (section 1)'],
       ['« Projets en attente (5) », « Événements prévus »', 'contenu fixe', 'propositions et événements réels, trois au plus', 'assumé'],
       ['Tuiles', 'non cliquables', 'chaque tuile mène à la page de gestion correspondante', 'assumé'],
@@ -73,11 +58,33 @@ export const PAGES = {
     path: '/espace/gestion/bureau',
     role: 'responsable',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu selon le contrat d’API (point d’accès à créer)', before: (page) => page.route(BUREAU, (route) => json(route, bureauContrat)) },
+      {
+        id: 'contenu',
+        titre: 'Contenu réel (bureau saisi dans la base de recette)',
+        check: async (page) => ((await page.locator('tbody tr').count()) >= 3 ? null : 'les membres réels du bureau doivent être listés'),
+      },
+      {
+        id: 'ajout-retrait',
+        titre: 'Ajout puis retrait réels d’un membre (backend)',
+        run: async (page, { width, theme }) => {
+          if (width !== 1440 || theme !== 'dark') return;
+          await page.getByRole('button', { name: 'Ajouter un membre' }).first().click();
+          await page.getByLabel(/^\s*Prénom/).fill('Fatoumata');
+          await page.getByLabel(/^\s*Nom/).fill('Traoré');
+          await page.getByLabel(/^\s*Fonction/).fill('Chargée de communication');
+          await page.getByLabel(/Ordre d’affichage/).fill('9');
+          await page.getByRole('button', { name: 'Enregistrer' }).click();
+          await page.getByText('Le membre est ajouté au bureau.').waitFor();
+          if (!(await lire('/bureau', 'responsable')).some((m) => m.fonction === 'Chargée de communication')) throw new Error('le membre ajouté est absent de la réponse du serveur');
+          await page.getByRole('button', { name: 'Retirer Fatoumata Traoré' }).click();
+          await page.getByRole('dialog').getByRole('button', { name: /Retirer/ }).click();
+          await page.getByText('Le membre est retiré du bureau.').waitFor();
+        },
+        check: async () => ((await lire('/bureau', 'responsable')).some((m) => m.fonction === 'Chargée de communication') ? 'le membre retiré figure encore dans la réponse du serveur' : null),
+      },
       {
         id: 'ajout',
         titre: 'Ajout : validation du formulaire',
-        before: (page) => page.route(BUREAU, (route) => json(route, bureauContrat)),
         run: async (page) => {
           await page.getByRole('button', { name: 'Ajouter un membre' }).first().click();
           await page.getByRole('button', { name: 'Enregistrer' }).click();
@@ -87,7 +94,6 @@ export const PAGES = {
       {
         id: 'retrait',
         titre: 'Retrait : modale de confirmation (non confirmée)',
-        before: (page) => page.route(BUREAU, (route) => json(route, bureauContrat)),
         run: async (page) => {
           await page.getByRole('button', { name: /^Retirer/ }).first().click();
           await page.getByRole('dialog').waitFor();
@@ -96,7 +102,7 @@ export const PAGES = {
       },
       { id: 'vide', titre: 'Bureau non encore saisi', before: (page) => page.route(BUREAU, (route) => json(route, [])) },
       { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, BUREAU) },
-      { id: 'backend-actuel', titre: 'Backend actuel : point d’accès absent (erreur 500, état d’erreur affiché)', expectedConsole: ['500'] },
+      { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, BUREAU) },
     ],
     ecarts: [['Page dérivée', 'aucun écran dans la maquette', 'tableau et formulaire repris des écrans 43 et 45 ; aucune photo, filière en saisie libre', 'dérivation (sections 8.7.2 et 12.5)']],
     etats: ['Chargement : squelettes.', 'Vide : message et bouton d’ajout.', 'Erreur : message et « Réessayer ».', 'Formulaire : validation par champ, erreurs du serveur, notification de succès.', 'Aucun membre n’est inventé : la liste reste vide tant que le club ne l’a pas saisie (annexe E).'],
@@ -130,7 +136,7 @@ export const PAGES = {
     ],
     ecarts: [
       ['Page dérivée', 'aucun écran dans la maquette', 'cartes reprises du centre de notifications (écran 33)', 'dérivation (section 8.8.1)'],
-      ['État « archivé »', 'prévu par l’inventaire', 'non repris : le modèle ne connaît que « nouveau » et « traité »', 'à arbitrer en Phase 2'],
+      ['État « archivé »', 'prévu par l’inventaire', 'non repris : le modèle ne connaît que « nouveau » et « traité »', 'assumé (modèle existant)'],
     ],
     etats: ['Chargement : squelettes.', 'Vide : message propre au filtre.', 'Erreur : message et « Réessayer ».', 'Contenu : pagination et filtre côté serveur ; réponse par courriel, marquage comme traité.'],
   },

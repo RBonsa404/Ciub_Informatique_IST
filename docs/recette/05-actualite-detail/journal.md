@@ -1,6 +1,6 @@
 # Journal de recette : Actualité, détail
 
-Identifiant : 05-actualite-detail. Route : `/actualites/:slug`. Date : 2026-10-01.
+Identifiant : 05-actualite-detail. Route : `/actualites/:slug`. Date : 2026-10-02.
 Référence : écran `05-actualites-detail` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

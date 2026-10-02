@@ -1,13 +1,10 @@
 // Scénarios de recette de l'espace Membre (écrans 22, 25 à 30). Chaque scénario ouvre une session réelle.
-import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
+import { API, CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
 
-const INSCRIPTIONS = '**/api/inscriptions/me*';
-const NOTIFICATIONS = '**/api/notifications?*';
-const PROFIL = '**/api/users/me';
-const PREFERENCES = '**/api/users/me/preferences';
-
-/** Préférences conformes au contrat (point d'accès à créer en Phase 3). */
-const preferencesContrat = (page) => page.route(PREFERENCES, (route) => json(route, { notificationsCourriel: true }));
+const INSCRIPTIONS = '**/api/v1/inscriptions/me*';
+const NOTIFICATIONS = '**/api/v1/notifications?*';
+const PROFIL = '**/api/v1/users/me';
+const PREFERENCES = '**/api/v1/users/me/preferences';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
@@ -15,7 +12,7 @@ const ECARTS_ESPACE = [
 ];
 
 async function premierSupport() {
-  const formations = (await (await fetch('http://localhost:8080/api/formations?search=')).json()).content;
+  const formations = (await (await fetch(`${API}/formations`)).json()).content;
   const inscriptions = (await lire('/inscriptions/me?size=200', 'membre')).content.filter((i) => i.statut === 'CONFIRMEE' && i.sessionFormationId);
   const formation = formations.find((f) => (f.sessions ?? []).some((s) => inscriptions.some((i) => i.sessionFormationId === s.id)));
   const ressources = await lire(`/ressources/formation/${formation.id}`, 'membre');
@@ -123,18 +120,45 @@ export const PAGES = {
         },
         check: async (page) => ((await page.locator('main').innerText()).includes('Texte d’essai') ? null : 'la présentation enregistrée doit apparaître sur le profil'),
       },
+      {
+        id: 'photo',
+        titre: 'Photo de profil : fichier refusé avant l’envoi, puis dépôt réel d’une image (backend), affichée à la place des initiales',
+        run: async (page) => {
+          const champ = page.locator('input[type="file"]');
+          await champ.setInputFiles({ name: 'document.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n%%EOF\n') });
+          await page.getByText('Choisissez une image au format PNG, JPG ou WebP.').waitFor();
+          await champ.setInputFiles({ name: 'portrait.png', mimeType: 'image/png', buffer: await page.screenshot({ clip: { x: 0, y: 0, width: 96, height: 96 } }) });
+          await page.getByText('Votre photo de profil est enregistrée.').waitFor();
+          await page.locator('.avatar img').waitFor();
+        },
+        check: async (page) => {
+          const profil = await lire('/users/me', 'membre');
+          if (!/\/fichiers\/[0-9a-f-]{36}$/.test(profil.photo ?? '')) return 'le profil renvoyé par le serveur doit désigner la photo déposée';
+          if ((await fetch(new URL(API).origin + profil.photo)).status !== 401) return 'la photo ne doit pas être servie à un visiteur';
+          return (await page.locator('.avatar img').evaluate((image) => image.complete && image.naturalWidth > 0)) ? null : 'la photo doit être affichée';
+        },
+      },
+      {
+        id: 'photo-retiree',
+        titre: 'Photo de profil : retrait réel, retour aux initiales',
+        run: async (page) => {
+          await page.getByRole('button', { name: 'Retirer la photo' }).click();
+          await page.getByText('Votre photo de profil est retirée.').waitFor();
+        },
+        check: async (page) => ((await page.locator('.avatar img').count()) === 0 && !(await lire('/users/me', 'membre')).photo ? null : 'la photo retirée ne doit plus être affichée ni renvoyée'),
+      },
       { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, PROFIL) },
       { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, PROFIL) },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
       ['Encart « Profil mis à jour »', 'affiché en permanence', 'notification après un enregistrement réussi', 'assumé (état de démonstration)'],
-      ['« Changer la photo »', 'téléversement simulé', 'retiré : avatar à initiales, aucun stockage de fichier', 'retrait (6.4, BNF-09)'],
+      ['« Changer la photo »', 'téléversement simulé, « PNG ou JPG, max 2 Mo »', 'dépôt réel d’une image (PNG, JPG ou WebP, 2 Mo au plus), retrait possible ; initiales à défaut de photo', 'conforme'],
       ['« Nom complet »', 'un champ', 'prénom et nom, comme à l’inscription', 'assumé'],
       ['Filière', 'saisie libre', 'saisie libre', 'conforme (6.5)'],
       ['GitHub, LinkedIn, compétences', 'présents', 'retirés', 'retrait (D-04)'],
     ],
-    etats: ['Chargement : squelette du formulaire.', 'Erreur de chargement : message et « Réessayer ».', 'Validation : message par champ, erreurs du serveur reprises sous le champ.', 'Succès : notification et retour au profil.'],
+    etats: ['Chargement : squelette du formulaire.', 'Erreur de chargement : message et « Réessayer ».', 'Validation : message par champ, erreurs du serveur reprises sous le champ.', 'Photo : refus avant l’envoi (type, taille), refus du serveur expliqué, notification de succès.', 'Succès : notification et retour au profil.'],
   },
 
   '27-parametres-compte': {
@@ -143,12 +167,23 @@ export const PAGES = {
     role: 'membre',
     maquette: '27-parametres-compte',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu (préférences selon le contrat d’API)', before: preferencesContrat },
+      { id: 'contenu', titre: 'Contenu réel (préférences du compte de recette)' },
+      {
+        id: 'preference',
+        titre: 'Alertes par courriel : désactivation puis réactivation réelles (backend)',
+        run: async (page) => {
+          const alertes = page.getByRole('checkbox', { name: 'Alertes par courriel' });
+          await alertes.uncheck();
+          await page.getByText('Les alertes par courriel sont désactivées.').waitFor();
+          await alertes.check();
+          await page.getByText('Les alertes par courriel sont activées.').waitFor();
+        },
+        check: async () => ((await lire('/users/me/preferences', 'membre')).notificationsCourriel === true ? null : 'la préférence enregistrée doit être relue sur le serveur'),
+      },
       {
         id: 'mot-de-passe',
         titre: 'Changement de mot de passe : mot de passe actuel erroné (réponse réelle du backend)',
         expectedConsole: ['400'],
-        before: preferencesContrat,
         run: async (page) => {
           await page.getByRole('button', { name: 'Changer le mot de passe' }).click();
           await page.getByLabel(/Mot de passe actuel/).fill('Inexact@2026');
@@ -161,7 +196,6 @@ export const PAGES = {
       {
         id: 'suppression',
         titre: 'Suppression du compte : confirmation par mot de passe puis modale (non confirmée)',
-        before: preferencesContrat,
         run: async (page) => {
           await page.getByRole('button', { name: 'Supprimer mon compte' }).click();
           await page.getByLabel(/^\s*Mot de passe/).fill('Recette@2026');
@@ -171,7 +205,7 @@ export const PAGES = {
         },
       },
       { id: 'chargement', titre: 'Chargement des préférences', waitUntil: 'load', before: (page) => enAttente(page, PREFERENCES) },
-      { id: 'backend-actuel', titre: 'Backend actuel : préférences absentes (erreur 500, état d’erreur dans le panneau)', expectedConsole: ['500'] },
+      { id: 'erreur', titre: 'Préférences injoignables : état d’erreur dans le panneau', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, PREFERENCES) },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
@@ -274,15 +308,15 @@ export const PAGES = {
         },
       },
       { id: 'introuvable', titre: 'Document introuvable (réponse réelle du backend)', path: '/espace/supports/ressources/999999', expectedConsole: ['404'] },
-      { id: 'chargement', titre: 'Chargement', path: '/espace/supports/ressources/1', waitUntil: 'load', before: (page) => enAttente(page, '**/api/ressources/*') },
-      { id: 'erreur', titre: 'Service injoignable', path: '/espace/supports/ressources/1', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/ressources/*') },
+      { id: 'chargement', titre: 'Chargement', path: '/espace/supports/ressources/1', waitUntil: 'load', before: (page) => enAttente(page, '**/api/v1/ressources/*') },
+      { id: 'erreur', titre: 'Service injoignable', path: '/espace/supports/ressources/1', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/v1/ressources/*') },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
       ['Champs « Difficulté », « Matière », « Niveau / Public cible »', 'présents', 'retirés : données absentes du modèle ; type, formation, échéance, auteur et date de publication réels', 'retrait (section 1)'],
       ['Badge « À venir »', 'présent', 'type du document', 'assumé'],
       ['« Statut de remise » et « Remettre mon devoir »', 'présents', 'retirés', 'retrait (D-03)'],
-      ['Téléchargement', 'zone vide', 'lien réel vers le fichier s’il existe, sinon mention explicite', 'assumé'],
+      ['Téléchargement', 'zone vide', 'lien réel : document externe ouvert dans un nouvel onglet, fichier déposé téléchargé avec la session ; sinon mention explicite', 'assumé'],
     ],
     etats: ['Chargement : squelettes.', 'Introuvable : message dédié.', 'Erreur : message et « Réessayer ».', 'Contenu : support ou devoir.'],
   },

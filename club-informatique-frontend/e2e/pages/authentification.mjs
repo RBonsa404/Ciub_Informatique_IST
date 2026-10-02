@@ -1,19 +1,5 @@
 // Scénarios de recette des pages d'authentification. Les comptes créés utilisent le domaine réservé .invalid.
-const API = 'http://localhost:8080/api';
-const PASSWORD = process.env.RECETTE_MOT_DE_PASSE ?? 'Recette@2026';
-const unique = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
-
-/** Crée un compte de recette par l'API réelle et renvoie son adresse. */
-async function createAccount() {
-  const email = `aminata.sawadogo.${unique()}@recette.invalid`;
-  const response = await fetch(`${API}/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nom: 'Sawadogo', prenom: 'Aminata', email, motDePasse: PASSWORD, filiere: 'Informatique de gestion' }),
-  });
-  if (!response.ok) throw new Error(`création du compte de recette impossible : ${response.status}`);
-  return email;
-}
+import { API, CONSOLE_PANNE, PASSWORD, adresseNeuve, compteActif, courrielPour, inscrire, lienDeReinitialisation } from './_outils.mjs';
 
 /** Champ désigné par son libellé, avec ou sans astérisque d'obligation. */
 const champ = (page, libelle) => page.getByLabel(new RegExp("^\\s*" + libelle + "(\\s*\\*)?\\s*$"));
@@ -52,6 +38,19 @@ export const PAGES = {
         check: async (page) => ((await page.getByRole('alert').innerText()).includes('incorrect') ? null : 'message d’échec absent'),
       },
       {
+        id: 'adresse-non-verifiee',
+        titre: 'Compte dont l’adresse n’est pas vérifiée : refus réel du backend',
+        expectedConsole: ['403'],
+        run: async (page) => {
+          const { email } = await inscrire();
+          await champ(page, 'Adresse électronique').fill(email);
+          await champ(page, 'Mot de passe').fill(PASSWORD);
+          await page.getByRole('button', { name: 'Se connecter' }).click();
+          await page.getByRole('alert').waitFor();
+        },
+        check: async (page) => ((await page.getByRole('alert').innerText()).includes('pas encore vérifiée') ? null : 'le refus doit expliquer que l’adresse n’est pas vérifiée'),
+      },
+      {
         id: 'session-expiree',
         titre: 'Retour après expiration de session',
         path: '/connexion?motif=session-expiree',
@@ -59,10 +58,10 @@ export const PAGES = {
       },
       {
         id: 'succes',
-        titre: 'Connexion réussie contre le backend réel',
+        titre: 'Connexion réussie d’un compte créé par le parcours réel (inscription, courriel, vérification)',
         run: async (page, { width, theme }) => {
           if (width !== 1440 || theme !== 'dark') return;
-          const email = await createAccount();
+          const email = await compteActif();
           await champ(page, 'Adresse électronique').fill(email);
           await champ(page, 'Mot de passe').fill(PASSWORD);
           await page.getByRole('button', { name: 'Se connecter' }).click();
@@ -122,7 +121,7 @@ export const PAGES = {
       },
       {
         id: 'succes',
-        titre: 'Inscription réussie contre le backend réel',
+        titre: 'Inscription réelle : écran « Vérifiez votre boîte de réception », courriel de vérification reçu',
         run: async (page, { width, theme }) => {
           if (width !== 1440 || theme !== 'dark') return;
           let sent;
@@ -131,18 +130,21 @@ export const PAGES = {
           });
           await champ(page, 'Nom').fill('Kaboré');
           await champ(page, 'Prénom').fill('Issouf');
-          await champ(page, 'Adresse électronique').fill(`issouf.kabore.${unique()}@recette.invalid`);
+          page.__email = adresseNeuve('issouf.kabore');
+          await champ(page, 'Adresse électronique').fill(page.__email);
           await champ(page, 'Filière d’études').fill('  Réseaux   et télécommunications ');
           await champ(page, 'Mot de passe').fill(PASSWORD);
           await champ(page, 'Confirmation du mot de passe').fill(PASSWORD);
           await page.getByRole('checkbox').check();
           await page.getByRole('button', { name: 'S’inscrire' }).click();
-          await page.waitForURL((url) => url.pathname.startsWith('/espace'));
+          await page.getByRole('heading', { name: /boîte de réception/ }).waitFor();
           page.__sent = sent;
         },
         check: async (page, { width, theme }) => {
           if (width !== 1440 || theme !== 'dark') return null;
-          return page.__sent?.filiere === 'Réseaux et télécommunications' ? null : `filière non normalisée : ${JSON.stringify(page.__sent?.filiere)}`;
+          if (page.__sent?.filiere !== 'Réseaux et télécommunications') return `filière non normalisée : ${JSON.stringify(page.__sent?.filiere)}`;
+          const courriel = await courrielPour(page.__email, 'Confirmez votre adresse');
+          return courriel.includes('/verification-adresse?jeton=') ? null : 'le courriel de vérification doit contenir le lien d’activation';
         },
       },
     ],
@@ -154,12 +156,12 @@ export const PAGES = {
       ['Colonne de marque', 'logo, nom, slogan et citation', 'logo et nom ; slogan et citation non validés (C.1)', 'retrait'],
       ['Carte de droite', '« Rejoignez plus de 120 étudiants… »', 'visuel conservé sans texte ni chiffre', 'retrait (donnée inventée)'],
       ['Libellés de champ', 'texte indicatif seul', 'texte indicatif et libellé réservé aux lecteurs d’écran', 'corrigé (accessibilité)'],
-      ['Redirection', 'simulée vers le tableau de bord', 'selon la réponse du backend : espace, ou écran « Vérifiez votre boîte de réception »', 'assumé'],
+      ['Redirection', 'simulée vers le tableau de bord', 'écran « Vérifiez votre boîte de réception » : le compte n’est actif qu’après vérification de l’adresse', 'assumé'],
     ],
     etats: [
       'Chargement : bouton en attente.',
       'Erreur : messages par champ (validation locale et erreurs renvoyées par le backend), alerte générale ; un conflit d’adresse ne confirme pas l’existence du compte.',
-      'Succès : écran de vérification d’adresse lorsque le backend l’exige (contrat cible), sinon accès direct à l’espace (backend actuel).',
+      'Succès : écran « Vérifiez votre boîte de réception » ; le courriel de vérification est réellement envoyé (lu dans la boîte de recette).',
     ],
   },
 
@@ -179,11 +181,26 @@ export const PAGES = {
         },
       },
       {
+        id: 'courriel',
+        titre: 'Compte existant : même écran, courriel de réinitialisation réellement reçu',
+        run: async (page, { width, theme }) => {
+          if (width !== 1440 || theme !== 'dark') return;
+          page.__email = await compteActif('issouf.kabore');
+          await champ(page, 'Adresse électronique').fill(page.__email);
+          await page.getByRole('button', { name: 'Envoyer le lien' }).click();
+          await page.getByRole('status').waitFor();
+        },
+        check: async (page, { width, theme }) => {
+          if (width !== 1440 || theme !== 'dark') return null;
+          return (await courrielPour(page.__email, 'Réinitialisation')).includes('/reinitialisation?jeton=') ? null : 'le courriel doit contenir le lien de réinitialisation';
+        },
+      },
+      {
         id: 'erreur',
         titre: 'Service injoignable',
-        expectedConsole: ['Failed to load resource', 'ERR_FAILED'],
+        expectedConsole: CONSOLE_PANNE,
         before: async (page) => {
-          await page.route('**/api/auth/forgot-password', (route) => route.abort());
+          await page.route('**/api/v1/auth/forgot-password', (route) => route.abort());
         },
         run: async (page) => {
           await champ(page, 'Adresse électronique').fill('inconnu@recette.invalid');
@@ -199,7 +216,7 @@ export const PAGES = {
       ['Accroche', '« Pas d’inquiétude ! … »', 'phrase factuelle', 'assumé (ton neutre)'],
     ],
     etats: [
-      'Succès : message identique que l’adresse corresponde ou non à un compte.',
+      'Succès : message identique que l’adresse corresponde ou non à un compte ; pour un compte existant, le courriel est réellement reçu.',
       'Erreur : alerte avec message adapté (réseau, débit, serveur).',
     ],
   },
@@ -222,11 +239,44 @@ export const PAGES = {
       },
       {
         id: 'jeton-refuse',
-        titre: 'Jeton refusé par le backend réel',
-        expectedConsole: ['400', '404', '401'],
+        titre: 'Jeton inconnu refusé par le backend réel',
+        expectedConsole: ['400'],
         run: async (page) => {
           await champ(page, 'Nouveau mot de passe').fill('Recette@2026');
           await champ(page, 'Confirmation du mot de passe').fill('Recette@2026');
+          await page.getByRole('button', { name: 'Enregistrer' }).click();
+          await page.getByRole('alert').waitFor();
+        },
+      },
+      {
+        id: 'succes',
+        titre: 'Lien reçu par courriel : nouveau mot de passe enregistré, retour à la connexion, connexion avec le nouveau mot de passe',
+        path: async () => (await lienDeReinitialisation()).lien,
+        run: async (page) => {
+          await champ(page, 'Nouveau mot de passe').fill('Nouveau@2026xy');
+          await champ(page, 'Confirmation du mot de passe').fill('Nouveau@2026xy');
+          await page.getByRole('button', { name: 'Enregistrer' }).click();
+          await page.waitForURL((url) => url.pathname === '/connexion');
+          await page.getByRole('status').waitFor();
+        },
+      },
+      {
+        id: 'lien-reutilise',
+        titre: 'Lien déjà utilisé : refus réel du backend',
+        expectedConsole: ['400'],
+        path: async () => {
+          const { lien } = await lienDeReinitialisation();
+          const response = await fetch(`${API}/auth/reset-password`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token: new URLSearchParams(lien.split('?')[1]).get('jeton'), nouveauMotDePasse: 'Nouveau@2026xy' }),
+          });
+          if (!response.ok) throw new Error(`première utilisation du lien refusée : ${response.status}`);
+          return lien;
+        },
+        run: async (page) => {
+          await champ(page, 'Nouveau mot de passe').fill('Nouveau@2026zz');
+          await champ(page, 'Confirmation du mot de passe').fill('Nouveau@2026zz');
           await page.getByRole('button', { name: 'Enregistrer' }).click();
           await page.getByRole('alert').waitFor();
         },
@@ -252,41 +302,42 @@ export const PAGES = {
     maquette: null,
     scenarios: [
       {
-        id: 'backend-actuel',
-        titre: 'Backend actuel : point d’accès à créer, erreur serveur restituée par l’état d’erreur',
-        expectedConsole: ['500'],
+        id: 'succes',
+        titre: 'Lien reçu par courriel après une inscription réelle : compte activé',
+        path: async () => (await inscrire()).lien,
+        check: async (page) => ((await page.getByRole('status').innerText()).includes('Votre compte est activé') ? null : 'l’activation doit être confirmée'),
       },
       {
         id: 'lien-invalide',
-        titre: 'Jeton refusé (réponse conforme au contrat cible)',
-        expectedConsole: ['422'],
-        before: async (page) => {
-          await page.route('**/api/auth/verification', (route) =>
-            route.fulfill({ status: 422, contentType: 'application/problem+json', body: JSON.stringify({ status: 422, code: 'JETON_INVALIDE', detail: 'Jeton invalide.' }) }),
-          );
+        titre: 'Jeton inconnu refusé par le backend réel',
+        expectedConsole: ['400'],
+        check: async (page) => ((await page.getByRole('heading', { name: 'Lien invalide' }).count()) === 1 ? null : 'l’état « lien invalide » doit être affiché'),
+      },
+      {
+        id: 'lien-reutilise',
+        titre: 'Lien déjà utilisé : refus réel du backend',
+        expectedConsole: ['400'],
+        path: async () => {
+          const { lien } = await inscrire();
+          await fetch(`${API}/auth/verification`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jeton: new URLSearchParams(lien.split('?')[1]).get('jeton') }) });
+          return lien;
         },
+        check: async (page) => ((await page.getByRole('heading', { name: 'Lien invalide' }).count()) === 1 ? null : 'un lien déjà utilisé doit être refusé'),
       },
       {
         id: 'chargement',
         titre: 'Vérification en cours',
         waitUntil: 'load',
         before: async (page) => {
-          await page.route('**/api/auth/verification', () => {});
-        },
-      },
-      {
-        id: 'succes',
-        titre: 'Adresse vérifiée (réponse conforme au contrat cible)',
-        before: async (page) => {
-          await page.route('**/api/auth/verification', (route) => route.fulfill({ status: 204 }));
+          await page.route('**/api/v1/auth/verification', () => {});
         },
       },
       {
         id: 'erreur',
         titre: 'Service injoignable',
-        expectedConsole: ['Failed to load resource', 'ERR_FAILED'],
+        expectedConsole: CONSOLE_PANNE,
         before: async (page) => {
-          await page.route('**/api/auth/verification', (route) => route.abort());
+          await page.route('**/api/v1/auth/verification', (route) => route.abort());
         },
       },
       { id: 'sans-jeton', titre: 'Lien incomplet', path: '/verification-adresse' },

@@ -1,6 +1,6 @@
 # Journal de recette : Détail d’un cours
 
-Identifiant : 38-cours-detail. Route : `/espace/formateur/cours/:id`. Date : 2026-10-01.
+Identifiant : 38-cours-detail. Route : `/espace/formateur/cours/:id`. Date : 2026-10-02.
 Référence : écran `38-cours-detail` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

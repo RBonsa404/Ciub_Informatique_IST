@@ -1,6 +1,6 @@
 # Journal de recette : Accueil
 
-Identifiant : 01-accueil. Route : `/`. Date : 2026-10-01.
+Identifiant : 01-accueil. Route : `/`. Date : 2026-10-02.
 Référence : écran `01-accueil` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

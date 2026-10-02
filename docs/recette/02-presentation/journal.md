@@ -1,13 +1,13 @@
 # Journal de recette : Présentation
 
-Identifiant : 02-presentation. Route : `/presentation`. Date : 2026-10-01.
+Identifiant : 02-presentation. Route : `/presentation`. Date : 2026-10-02.
 Référence : écran `02-presentation` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (texte présent en base) ; Contenu structuré en sections (réponse conforme au contrat) ; Contenu non renseigné ; Chargement ; Service injoignable |
+| Scénarios | Contenu réel, structuré en sections (texte saisi par l’administration dans la base de recette) ; Contenu non renseigné ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,8 +25,7 @@ Aucun.
 
 ## Captures
 
-- Contenu réel (texte présent en base) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
-- Contenu structuré en sections (réponse conforme au contrat) : `sections-sombre-1440.png`, `sections-clair-1440.png`, `sections-sombre-390.png`, `sections-clair-390.png`
+- Contenu réel, structuré en sections (texte saisi par l’administration dans la base de recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
 - Contenu non renseigné : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`

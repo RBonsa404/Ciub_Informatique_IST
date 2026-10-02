@@ -7,7 +7,7 @@ Référence : page dérivée, sans écran dans la maquette.
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu réel (journal vide en base de recette) ; Journal alimenté selon le contrat d’API ; Filtre « Échec » ; Chargement ; Service injoignable |
+| Scénarios | Contenu réel (journal alimenté par les actions de la recette) ; Journal vide ; Filtre « Échec » (filtre réel du serveur) ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,9 +25,9 @@ Aucun.
 
 ## Captures
 
-- Contenu réel (journal vide en base de recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
-- Journal alimenté selon le contrat d’API : `journal-sombre-1440.png`, `journal-clair-1440.png`, `journal-sombre-390.png`, `journal-clair-390.png`
-- Filtre « Échec » : `filtre-sombre-1440.png`, `filtre-clair-1440.png`, `filtre-sombre-390.png`, `filtre-clair-390.png`
+- Contenu réel (journal alimenté par les actions de la recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Journal vide : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
+- Filtre « Échec » (filtre réel du serveur) : `filtre-sombre-1440.png`, `filtre-clair-1440.png`, `filtre-sombre-390.png`, `filtre-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 

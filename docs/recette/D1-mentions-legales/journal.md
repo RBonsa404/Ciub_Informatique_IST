@@ -1,6 +1,6 @@
 # Journal de recette : Mentions légales
 
-Identifiant : D1-mentions-legales. Route : `/mentions-legales`. Date : 2026-10-01.
+Identifiant : D1-mentions-legales. Route : `/mentions-legales`. Date : 2026-10-02.
 Référence : page dérivée, sans écran dans la maquette.
 
 ## Résultats automatisés

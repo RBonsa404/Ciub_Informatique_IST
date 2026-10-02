@@ -1,18 +1,18 @@
 // Scénarios de recette de l'espace Formateur (écrans 35 à 40). Chaque scénario ouvre une session réelle.
-import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
+import { API, CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, jeton, json, lire, pageVide } from './_outils.mjs';
 
-const COURS = '**/api/formations/admin/all*';
-const FORMATION = '**/api/formations/*';
-const INSCRITS = '**/api/inscriptions/formations/*';
+const COURS = '**/api/v1/gestion/formations*';
+const FORMATION = '**/api/v1/formations/*';
+const INSCRITS = '**/api/v1/inscriptions/formations/*';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
   ['Barre supérieure', 'champ de recherche globale, pastille à valeur fixe', 'fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte', 'assumé (E-31)'],
 ];
 
-/** Premier cours du formateur de recette et sa première séance, lus sur le backend réel. */
+/** Premier cours publié du formateur de recette (il porte des séances, un support et un devoir) et sa première séance, lus sur le backend réel. */
 async function cours() {
-  const formation = (await lire('/formations/admin/all?size=20', 'formateur')).content[0];
+  const formation = (await lire('/gestion/formations?size=20', 'formateur')).content.find((f) => f.publie && (f.sessions ?? []).length > 0);
   const session = [...formation.sessions].sort((a, b) => a.dateDebut.localeCompare(b.dateDebut))[0];
   return { formation, session };
 }
@@ -68,12 +68,15 @@ export const PAGES = {
       },
       {
         id: 'filtre',
-        titre: 'Filtre « Brouillons » (aucun brouillon en base de recette)',
+        titre: 'Filtre « Brouillons » (filtre réel du serveur)',
         run: async (page) => {
           await page.getByRole('button', { name: 'Brouillons' }).click();
           await page.waitForLoadState('networkidle');
         },
-        check: async (page) => ((await page.locator('main').innerText()).includes('aucun cours en brouillon') ? null : 'le message vide du filtre doit être affiché'),
+        check: async (page) => {
+          const badges = await page.locator('main li .badge').allInnerTexts();
+          return badges.length >= 1 && !badges.some((b) => b.includes('Publié')) ? null : `seuls les brouillons doivent rester : ${badges.join(', ')}`;
+        },
       },
       { id: 'vide', titre: 'Aucun cours', before: (page) => page.route(COURS, (route) => json(route, pageVide)) },
       { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, COURS) },
@@ -123,7 +126,7 @@ export const PAGES = {
       ['« Code Module », « Filières recommandées », « Volume horaire »', 'présents', 'retirés', 'retrait (D-05)'],
       ['« Salle / Amphi », « Capacité maximale »', 'dans le formulaire du cours', 'saisis par séance, dans le détail du cours (modèle : une formation, plusieurs séances)', 'assumé (D-05)'],
       ['Domaine d’apprentissage', 'liste fixe', 'catégories réelles du serveur', 'assumé (section 1)'],
-      ['Syllabus (dépôt de fichier)', 'zone de dépôt', 'retirée : aucun stockage de fichier ; les documents se publient comme ressources', 'retrait (stockage à créer)'],
+      ['Syllabus (dépôt de fichier)', 'zone de dépôt', 'les documents du cours se déposent comme supports, depuis le détail du cours', 'assumé (D-05)'],
       ['« Enregistrer & Publier le cours »', 'un bouton', 'interrupteur « Publier le cours » et bouton « Enregistrer le cours »', 'assumé (brouillon possible)'],
       ['Objectifs et prérequis', 'un seul champ « Description & Objectifs »', 'description, objectifs et prérequis distincts, comme sur la fiche publique', 'assumé'],
     ],
@@ -162,9 +165,9 @@ export const PAGES = {
           await page.waitForTimeout(400);
         },
       },
-      { id: 'introuvable', titre: 'Cours introuvable (réponse réelle du backend)', path: '/espace/formateur/cours/999999', expectedConsole: ['404', '500'] },
+      { id: 'introuvable', titre: 'Cours introuvable (réponse réelle du backend)', path: '/espace/formateur/cours/999999', expectedConsole: ['404'] },
       { id: 'chargement', titre: 'Chargement', path: chemin(), waitUntil: 'load', before: (page) => enAttente(page, FORMATION) },
-      { id: 'erreur', titre: 'Service injoignable', path: chemin(), expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/**') },
+      { id: 'erreur', titre: 'Service injoignable', path: chemin(), expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, '**/api/v1/**') },
     ],
     ecarts: [
       ...ECARTS_ESPACE,
@@ -234,10 +237,35 @@ export const PAGES = {
         titre: 'Champs obligatoires vides et adresse invalide',
         path: chemin('/publier'),
         run: async (page) => {
-          await page.getByLabel(/Adresse du sujet/).fill('document.pdf');
+          await page.getByLabel(/adresse du sujet/i).fill('document.pdf');
           await page.getByRole('button', { name: 'Publier pour les inscrits' }).click();
         },
         check: async (page) => ((await page.locator('.form-error:not(:empty)').count()) >= 4 ? null : 'les erreurs de champ doivent être affichées'),
+      },
+      {
+        id: 'depot',
+        titre: 'Dépôt réel d’un fichier, publication du support, puis téléchargement par le membre inscrit',
+        path: chemin('/publier'),
+        run: async (page, { width, theme }) => {
+          if (width !== 1440 || theme !== 'dark') return;
+          await page.getByLabel(/Type d’élément/).selectOption('SUPPORT_COURS');
+          await page.getByLabel(/^\s*Titre/).fill('Support déposé par la recette');
+          await page.locator('input[type="file"]').setInputFiles({ name: 'support-recette.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4\n% fichier d’essai de la recette\n%%EOF\n') });
+          await page.getByText('support-recette.pdf', { exact: true }).waitFor();
+          await page.getByRole('button', { name: 'Publier pour les inscrits' }).click();
+          await page.getByText('La ressource est publiée.').waitFor();
+        },
+        check: async (page, { width, theme }) => {
+          if (width !== 1440 || theme !== 'dark') return null;
+          const { formation } = await cours();
+          const support = (await lire(`/ressources/formation/${formation.id}`, 'formateur')).find((r) => r.titre === 'Support déposé par la recette');
+          if (!support || !/\/fichiers\/[0-9a-f-]{36}$/.test(support.urlFichier)) return 'le support publié doit désigner le fichier déposé';
+          const adresse = new URL(API).origin + support.urlFichier;
+          const anonyme = await fetch(adresse);
+          if (anonyme.status !== 401) return `un visiteur ne doit pas pouvoir télécharger le fichier : ${anonyme.status}`;
+          const inscrit = await fetch(adresse, { headers: { Authorization: `Bearer ${await jeton('formateur')}` } });
+          return inscrit.status === 200 && (await inscrit.text()).startsWith('%PDF') ? null : `le fichier déposé doit être téléchargeable avec la session : ${inscrit.status}`;
+        },
       },
       { id: 'introuvable', titre: 'Cours introuvable (réponse réelle du backend)', path: '/espace/formateur/cours/999999/publier', expectedConsole: ['404'] },
       { id: 'chargement', titre: 'Chargement', path: chemin('/publier'), waitUntil: 'load', before: (page) => enAttente(page, FORMATION) },
@@ -246,7 +274,7 @@ export const PAGES = {
       ...ECARTS_ESPACE,
       ['« Module de formation associé »', 'liste de modules', 'cours de la page, en lecture seule (la publication part du détail d’un cours)', 'assumé'],
       ['« Barème d’évaluation »', 'présent', 'retiré', 'retrait (D-03)'],
-      ['Fichier joint', 'zone de dépôt « jusqu’à 30 Mo »', 'adresse web du document, validée', 'retrait (stockage de fichiers à créer)'],
+      ['Fichier joint', 'zone de dépôt « jusqu’à 30 Mo »', 'zone de dépôt (10 Mo au plus, type vérifié par le serveur) ou adresse web du document', 'conforme (limite du serveur)'],
       ['Visibilité', 'absente', 'case « visible sur la page publique des ressources » pour une ressource', 'assumé (modèle existant)'],
     ],
     etats: ['Chargement du cours : squelette, introuvable, erreur.', 'Validation : règles propres au devoir (échéance, consignes) ou à la ressource (adresse).', 'Succès : notification et retour au détail du cours.'],

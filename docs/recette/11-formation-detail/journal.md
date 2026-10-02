@@ -1,6 +1,6 @@
 # Journal de recette : Formation, détail
 
-Identifiant : 11-formation-detail. Route : `/formations/:slug`. Date : 2026-10-01.
+Identifiant : 11-formation-detail. Route : `/formations/:slug`. Date : 2026-10-02.
 Référence : écran `11-formations-detail` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

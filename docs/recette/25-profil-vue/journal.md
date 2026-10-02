@@ -1,6 +1,6 @@
 # Journal de recette : Profil, consultation
 
-Identifiant : 25-profil-vue. Route : `/espace/profil`. Date : 2026-10-01.
+Identifiant : 25-profil-vue. Route : `/espace/profil`. Date : 2026-10-02.
 Référence : écran `25-profil-vue` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

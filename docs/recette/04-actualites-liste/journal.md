@@ -1,6 +1,6 @@
 # Journal de recette : Actualités, liste
 
-Identifiant : 04-actualites-liste. Route : `/actualites`. Date : 2026-10-01.
+Identifiant : 04-actualites-liste. Route : `/actualites`. Date : 2026-10-02.
 Référence : écran `04-actualites-liste` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

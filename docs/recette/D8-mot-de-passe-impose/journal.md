@@ -7,7 +7,7 @@ Référence : page dérivée, sans écran dans la maquette.
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Première connexion : redirection vers le choix du mot de passe ; Aucune autre page de l’espace n’est accessible ; Mot de passe initial erroné (réponse réelle du backend) |
+| Scénarios | Première connexion du Super Admin créé par l’amorçage : redirection vers le choix du mot de passe ; Aucune autre page de l’espace n’est accessible ; Mot de passe initial erroné (réponse réelle du backend) |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,7 +25,7 @@ Aucun.
 
 ## Captures
 
-- Première connexion : redirection vers le choix du mot de passe : `initial-sombre-1440.png`, `initial-clair-1440.png`, `initial-sombre-390.png`, `initial-clair-390.png`
+- Première connexion du Super Admin créé par l’amorçage : redirection vers le choix du mot de passe : `initial-sombre-1440.png`, `initial-clair-1440.png`, `initial-sombre-390.png`, `initial-clair-390.png`
 - Aucune autre page de l’espace n’est accessible : `verrou-sombre-1440.png`, `verrou-clair-1440.png`, `verrou-sombre-390.png`, `verrou-clair-390.png`
 - Mot de passe initial erroné (réponse réelle du backend) : `validation-sombre-1440.png`, `validation-clair-1440.png`, `validation-sombre-390.png`, `validation-clair-390.png`
 
@@ -39,4 +39,4 @@ Aucun.
 
 - Formulaire : validation par champ, refus du même mot de passe, erreur du serveur sous le champ.
 - Succès : indicateur levé, retour à l’accueil du rôle.
-- L’indicateur de changement obligatoire est à créer côté serveur (Phase 3) ; la recette l’ajoute à la réponse réelle de connexion.
+- Le compte utilisé est le premier Super Admin créé par l’amorçage ; le changement réussi est rejoué dans le parcours du Super Admin (base neuve).

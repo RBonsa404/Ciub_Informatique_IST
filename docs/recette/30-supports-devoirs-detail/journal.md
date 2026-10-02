@@ -1,6 +1,6 @@
 # Journal de recette : Support ou devoir, détail
 
-Identifiant : 30-supports-devoirs-detail. Route : `/espace/supports/ressources/:id`. Date : 2026-10-01.
+Identifiant : 30-supports-devoirs-detail. Route : `/espace/supports/ressources/:id`. Date : 2026-10-02.
 Référence : écran `30-supports-devoirs-detail` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
@@ -42,7 +42,7 @@ Aucun.
 | Champs « Difficulté », « Matière », « Niveau / Public cible » | présents | retirés : données absentes du modèle ; type, formation, échéance, auteur et date de publication réels | retrait (section 1) |
 | Badge « À venir » | présent | type du document | assumé |
 | « Statut de remise » et « Remettre mon devoir » | présents | retirés | retrait (D-03) |
-| Téléchargement | zone vide | lien réel vers le fichier s’il existe, sinon mention explicite | assumé |
+| Téléchargement | zone vide | lien réel : document externe ouvert dans un nouvel onglet, fichier déposé téléchargé avec la session ; sinon mention explicite | assumé |
 
 ## États
 

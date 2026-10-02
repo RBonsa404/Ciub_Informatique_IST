@@ -1,6 +1,6 @@
 # Journal de recette : Gestion des actualités, liste
 
-Identifiant : 43-gestion-actualites-liste. Route : `/espace/gestion/actualites`. Date : 2026-10-01.
+Identifiant : 43-gestion-actualites-liste. Route : `/espace/gestion/actualites`. Date : 2026-10-02.
 Référence : écran `43-gestion-actualites-liste` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

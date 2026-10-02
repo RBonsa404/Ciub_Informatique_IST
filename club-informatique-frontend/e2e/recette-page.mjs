@@ -77,6 +77,9 @@ for (const id of ids.length ? ids : Object.keys(registry)) {
           if (new URL(page.url()).pathname === path.split('?')[0]) await aller(page, '/acces-refuse', false);
           await aller(page, path, (scenario.waitUntil ?? 'networkidle') === 'networkidle');
         } else {
+          // Scénario de visiteur : la session qu'un scénario précédent aurait ouverte (cookie, indice de session) ne doit pas subsister.
+          await page.context().clearCookies();
+          if (page.url().startsWith(base)) await page.evaluate(() => localStorage.removeItem('ci_ist_session'));
           if (scenario.before) await scenario.before(page, { base, theme, width });
           await page.goto(base + path, { waitUntil: scenario.waitUntil ?? 'networkidle' });
         }

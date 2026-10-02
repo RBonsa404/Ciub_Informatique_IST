@@ -1,6 +1,6 @@
 # Journal de recette : Événements, liste
 
-Identifiant : 06-evenements-liste. Route : `/evenements`. Date : 2026-10-01.
+Identifiant : 06-evenements-liste. Route : `/evenements`. Date : 2026-10-02.
 Référence : écran `06-evenements-liste` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

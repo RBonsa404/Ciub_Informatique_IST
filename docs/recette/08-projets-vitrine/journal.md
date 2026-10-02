@@ -1,6 +1,6 @@
 # Journal de recette : Projets, vitrine
 
-Identifiant : 08-projets-vitrine. Route : `/projets`. Date : 2026-10-01.
+Identifiant : 08-projets-vitrine. Route : `/projets`. Date : 2026-10-02.
 Référence : écran `08-projets-vitrine` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

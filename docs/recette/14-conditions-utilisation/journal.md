@@ -1,6 +1,6 @@
 # Journal de recette : Conditions d’utilisation
 
-Identifiant : 14-conditions-utilisation. Route : `/conditions-utilisation`. Date : 2026-10-01.
+Identifiant : 14-conditions-utilisation. Route : `/conditions-utilisation`. Date : 2026-10-02.
 Référence : écran `14-cgu` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

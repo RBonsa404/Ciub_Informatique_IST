@@ -1,8 +1,8 @@
 // Scénarios de recette de la gestion du club par le Responsable. Chaque scénario ouvre une session réelle.
 import { CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
 
-const EVENEMENTS = '**/api/evenements/admin/all*';
-const INSCRITS = '**/api/inscriptions/{evenements,formations}/*';
+const EVENEMENTS = '**/api/v1/gestion/evenements*';
+const INSCRITS = '**/api/v1/inscriptions/{evenements,formations}/*';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
@@ -11,7 +11,7 @@ const ECARTS_ESPACE = [
 
 /** Séance de recette dont la capacité est atteinte : un inscrit confirmé et un membre en liste d'attente. */
 async function seanceComplete() {
-  const formations = (await lire('/formations/admin/all?size=50', 'responsable')).content;
+  const formations = (await lire('/gestion/formations?size=50', 'responsable')).content;
   for (const session of formations.flatMap((f) => f.sessions ?? [])) {
     const inscrits = await lire(`/inscriptions/formations/${session.id}`, 'responsable');
     if (inscrits.some((i) => i.statut === 'LISTE_ATTENTE')) return session.id;

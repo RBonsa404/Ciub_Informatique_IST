@@ -1,6 +1,6 @@
 # Journal de recette : Projet, détail
 
-Identifiant : 09-projet-detail. Route : `/projets/:slug`. Date : 2026-10-01.
+Identifiant : 09-projet-detail. Route : `/projets/:slug`. Date : 2026-10-02.
 Référence : écran `09-projets-detail` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

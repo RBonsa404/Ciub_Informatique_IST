@@ -1,36 +1,17 @@
 // Scénarios de recette de l'administration (écrans 50 à 55, journal D6, sécurité D7). Chaque scénario ouvre une session réelle.
 import { COMPTES, CONSOLE_PANNE, ECARTS_COMMUNS, enAttente, injoignable, json, lire, pageVide } from './_outils.mjs';
 
-const STATS = '**/api/admin/statistiques';
-const JOURNAL = '**/api/admin/security/audit-logs*';
-const ALERTES = '**/api/admin/security/alerts';
-const COMPTES_API = '**/api/admin/users?*';
-const COMPTE_API = '**/api/admin/users/*';
-const ROLES = '**/api/admin/roles';
-const CATEGORIES = '**/api/categories';
+const STATS = '**/api/v1/admin/statistiques';
+const JOURNAL = '**/api/v1/admin/security/audit-logs*';
+const ALERTES = '**/api/v1/admin/security/alerts';
+const COMPTES_API = '**/api/v1/admin/users?*';
+const COMPTE_API = '**/api/v1/admin/users/*';
+const ROLES = '**/api/v1/admin/roles';
+const CATEGORIES = '**/api/v1/categories';
 
 const ECARTS_ESPACE = [
   ...ECARTS_COMMUNS,
   ['Barre supérieure', 'champ de recherche globale, pastille à valeur fixe', 'fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte', 'assumé (E-31)'],
-];
-
-/** Entrées de journal conformes au contrat : le journal du backend actuel n'est presque jamais alimenté (audit). */
-const journalContrat = {
-  content: [
-    { id: 3, action: 'CONNEXION', description: 'Connexion réussie', utilisateurEmail: COMPTES.admin, ipAddress: '192.0.2.10', dateAction: '2026-10-02T08:40:00', statut: 'SUCCES' },
-    { id: 2, action: 'ATTRIBUTION_ROLE', description: 'Rôle Formateur attribué à issouf.ouedraogo@recette.invalid', utilisateurEmail: COMPTES.superadmin, ipAddress: '192.0.2.11', dateAction: '2026-10-01T16:05:00', statut: 'SUCCES' },
-    { id: 1, action: 'CONNEXION', description: 'Mot de passe incorrect', utilisateurEmail: COMPTES.membre, ipAddress: '192.0.2.12', dateAction: '2026-10-01T09:12:00', statut: 'ECHEC' },
-  ],
-  page: 0,
-  size: 20,
-  totalElements: 3,
-  totalPages: 1,
-};
-const journal = (page) => page.route(JOURNAL, (route) => json(route, journalContrat));
-
-const alertesContrat = [
-  { typeAlerte: 'Compte verrouillé', description: 'Cinq échecs de connexion consécutifs.', utilisateurCible: COMPTES.membre, utilisateurId: 9, gravite: 'MOYENNE' },
-  { typeAlerte: 'Compte suspendu', description: 'Compte suspendu par un administrateur.', utilisateurCible: COMPTES.formateur, utilisateurId: 10, gravite: 'FAIBLE' },
 ];
 
 const compte = async (role) => (await lire('/admin/users?size=100', 'admin')).content.find((u) => u.email === COMPTES[role]);
@@ -43,8 +24,16 @@ export const PAGES = {
     role: 'admin',
     maquette: '50-tdb-administrateur',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu réel (totaux du serveur, journal réel vide)' },
-      { id: 'journal', titre: 'Journal alimenté selon le contrat d’API', before: journal },
+      {
+        id: 'contenu',
+        titre: 'Contenu réel (totaux du serveur hors comptes de test, dernières entrées du journal)',
+        check: async (page) => {
+          const stats = await lire('/admin/statistiques', 'admin');
+          if (!(await page.locator('.tiles').innerText()).includes(String(stats.totalMembres))) return 'les tuiles doivent afficher les totaux du serveur';
+          return (await page.locator('main').innerText()).includes('Connexion') ? null : 'les dernières entrées réelles du journal doivent être listées';
+        },
+      },
+      { id: 'journal-vide', titre: 'Journal vide', before: (page) => page.route(JOURNAL, (route) => json(route, pageVide)) },
       {
         id: 'chargement',
         titre: 'Chargement',
@@ -88,9 +77,9 @@ export const PAGES = {
       },
       {
         id: 'recherche',
-        titre: 'Recherche par nom',
+        titre: 'Recherche par adresse (recherche réelle du serveur)',
         run: async (page) => {
-          await page.getByLabel('Rechercher un compte').fill('sawadogo');
+          await page.getByLabel('Rechercher un compte').fill(COMPTES.membre);
           await page.waitForTimeout(900);
         },
         check: async (page) => ((await page.locator('tbody tr').count()) === 1 ? null : 'un seul compte doit correspondre'),
@@ -111,7 +100,7 @@ export const PAGES = {
     ecarts: [
       ...ECARTS_ESPACE,
       ['Rôle attribué', 'un seul rôle par compte', 'tous les rôles réels du compte, du plus élevé au moins élevé', 'assumé (modèle existant)'],
-      ['« Inviter un utilisateur »', 'bouton inactif', 'formulaire : la personne invitée choisit elle-même son mot de passe par un lien à usage unique', 'assumé (point d’accès à créer)'],
+      ['« Inviter un utilisateur »', 'bouton inactif', 'formulaire : la personne invitée choisit elle-même son mot de passe par un lien à usage unique reçu par courriel', 'assumé (8.7.9)'],
       ['Filière', 'saisie libre', 'saisie libre', 'conforme (6.5)'],
     ],
     etats: ['Chargement : squelettes.', 'Vide : message (ou message de recherche).', 'Erreur : message et « Réessayer ».', 'Contenu : pagination côté serveur, recherche différée.'],
@@ -263,7 +252,7 @@ export const PAGES = {
       ['« Exporter Rapport PDF »', 'bouton', 'retiré', 'retrait'],
       ['Totaux', 'absents', 'six totaux réels du serveur', 'assumé'],
     ],
-    etats: ['Chargement : squelettes, aucun chiffre.', 'Erreur : message et « Réessayer ».', 'Contenu : totaux et répartitions.', 'Les comptes de test doivent être exclus par le serveur (règle 7) : à corriger en Phase 3.'],
+    etats: ['Chargement : squelettes, aucun chiffre.', 'Erreur : message et « Réessayer ».', 'Contenu : totaux et répartitions.', 'Les comptes de test et ce qu’ils ont créé sont exclus par le serveur (règle 7).'],
   },
 
   'D7-securite-comptes': {
@@ -271,13 +260,16 @@ export const PAGES = {
     path: '/espace/admin/securite',
     role: 'admin',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu réel (aucune alerte en base de recette)' },
       {
-        id: 'alertes',
-        titre: 'Alertes selon le contrat d’API',
-        before: (page) => page.route(ALERTES, (route) => json(route, alertesContrat)),
-        check: async (page) => ((await page.locator('main li').count()) === 2 ? null : 'les deux alertes doivent être listées'),
+        id: 'contenu',
+        titre: 'Contenu réel (compte suspendu et connexions refusées de la base de recette)',
+        check: async (page) => {
+          const alertes = await lire('/admin/security/alerts', 'admin');
+          if (!alertes.some((a) => a.typeAlerte === 'COMPTE_SUSPENDU')) return 'la base de recette doit contenir un compte suspendu';
+          return (await page.locator('main li').count()) === alertes.length ? null : 'chaque alerte du serveur doit être listée';
+        },
       },
+      { id: 'vide', titre: 'Aucune alerte', before: (page) => page.route(ALERTES, (route) => json(route, [])) },
       { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, ALERTES) },
       { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, ALERTES) },
     ],
@@ -290,17 +282,20 @@ export const PAGES = {
     path: '/espace/admin/journal',
     role: 'admin',
     scenarios: [
-      { id: 'contenu', titre: 'Contenu réel (journal vide en base de recette)' },
-      { id: 'journal', titre: 'Journal alimenté selon le contrat d’API', before: journal, check: async (page) => ((await page.locator('tbody tr').count()) === 3 ? null : 'les trois entrées doivent être listées') },
+      { id: 'contenu', titre: 'Contenu réel (journal alimenté par les actions de la recette)', check: async (page) => ((await page.locator('tbody tr').count()) >= 5 ? null : 'les entrées réelles du journal doivent être listées') },
+      { id: 'vide', titre: 'Journal vide', before: (page) => page.route(JOURNAL, (route) => json(route, pageVide)) },
       {
         id: 'filtre',
-        titre: 'Filtre « Échec »',
-        before: journal,
+        titre: 'Filtre « Échec » (filtre réel du serveur)',
         run: async (page) => {
           await page.getByLabel('Résultat').selectOption('ECHEC');
           await page.waitForTimeout(600);
         },
-        check: async (page) => ((await page.locator('tbody tr').count()) === 1 ? null : 'seule l’entrée en échec doit rester'),
+        check: async (page) => {
+          const attendu = (await lire('/admin/security/audit-logs?statut=ECHEC&size=20', 'admin')).totalElements;
+          const lignes = await page.locator('tbody tr').count();
+          return attendu >= 1 && lignes === Math.min(attendu, 20) ? null : `les entrées en échec du serveur doivent rester seules : ${lignes} affichées, ${attendu} attendues`;
+        },
       },
       { id: 'chargement', titre: 'Chargement', waitUntil: 'load', before: (page) => enAttente(page, JOURNAL) },
       { id: 'erreur', titre: 'Service injoignable', expectedConsole: CONSOLE_PANNE, before: (page) => injoignable(page, JOURNAL) },

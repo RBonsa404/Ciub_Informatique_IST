@@ -1,13 +1,13 @@
 # Journal de recette : Connexion
 
-Identifiant : 19-connexion. Route : `/connexion`. Date : 2026-10-01.
+Identifiant : 19-connexion. Route : `/connexion`. Date : 2026-10-02.
 Référence : écran `19-connexion` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | État initial ; Champs obligatoires manquants ; Identifiants refusés par le backend réel ; Retour après expiration de session ; Connexion réussie contre le backend réel |
+| Scénarios | État initial ; Champs obligatoires manquants ; Identifiants refusés par le backend réel ; Compte dont l’adresse n’est pas vérifiée : refus réel du backend ; Retour après expiration de session ; Connexion réussie d’un compte créé par le parcours réel (inscription, courriel, vérification) |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -28,8 +28,9 @@ Aucun.
 - État initial : `initial-sombre-1440.png`, `initial-clair-1440.png`, `initial-sombre-390.png`, `initial-clair-390.png`
 - Champs obligatoires manquants : `validation-sombre-1440.png`, `validation-clair-1440.png`, `validation-sombre-390.png`, `validation-clair-390.png`
 - Identifiants refusés par le backend réel : `echec-sombre-1440.png`, `echec-clair-1440.png`, `echec-sombre-390.png`, `echec-clair-390.png`
+- Compte dont l’adresse n’est pas vérifiée : refus réel du backend : `adresse-non-verifiee-sombre-1440.png`, `adresse-non-verifiee-clair-1440.png`, `adresse-non-verifiee-sombre-390.png`, `adresse-non-verifiee-clair-390.png`
 - Retour après expiration de session : `session-expiree-sombre-1440.png`, `session-expiree-clair-1440.png`, `session-expiree-sombre-390.png`, `session-expiree-clair-390.png`
-- Connexion réussie contre le backend réel : `succes-sombre-1440.png`, `succes-clair-1440.png`, `succes-sombre-390.png`, `succes-clair-390.png`
+- Connexion réussie d’un compte créé par le parcours réel (inscription, courriel, vérification) : `succes-sombre-1440.png`, `succes-clair-1440.png`, `succes-sombre-390.png`, `succes-clair-390.png`
 
 ## Écarts avec la maquette
 

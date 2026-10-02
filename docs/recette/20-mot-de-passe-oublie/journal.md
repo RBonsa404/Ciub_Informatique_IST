@@ -1,13 +1,13 @@
 # Journal de recette : Mot de passe oublié
 
-Identifiant : 20-mot-de-passe-oublie. Route : `/mot-de-passe-oublie`. Date : 2026-10-01.
+Identifiant : 20-mot-de-passe-oublie. Route : `/mot-de-passe-oublie`. Date : 2026-10-02.
 Référence : écran `20-mot-de-passe-oublie` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | État initial ; Demande acceptée par le backend réel (adresse inconnue : même réponse) ; Service injoignable |
+| Scénarios | État initial ; Demande acceptée par le backend réel (adresse inconnue : même réponse) ; Compte existant : même écran, courriel de réinitialisation réellement reçu ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -27,6 +27,7 @@ Aucun.
 
 - État initial : `initial-sombre-1440.png`, `initial-clair-1440.png`, `initial-sombre-390.png`, `initial-clair-390.png`
 - Demande acceptée par le backend réel (adresse inconnue : même réponse) : `envoye-sombre-1440.png`, `envoye-clair-1440.png`, `envoye-sombre-390.png`, `envoye-clair-390.png`
+- Compte existant : même écran, courriel de réinitialisation réellement reçu : `courriel-sombre-1440.png`, `courriel-clair-1440.png`, `courriel-sombre-390.png`, `courriel-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 
 ## Écarts avec la maquette
@@ -42,5 +43,5 @@ Aucun.
 
 ## États
 
-- Succès : message identique que l’adresse corresponde ou non à un compte.
+- Succès : message identique que l’adresse corresponde ou non à un compte ; pour un compte existant, le courriel est réellement reçu.
 - Erreur : alerte avec message adapté (réseau, débit, serveur).

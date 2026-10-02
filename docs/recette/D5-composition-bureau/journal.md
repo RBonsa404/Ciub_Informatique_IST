@@ -7,7 +7,7 @@ Référence : page dérivée, sans écran dans la maquette.
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Contenu selon le contrat d’API (point d’accès à créer) ; Ajout : validation du formulaire ; Retrait : modale de confirmation (non confirmée) ; Bureau non encore saisi ; Chargement ; Backend actuel : point d’accès absent (erreur 500, état d’erreur affiché) |
+| Scénarios | Contenu réel (bureau saisi dans la base de recette) ; Ajout puis retrait réels d’un membre (backend) ; Ajout : validation du formulaire ; Retrait : modale de confirmation (non confirmée) ; Bureau non encore saisi ; Chargement ; Service injoignable |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,12 +25,13 @@ Aucun.
 
 ## Captures
 
-- Contenu selon le contrat d’API (point d’accès à créer) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Contenu réel (bureau saisi dans la base de recette) : `contenu-sombre-1440.png`, `contenu-clair-1440.png`, `contenu-sombre-390.png`, `contenu-clair-390.png`
+- Ajout puis retrait réels d’un membre (backend) : `ajout-retrait-sombre-1440.png`, `ajout-retrait-clair-1440.png`, `ajout-retrait-sombre-390.png`, `ajout-retrait-clair-390.png`
 - Ajout : validation du formulaire : `ajout-sombre-1440.png`, `ajout-clair-1440.png`, `ajout-sombre-390.png`, `ajout-clair-390.png`
 - Retrait : modale de confirmation (non confirmée) : `retrait-sombre-1440.png`, `retrait-clair-1440.png`, `retrait-sombre-390.png`, `retrait-clair-390.png`
 - Bureau non encore saisi : `vide-sombre-1440.png`, `vide-clair-1440.png`, `vide-sombre-390.png`, `vide-clair-390.png`
 - Chargement : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
-- Backend actuel : point d’accès absent (erreur 500, état d’erreur affiché) : `backend-actuel-sombre-1440.png`, `backend-actuel-clair-1440.png`, `backend-actuel-sombre-390.png`, `backend-actuel-clair-390.png`
+- Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 
 ## Écarts avec la maquette
 

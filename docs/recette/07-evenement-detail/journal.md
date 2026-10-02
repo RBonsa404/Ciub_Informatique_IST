@@ -1,6 +1,6 @@
 # Journal de recette : Événement, détail
 
-Identifiant : 07-evenement-detail. Route : `/evenements/:slug`. Date : 2026-10-01.
+Identifiant : 07-evenement-detail. Route : `/evenements/:slug`. Date : 2026-10-02.
 Référence : écran `07-evenements-detail` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

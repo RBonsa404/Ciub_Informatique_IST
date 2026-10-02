@@ -1,13 +1,13 @@
 # Journal de recette : Vérification de l’adresse électronique
 
-Identifiant : D2-verification-adresse. Route : `/verification-adresse?jeton=jeton-de-recette`. Date : 2026-10-01.
+Identifiant : D2-verification-adresse. Route : `/verification-adresse?jeton=jeton-de-recette`. Date : 2026-10-02.
 Référence : page dérivée, sans écran dans la maquette.
 
 ## Résultats automatisés
 
 | Contrôle | Résultat |
 |---|---|
-| Scénarios | Backend actuel : point d’accès à créer, erreur serveur restituée par l’état d’erreur ; Jeton refusé (réponse conforme au contrat cible) ; Vérification en cours ; Adresse vérifiée (réponse conforme au contrat cible) ; Service injoignable ; Lien incomplet |
+| Scénarios | Lien reçu par courriel après une inscription réelle : compte activé ; Jeton inconnu refusé par le backend réel ; Lien déjà utilisé : refus réel du backend ; Vérification en cours ; Service injoignable ; Lien incomplet |
 | Thèmes | clair et sombre |
 | Largeurs | 360, 390, 768, 1024, 1280, 1440, 1920 px |
 | Débordement horizontal | 0 |
@@ -25,10 +25,10 @@ Aucun.
 
 ## Captures
 
-- Backend actuel : point d’accès à créer, erreur serveur restituée par l’état d’erreur : `backend-actuel-sombre-1440.png`, `backend-actuel-clair-1440.png`, `backend-actuel-sombre-390.png`, `backend-actuel-clair-390.png`
-- Jeton refusé (réponse conforme au contrat cible) : `lien-invalide-sombre-1440.png`, `lien-invalide-clair-1440.png`, `lien-invalide-sombre-390.png`, `lien-invalide-clair-390.png`
+- Lien reçu par courriel après une inscription réelle : compte activé : `succes-sombre-1440.png`, `succes-clair-1440.png`, `succes-sombre-390.png`, `succes-clair-390.png`
+- Jeton inconnu refusé par le backend réel : `lien-invalide-sombre-1440.png`, `lien-invalide-clair-1440.png`, `lien-invalide-sombre-390.png`, `lien-invalide-clair-390.png`
+- Lien déjà utilisé : refus réel du backend : `lien-reutilise-sombre-1440.png`, `lien-reutilise-clair-1440.png`, `lien-reutilise-sombre-390.png`, `lien-reutilise-clair-390.png`
 - Vérification en cours : `chargement-sombre-1440.png`, `chargement-clair-1440.png`, `chargement-sombre-390.png`, `chargement-clair-390.png`
-- Adresse vérifiée (réponse conforme au contrat cible) : `succes-sombre-1440.png`, `succes-clair-1440.png`, `succes-sombre-390.png`, `succes-clair-390.png`
 - Service injoignable : `erreur-sombre-1440.png`, `erreur-clair-1440.png`, `erreur-sombre-390.png`, `erreur-clair-390.png`
 - Lien incomplet : `sans-jeton-sombre-1440.png`, `sans-jeton-clair-1440.png`, `sans-jeton-sombre-390.png`, `sans-jeton-clair-390.png`
 

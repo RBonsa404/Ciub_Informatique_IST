@@ -1,6 +1,6 @@
 # Journal de recette : Gestion des événements
 
-Identifiant : 45-gestion-evenements. Route : `/espace/gestion/evenements`. Date : 2026-10-01.
+Identifiant : 45-gestion-evenements. Route : `/espace/gestion/evenements`. Date : 2026-10-02.
 Référence : écran `45-gestion-evenements` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

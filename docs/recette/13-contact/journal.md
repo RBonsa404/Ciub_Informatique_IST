@@ -1,6 +1,6 @@
 # Journal de recette : Contact
 
-Identifiant : 13-contact. Route : `/contact`. Date : 2026-10-01.
+Identifiant : 13-contact. Route : `/contact`. Date : 2026-10-02.
 Référence : écran `13-contact` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

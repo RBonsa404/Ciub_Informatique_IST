@@ -1,6 +1,6 @@
 # Journal de recette : Éditeur d’actualité
 
-Identifiant : 44-editeur-publication-riche. Route : `/espace/gestion/actualites/nouvelle`. Date : 2026-10-01.
+Identifiant : 44-editeur-publication-riche. Route : `/espace/gestion/actualites/nouvelle`. Date : 2026-10-02.
 Référence : écran `44-editeur-publication-riche` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés
@@ -41,10 +41,10 @@ Aucun.
 | Pictogrammes | emoji et tracés au trait | famille unique au trait | corrigé (E-01) |
 | Contenus | textes, noms, dates et chiffres d’illustration | données renvoyées par l’API | assumé (section 1) |
 | Barre supérieure | champ de recherche globale, pastille à valeur fixe | fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte | assumé (E-31) |
-| Composition par blocs glisser-déposer | six blocs (image, vidéo, texte, citation, galerie, bouton) | texte structuré : paragraphe, titre de section, citation, insérés d’un clic ; image de couverture par adresse web | dérivation (D-02) |
+| Composition par blocs glisser-déposer | six blocs (image, vidéo, texte, citation, galerie, bouton) | texte structuré : paragraphe, titre de section, citation, insérés d’un clic ; image de couverture déposée ou désignée par son adresse web | dérivation (D-02) |
 | « Date de publication » | champ de date | retiré : la date est fixée par le serveur à la publication | retrait (modèle existant) |
 | « Épingler en haut du feed » | case à cocher | retirée | retrait (D-01) |
-| Visibilité | « Tout le monde » ou « Membres IST uniquement » | même choix, proposé si le module des publications internes est ouvert | assumé (champ à créer côté serveur) |
+| Visibilité | « Tout le monde » ou « Membres IST uniquement » | même choix, proposé si le module des publications internes est ouvert | conforme |
 | Catégorie | liste fixe | catégories réelles du serveur | assumé (section 1) |
 | Résumé | absent | champ facultatif, affiché dans les listes | assumé (modèle existant) |
 
