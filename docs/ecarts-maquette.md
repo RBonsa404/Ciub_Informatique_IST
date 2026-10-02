@@ -54,6 +54,7 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-45 | Projets : compteurs fixes, catégories fixes, « à relancer », fichiers joints avec poids, équipe en texte libre | écrans 31, 32, 41, 46, 47 | Décomptes réels (ou absents s'ils ne peuvent pas être exacts), catégories du serveur, liens réels du projet, membres réels ; liste des projets du membre dérivée de l'écran 41 | assumé et retrait (section 1) |
 | E-46 | Décision sur un projet : action immédiate, motif facultatif | écran 47 | Motif obligatoire pour un rejet, confirmation avant toute décision, décision affichée si le projet est déjà traité | assumé (UC-20) |
 | E-47 | Suivi d'un projet par le formateur : aucun écran de saisie dans la maquette | écran 41 | Page dérivée : fiche du projet, avancement et note de suivi | dérivation (UC-17) |
+| E-48 | Tableau de bord du Responsable : compteurs fixes avec tendances, graphique à barres fixes, moyenne « 28 étudiants / session » | écran 42 | Totaux réels du serveur sans tendance ; fréquentation mensuelle réelle, graphique et tuile « Membres » retirés tant que l'indicateur n'existe pas ; moyenne retirée | assumé et retrait (section 1) |
 
 ## 2. Données d'illustration non reprises
 

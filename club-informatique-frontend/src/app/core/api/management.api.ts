@@ -1,12 +1,29 @@
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ApiClient, Page, PageRequest } from './api-client';
-import { Actualite, ActualitePayload, Evenement, EvenementPayload, Formation, Inscription, NotificationGlobalePayload, StatutInscription } from './models';
+import {
+  Actualite,
+  ActualitePayload,
+  Evenement,
+  EvenementPayload,
+  Formation,
+  IndicateursGestion,
+  Inscription,
+  MembreBureau,
+  MembreBureauPayload,
+  MessageContact,
+  NotificationGlobalePayload,
+  StatutInscription,
+} from './models';
 import { toPage } from './public.api';
 
 export interface ActualitesQuery extends PageRequest {
   /** Filtre de publication, à ajouter côté serveur. */
   readonly publie?: boolean | null;
+}
+
+export interface MessagesQuery extends PageRequest {
+  readonly traite?: boolean | null;
 }
 
 export interface EvenementsQuery extends PageRequest {
@@ -19,6 +36,36 @@ export interface EvenementsQuery extends PageRequest {
 @Injectable({ providedIn: 'root' })
 export class ManagementApi {
   private readonly api = inject(ApiClient);
+
+  /** Point d'accès à créer : effectif réel et fréquentation mensuelle. */
+  indicateurs(): Observable<IndicateursGestion> {
+    return this.api.get<IndicateursGestion>('/gestion/indicateurs', undefined, { silent: true });
+  }
+
+  /** Composition du bureau : lecture publique, écriture réservée au Responsable (points d'accès à créer). */
+  bureau(): Observable<readonly MembreBureau[]> {
+    return this.api.get<readonly MembreBureau[]>('/bureau', undefined, { silent: true });
+  }
+
+  creerMembreBureau(payload: MembreBureauPayload): Observable<MembreBureau> {
+    return this.api.post<MembreBureau>('/bureau', payload);
+  }
+
+  modifierMembreBureau(id: number, payload: MembreBureauPayload): Observable<MembreBureau> {
+    return this.api.put<MembreBureau>(`/bureau/${id}`, payload);
+  }
+
+  supprimerMembreBureau(id: number): Observable<void> {
+    return this.api.delete<unknown>(`/bureau/${id}`).pipe(map(() => undefined));
+  }
+
+  messagesContact(query: MessagesQuery = {}): Observable<Page<MessageContact>> {
+    return this.api.get<unknown>('/contact/admin', { ...query }).pipe(map(toPage<MessageContact>));
+  }
+
+  marquerMessageTraite(id: number): Observable<MessageContact> {
+    return this.api.put<MessageContact>(`/contact/admin/${id}/traite`, null);
+  }
 
   /** Toutes les actualités, publiées ou non. */
   actualites(query: ActualitesQuery = {}): Observable<Page<Actualite>> {

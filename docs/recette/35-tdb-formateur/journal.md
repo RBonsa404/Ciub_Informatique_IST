@@ -1,6 +1,6 @@
 # Journal de recette : Tableau de bord Formateur
 
-Identifiant : 35-tdb-formateur. Route : `/espace/formateur`. Date : 2026-10-01.
+Identifiant : 35-tdb-formateur. Route : `/espace/formateur`. Date : 2026-10-02.
 Référence : écran `35-tdb-formateur` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

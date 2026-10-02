@@ -1,6 +1,6 @@
 # Journal de recette : Tableau de bord Membre
 
-Identifiant : 22-tdb-membre. Route : `/espace/membre`. Date : 2026-10-01.
+Identifiant : 22-tdb-membre. Route : `/espace/membre`. Date : 2026-10-02.
 Référence : écran `22-tdb-membre` de la maquette (`maquette-sombre.png`, `maquette-clair.png`).
 
 ## Résultats automatisés

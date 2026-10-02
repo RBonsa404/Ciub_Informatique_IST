@@ -159,6 +159,34 @@ export interface MembreBureau {
   readonly ordre: number;
 }
 
+export interface MembreBureauPayload {
+  readonly nom: string;
+  readonly prenom: string;
+  readonly fonction: string;
+  readonly filiere: string | null;
+  readonly ordre: number;
+}
+
+/** Message reçu par le formulaire de contact. */
+export interface MessageContact {
+  readonly id: number;
+  readonly nom: string;
+  readonly email: string;
+  readonly sujet: string;
+  readonly message: string;
+  readonly traite: boolean;
+  readonly dateReponse?: string | null;
+  readonly reponseParNom?: string | null;
+  readonly createdAt: string;
+}
+
+/** Indicateurs de gestion du club (point d'accès à créer). Les comptes de test en sont exclus par le serveur. */
+export interface IndicateursGestion {
+  readonly membresActifs: number;
+  /** Inscriptions confirmées par mois (« AAAA-MM »), du plus ancien au plus récent. */
+  readonly frequentation: readonly { readonly mois: string; readonly inscriptions: number }[];
+}
+
 export interface ContactPayload {
   readonly nom: string;
   readonly email: string;

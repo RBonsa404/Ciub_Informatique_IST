@@ -66,9 +66,15 @@ for (const id of ids.length ? ids : Object.keys(registry)) {
         if (role) {
           // Page de l'espace connecté : connexion réelle, puis navigation interne (la session vit en mémoire).
           await connecter(page, base, role);
+          // La page d'accueil du rôle finit de charger avant le scénario : ses messages de console n'en font pas partie.
+          await page.waitForTimeout(300);
+          await page.waitForFunction(() => !document.querySelector('[aria-busy="true"]'), null, { timeout: 15000 });
           await page.waitForLoadState('networkidle');
           messages.length = 0;
           if (scenario.before) await scenario.before(page, { base, theme, width });
+          // Si la page visée est l'accueil du rôle, déjà affichée, on la quitte d'abord : elle doit être
+          // reconstruite pour que le scénario (réponses interceptées) s'applique réellement.
+          if (new URL(page.url()).pathname === path.split('?')[0]) await aller(page, '/acces-refuse', false);
           await aller(page, path, (scenario.waitUntil ?? 'networkidle') === 'networkidle');
         } else {
           if (scenario.before) await scenario.before(page, { base, theme, width });

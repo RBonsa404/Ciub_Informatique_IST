@@ -151,6 +151,18 @@ export const routes: Routes = [
         canActivate: [roleGuard('RESPONSABLE_CLUB')],
         children: [
           {
+            path: '',
+            pathMatch: 'full',
+            data: { fil: [{ label: 'Tableau de bord du Responsable' }] },
+            loadComponent: () => import('./pages/management/management-dashboard-page').then((m) => m.ManagementDashboardPage),
+          },
+          {
+            path: 'bureau',
+            canMatch: [featureGuard('bureau')],
+            data: { fil: [{ label: 'Composition du bureau' }] },
+            loadComponent: () => import('./pages/management/bureau-management-page').then((m) => m.BureauManagementPage),
+          },
+          {
             path: 'actualites',
             canMatch: [featureGuard('actualites')],
             data: { fil: [{ label: 'Gestion des actualités' }] },
@@ -199,6 +211,13 @@ export const routes: Routes = [
             loadComponent: () => import('./pages/management/registrations-page').then((m) => m.RegistrationsPage),
           },
         ],
+      },
+      {
+        path: 'admin/messages',
+        canMatch: [featureGuard('contact')],
+        canActivate: [roleGuard('ADMIN', 'RESPONSABLE_CLUB')],
+        data: { fil: [{ label: 'Messages de contact' }] },
+        loadComponent: () => import('./pages/management/contact-messages-page').then((m) => m.ContactMessagesPage),
       },
       {
         path: 'notifications',
