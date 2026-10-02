@@ -70,7 +70,7 @@ paths:
   "/auth/login":
     post:
       tags: [Authentification]
-      summary: Ouvrir une session ; pose le cookie de rafraîchissement HttpOnly.
+      summary: Ouvrir une session ; pose le cookie de rafraîchissement HttpOnly. 401 identique pour un compte inconnu et un mot de passe faux ; 403 (ADRESSE_NON_VERIFIEE, COMPTE_SUSPENDU, COMPTE_INACTIF) et 423 ne sont renvoyés qu’au titulaire du bon mot de passe.
       operationId: postAuthLogin
       security: []
       requestBody:
@@ -86,8 +86,14 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/Session"
+        "400":
+          $ref: "#/components/responses/Erreur400"
         "401":
           $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "423":
+          $ref: "#/components/responses/Erreur423"
         "429":
           $ref: "#/components/responses/Erreur429"
   "/auth/refresh":
@@ -108,13 +114,12 @@ paths:
   "/auth/logout":
     post:
       tags: [Authentification]
-      summary: "Fermer la session : révoque le jeton de rafraîchissement et efface le cookie."
+      summary: "Fermer la session : révoque le jeton de rafraîchissement et efface le cookie. Réussit même si le jeton d’accès a expiré."
       operationId: postAuthLogout
+      security: []
       responses:
         "204":
           description: Opération réalisée, sans contenu.
-        "401":
-          $ref: "#/components/responses/Erreur401"
   "/auth/forgot-password":
     post:
       tags: [Authentification]
@@ -187,7 +192,7 @@ paths:
   "/users/me/password":
     put:
       tags: [Compte]
-      summary: Changer son mot de passe ; lève l’indicateur de changement obligatoire.
+      summary: "Changer son mot de passe ; lève l’indicateur de changement obligatoire, ferme les autres sessions et remplace le cookie de la session courante. Les jetons d’accès déjà émis sont refusés : renouveler la session (POST /auth/refresh)."
       operationId: putUsersMePassword
       requestBody:
         required: true
@@ -254,7 +259,7 @@ paths:
   "/users/me/suppression":
     post:
       tags: [Compte]
-      summary: Supprimer son compte, après confirmation par le mot de passe.
+      summary: Supprimer son compte, après confirmation par le mot de passe. 409 pour le dernier Super Admin.
       operationId: postUsersMeSuppression
       requestBody:
         required: true
@@ -269,6 +274,8 @@ paths:
           $ref: "#/components/responses/Erreur400"
         "401":
           $ref: "#/components/responses/Erreur401"
+        "409":
+          $ref: "#/components/responses/Erreur409"
   "/pages/{slug}":
     get:
       tags: [Contenus publics]
@@ -2695,6 +2702,12 @@ components:
         "application/problem+json":
           schema:
             $ref: "#/components/schemas/Probleme"
+    Erreur423:
+      description: Compte temporairement verrouillé après des échecs de connexion.
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
     Erreur429:
       description: "Trop de requêtes : limitation de débit."
       content:
@@ -2741,6 +2754,7 @@ components:
           type: string
     Identifiants:
       type: object
+      description: "« seSouvenir » : le cookie de session survit à la fermeture du navigateur."
       required: [email, motDePasse]
       properties:
         email:
@@ -2748,6 +2762,8 @@ components:
           format: email
         motDePasse:
           type: string
+        seSouvenir:
+          type: [boolean, "null"]
     InscriptionCompte:
       type: object
       required: [nom, prenom, email, motDePasse, filiere, consentement]

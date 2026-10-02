@@ -37,6 +37,7 @@ public class JwtProvider {
 
     /** Longueur minimale d'un secret, en octets (HMAC-SHA-256). */
     static final int LONGUEUR_MINIMALE = 32;
+    private static final String VERSION = "v";
 
     private final Environment environment;
 
@@ -95,6 +96,9 @@ public class JwtProvider {
                 .filter(a -> !a.startsWith("ROLE_"))
                 .collect(Collectors.toList()));
 
+        if (userDetails instanceof UserDetailsImpl compte) {
+            claims.put(VERSION, compte.getVersionSession());
+        }
         return Jwts.builder()
                 .claims(claims)
                 .subject(userDetails.getUsername())
@@ -107,6 +111,12 @@ public class JwtProvider {
     /** Durée de validité d'un jeton d'accès, en secondes. */
     public long accessTokenValiditySeconds() {
         return accessTokenExpirationMs / 1000;
+    }
+
+    /** Version de session portée par le jeton ; un jeton plus ancien que la version du compte est refusé. */
+    public int versionDeSession(String token) {
+        Integer version = extractClaim(token, claims -> claims.get(VERSION, Integer.class));
+        return version == null ? 0 : version;
     }
 
     /** Extrait le sujet (adresse électronique) du jeton. */

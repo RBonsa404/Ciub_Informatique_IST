@@ -177,11 +177,6 @@ public class AdminServiceImpl implements AdminService {
     @Transactional(readOnly = true)
     public ConformiteDashboardDto getConformiteDashboard() {
         long totalActifs = utilisateurRepository.countByStatut(StatutUtilisateur.ACTIF);
-        long avec2fa = utilisateurRepository.findAll().stream()
-                .filter(Utilisateur::est2faActive)
-                .count();
-
-        double taux2fa = totalActifs > 0 ? ((double) avec2fa / totalActifs) * 100 : 0.0;
         long totalEchecs = auditLogRepository.countByStatut("ECHEC");
 
         Map<String, Boolean> checks = Map.of(
@@ -199,8 +194,6 @@ public class AdminServiceImpl implements AdminService {
                 .versionBackend("1.0.0 (Spring Boot 3.5.3)")
                 .versionJava("17")
                 .totalComptesActifs(totalActifs)
-                .comptesAvec2fa(avec2fa)
-                .tauxAdoption2fa(Math.round(taux2fa * 10.0) / 10.0)
                 .totalTentativesEchouees(totalEchecs)
                 .verificationsConformite(checks)
                 .build();

@@ -1,102 +1,83 @@
 package com.clubinfo.ist.auth.controller;
 
-import com.clubinfo.ist.auth.dto.ForgotPasswordRequest;
-import com.clubinfo.ist.auth.dto.LoginRequest;
-import com.clubinfo.ist.auth.dto.RefreshTokenRequest;
-import com.clubinfo.ist.auth.dto.RegisterRequest;
-import com.clubinfo.ist.auth.dto.ResetPasswordRequest;
-import com.clubinfo.ist.auth.dto.TokenResponse;
-import com.clubinfo.ist.auth.dto.TotpSetupResponse;
-import com.clubinfo.ist.auth.dto.TotpVerifyRequest;
+import com.clubinfo.ist.auth.dto.AuthDtos.DemandeReinitialisation;
+import com.clubinfo.ist.auth.dto.AuthDtos.Identifiants;
+import com.clubinfo.ist.auth.dto.AuthDtos.InscriptionCompte;
+import com.clubinfo.ist.auth.dto.AuthDtos.JetonVerification;
+import com.clubinfo.ist.auth.dto.AuthDtos.Message;
+import com.clubinfo.ist.auth.dto.AuthDtos.Reinitialisation;
+import com.clubinfo.ist.auth.dto.AuthDtos.Session;
 import com.clubinfo.ist.auth.service.AuthService;
+import com.clubinfo.ist.auth.service.SessionService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentification", description = "Endpoints d'inscription, connexion, 2FA et réinitialisation de mot de passe")
+@Tag(name = "Authentification", description = "Inscription, vérification d'adresse, session et réinitialisation du mot de passe")
 public class AuthController {
 
-    private final AuthService authService;
+    private static final Message INSCRIPTION_RECUE = new Message(
+            "Si cette adresse peut recevoir un compte, un courriel vient de lui être envoyé. Ouvrez le lien qu'il contient pour continuer.");
+
+    private final AuthService authentification;
+    private final SessionService sessions;
 
     @PostMapping("/register")
-    @Operation(summary = "Inscription d'un nouvel utilisateur (UC-05)")
-    public ResponseEntity<TokenResponse> register(@Valid @RequestBody RegisterRequest request) {
-        TokenResponse response = authService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    @Operation(summary = "Créer un compte et envoyer le courriel de vérification ; réponse identique que l'adresse existe ou non")
+    public ResponseEntity<Message> inscrire(@Valid @RequestBody InscriptionCompte demande) {
+        authentification.inscrire(demande);
+        return ResponseEntity.status(HttpStatus.CREATED).body(INSCRIPTION_RECUE);
+    }
+
+    @PostMapping("/verification")
+    @Operation(summary = "Activer le compte à partir du jeton reçu par courriel (usage unique)")
+    public ResponseEntity<Void> verifier(@Valid @RequestBody JetonVerification demande) {
+        authentification.verifier(demande.jeton());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Connexion avec email et mot de passe (UC-06)")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
-        TokenResponse response = authService.login(request);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Ouvrir une session ; pose le cookie de rafraîchissement HttpOnly")
+    public ResponseEntity<Session> connecter(@Valid @RequestBody Identifiants identifiants, HttpServletResponse reponse) {
+        return ResponseEntity.ok(authentification.connecter(identifiants, reponse));
     }
 
     @PostMapping("/refresh")
-    @Operation(summary = "Renouvellement de l'access token via refresh token (UC-06)")
-    public ResponseEntity<TokenResponse> refresh(@Valid @RequestBody RefreshTokenRequest request) {
-        TokenResponse response = authService.refreshToken(request);
-        return ResponseEntity.ok(response);
+    @Operation(summary = "Renouveler la session à partir du cookie ; fait tourner le jeton et détecte sa réutilisation")
+    public ResponseEntity<Session> renouveler(@CookieValue(name = SessionService.COOKIE, required = false) String jeton, HttpServletResponse reponse) {
+        return ResponseEntity.ok(sessions.renouveler(jeton, reponse));
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "Déconnexion et révocation des tokens (UC-06)", security = @SecurityRequirement(name = "BearerAuth"))
-    public ResponseEntity<Map<String, String>> logout(@AuthenticationPrincipal UserDetails userDetails) {
-        if (userDetails != null) {
-            authService.logout(userDetails.getUsername());
-        }
-        return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+    @Operation(summary = "Fermer la session : révoque le jeton de rafraîchissement et efface le cookie")
+    public ResponseEntity<Void> deconnecter(@CookieValue(name = SessionService.COOKIE, required = false) String jeton, HttpServletResponse reponse) {
+        sessions.fermer(jeton, reponse);
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/forgot-password")
-    @Operation(summary = "Demande de réinitialisation de mot de passe (UC-08)")
-    public ResponseEntity<Map<String, String>> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
-        authService.forgotPassword(request);
-        return ResponseEntity.ok(Map.of("message", "Si l'adresse email existe, un lien de réinitialisation a été envoyé"));
+    @Operation(summary = "Demander un lien de réinitialisation ; réponse identique que le compte existe ou non")
+    public ResponseEntity<Void> demanderReinitialisation(@Valid @RequestBody DemandeReinitialisation demande) {
+        authentification.demanderReinitialisation(demande.email());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/reset-password")
-    @Operation(summary = "Réinitialisation du mot de passe avec le jeton reçu (UC-08)")
-    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
-        authService.resetPassword(request);
-        return ResponseEntity.ok(Map.of("message", "Mot de passe réinitialisé avec succès"));
-    }
-
-    @PostMapping("/2fa/setup")
-    @Operation(summary = "Initialisation de la double authentification TOTP (UC-27)", security = @SecurityRequirement(name = "BearerAuth"))
-    public ResponseEntity<TotpSetupResponse> setup2fa(@AuthenticationPrincipal UserDetails userDetails) {
-        TotpSetupResponse response = authService.setup2fa(userDetails.getUsername());
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/2fa/verify")
-    @Operation(summary = "Validation et activation de la 2FA (UC-27)", security = @SecurityRequirement(name = "BearerAuth"))
-    public ResponseEntity<Map<String, String>> verify2fa(@AuthenticationPrincipal UserDetails userDetails,
-                                                         @Valid @RequestBody TotpVerifyRequest request) {
-        authService.verifyAndEnable2fa(userDetails.getUsername(), request);
-        return ResponseEntity.ok(Map.of("message", "Authentification à deux facteurs activée avec succès"));
-    }
-
-    @PostMapping("/2fa/disable")
-    @Operation(summary = "Désactivation de la 2FA (UC-27)", security = @SecurityRequirement(name = "BearerAuth"))
-    public ResponseEntity<Map<String, String>> disable2fa(@AuthenticationPrincipal UserDetails userDetails,
-                                                          @Valid @RequestBody TotpVerifyRequest request) {
-        authService.disable2fa(userDetails.getUsername(), request);
-        return ResponseEntity.ok(Map.of("message", "Authentification à deux facteurs désactivée"));
+    @Operation(summary = "Choisir un nouveau mot de passe ; ferme toutes les sessions")
+    public ResponseEntity<Void> reinitialiser(@Valid @RequestBody Reinitialisation demande) {
+        authentification.reinitialiser(demande);
+        return ResponseEntity.noContent().build();
     }
 }

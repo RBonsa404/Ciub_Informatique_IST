@@ -3,7 +3,6 @@ package com.clubinfo.ist.user.service;
 import com.clubinfo.ist.common.exception.BusinessException;
 import com.clubinfo.ist.common.exception.DuplicateResourceException;
 import com.clubinfo.ist.common.exception.ResourceNotFoundException;
-import com.clubinfo.ist.user.dto.ChangePasswordDto;
 import com.clubinfo.ist.user.dto.UserCreateDto;
 import com.clubinfo.ist.user.dto.UserDto;
 import com.clubinfo.ist.user.dto.UserRoleUpdateDto;
@@ -37,47 +36,6 @@ public class UserServiceImpl implements UserService {
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-
-    @Override
-    @Transactional(readOnly = true)
-    public UserDto getCurrentUserProfile(String email) {
-        Utilisateur user = findUserByEmail(email);
-        return userMapper.toDto(user);
-    }
-
-    @Override
-    @Transactional
-    public UserDto updateCurrentUserProfile(String email, UserUpdateDto dto) {
-        Utilisateur user = findUserByEmail(email);
-
-        if (dto.getNom() != null) user.setNom(dto.getNom());
-        if (dto.getPrenom() != null) user.setPrenom(dto.getPrenom());
-        if (dto.getDateNaissance() != null) user.setDateNaissance(dto.getDateNaissance());
-        if (dto.getFiliere() != null) user.setFiliere(dto.getFiliere());
-        if (dto.getAnneeEtude() != null) user.setAnneeEtude(dto.getAnneeEtude());
-        if (dto.getPhoto() != null) user.setPhoto(dto.getPhoto());
-        if (dto.getBiographie() != null) user.setBiographie(dto.getBiographie());
-        if (dto.getSpecialite() != null) user.setSpecialite(dto.getSpecialite());
-        if (dto.getFonction() != null) user.setFonction(dto.getFonction());
-
-        user = utilisateurRepository.save(user);
-        log.info("Profil mis à jour pour {}", email);
-        return userMapper.toDto(user);
-    }
-
-    @Override
-    @Transactional
-    public void changePassword(String email, ChangePasswordDto dto) {
-        Utilisateur user = findUserByEmail(email);
-
-        if (!passwordEncoder.matches(dto.getAncienMotDePasse(), user.getMotDePasse())) {
-            throw new BusinessException("L'ancien mot de passe est incorrect", HttpStatus.BAD_REQUEST);
-        }
-
-        user.setMotDePasse(passwordEncoder.encode(dto.getNouveauMotDePasse()));
-        utilisateurRepository.save(user);
-        log.info("Mot de passe modifié pour {}", email);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -193,11 +151,6 @@ public class UserServiceImpl implements UserService {
         user = utilisateurRepository.save(user);
         log.info("Statut mis à jour ({}) pour l'utilisateur ID {}", statut, id);
         return userMapper.toDto(user);
-    }
-
-    private Utilisateur findUserByEmail(String email) {
-        return utilisateurRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("Utilisateur", "email", email));
     }
 
     private Utilisateur findUserById(Long id) {

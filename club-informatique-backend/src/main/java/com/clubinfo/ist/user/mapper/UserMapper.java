@@ -42,7 +42,6 @@ public class UserMapper {
                 .numeroMembre(user.getNumeroMembre())
                 .dateAdhesion(user.getDateAdhesion())
                 .statut(user.getStatut())
-                .totpActive(user.est2faActive())
                 .roles(roles)
                 .permissions(permissions)
                 .createdAt(user.getCreatedAt())

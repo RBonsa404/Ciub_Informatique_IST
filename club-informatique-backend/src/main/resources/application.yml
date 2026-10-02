@@ -77,6 +77,9 @@ app:
     contact:
       capacity: 5
       refill-duration-minutes: 60
+  cookie:
+    # Cookie de session marqué Secure : obligatoire dès que le site est servi en HTTPS.
+    secure: ${COOKIE_SECURE:false}
   security:
     bcrypt-strength: ${BCRYPT_STRENGTH:12}
     max-login-attempts: 5

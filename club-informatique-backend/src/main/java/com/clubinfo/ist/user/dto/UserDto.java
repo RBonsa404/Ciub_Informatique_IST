@@ -30,7 +30,6 @@ public class UserDto {
     private String numeroMembre;
     private LocalDate dateAdhesion;
     private StatutUtilisateur statut;
-    private Boolean totpActive;
     private Set<String> roles;
     private Set<String> permissions;
     private LocalDateTime createdAt;

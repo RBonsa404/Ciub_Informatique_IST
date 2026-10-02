@@ -110,11 +110,17 @@ public abstract class IntegrationTest {
 
     /** Attend le premier courriel envoyé à l'adresse et le renvoie en entier (objet, expéditeur, texte). */
     protected JsonNode courrielRecu(String adresse) {
+        return courrielRecu(adresse, "");
+    }
+
+    /** Attend le courriel envoyé à l'adresse dont l'objet contient le texte, et le renvoie en entier. */
+    protected JsonNode courrielRecu(String adresse, String objetContient) {
         long limite = System.nanoTime() + Duration.ofSeconds(15).toNanos();
         while (System.nanoTime() < limite) {
-            JsonNode recus = courrielsRecus(adresse);
-            if (!recus.isEmpty()) {
-                return capture("/api/v1/message/" + recus.get(0).path("ID").asText());
+            for (JsonNode recu : courrielsRecus(adresse)) {
+                if (recu.path("Subject").asText().contains(objetContient)) {
+                    return capture("/api/v1/message/" + recu.path("ID").asText());
+                }
             }
             try {
                 Thread.sleep(150);
@@ -123,7 +129,7 @@ public abstract class IntegrationTest {
                 throw new IllegalStateException(interruption);
             }
         }
-        throw new AssertionError("Aucun courriel reçu pour " + adresse);
+        throw new AssertionError("Aucun courriel « " + objetContient + " » reçu pour " + adresse);
     }
 
     private JsonNode capture(String chemin) {

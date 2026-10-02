@@ -17,8 +17,6 @@ public class ConformiteDashboardDto {
     private String versionBackend;
     private String versionJava;
     private long totalComptesActifs;
-    private long comptesAvec2fa;
-    private double tauxAdoption2fa;
     private long totalTentativesEchouees;
     private Map<String, Boolean> verificationsConformite;
 }
