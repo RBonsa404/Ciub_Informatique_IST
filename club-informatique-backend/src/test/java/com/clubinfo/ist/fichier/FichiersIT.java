@@ -130,7 +130,7 @@ class FichiersIT extends IntegrationTest {
         Utilisateur formateur = compte("FORMATEUR");
         String id = deposer(formateur, piece("support.pdf", "application/pdf", PDF)).path("id").asText();
 
-        mvc.perform(get("/fichiers/" + id)).andExpect(status().isForbidden());
+        mvc.perform(get("/fichiers/" + id)).andExpect(status().isUnauthorized());
         mvc.perform(en(get("/fichiers/" + id), compte("MEMBRE"))).andExpect(status().isForbidden());
         mvc.perform(en(get("/fichiers/" + id), compte("FORMATEUR"))).andExpect(status().isForbidden());
         mvc.perform(en(get("/fichiers/" + id), compte("ADMIN"))).andExpect(status().isOk());

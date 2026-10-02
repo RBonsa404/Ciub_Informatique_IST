@@ -1,5 +1,6 @@
 package com.clubinfo.ist.ressource.dto;
 
+import com.clubinfo.ist.common.validation.AdresseWebSure;
 import com.clubinfo.ist.ressource.entity.TypeRessource;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -27,6 +28,7 @@ public class RessourceCreateDto {
 
     @NotBlank(message = "L'URL ou le chemin du fichier est obligatoire")
     @Size(max = 500)
+    @AdresseWebSure
     private String urlFichier;
 
     @Builder.Default

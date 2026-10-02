@@ -58,6 +58,9 @@ public class CourrielService {
             redaction.setFrom(new InternetAddress(adresseExpediteur, nomExpediteur, StandardCharsets.UTF_8.name()));
             redaction.setTo(courriel.destinataire());
             redaction.setSubject(courriel.objet());
+            if (courriel.repondreA() != null) {
+                redaction.setReplyTo(courriel.repondreA());
+            }
             redaction.setText(courriel.texte().stripTrailing() + signature(), false);
             smtp.send(message);
             return CompletableFuture.completedFuture(true);

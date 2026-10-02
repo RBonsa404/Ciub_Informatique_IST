@@ -101,7 +101,7 @@ Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.
 |---|---|---|---|---|---|---|
 | Fondations transversales (sécurité, erreurs, courriel, stockage, comptes de test, amorçage) | fait | B-01, B-04, B-05, B-07, B-21, B-22, B-23, B-29 à B-34 | RFC 9457, pagination, dates UTC, journal, courriel, stockage, migrations V3 et V4 | FondationsIT, ComptesIT, CourrielIT, StockageIT, FichiersIT (35) | à jour | terminé |
 | Authentification et comptes | fait | B-06, B-13, B-14, B-15, B-17, B-20, B-27, B-28, B-40, B-41 | vérification d'adresse, cookie de session, jetons hachés, compte (profil, préférences, export, suppression), 2FA retirée, migration V5 | AuthentificationIT (19) | à jour | terminé, hors gestion des comptes par l'administration (lot 8) |
-| Contenus publics (pages, bureau, actualités, catégories, ressources, contact) | fait | | | | | à faire |
+| Contenus publics (pages, bureau, actualités, catégories, ressources, contact) | fait | B-08 (actualités), B-19, B-24, B-25 (routes de gestion), B-38 | bureau créé, visibilité des actualités, annonces aux membres, contact protégé et notifié, cache conditionnel, migration V6 | ContenusPublicsIT (11), ContactIT (6) | à jour | terminé ; accès aux ressources d'une formation traité au lot 4, iCalendar au lot 5 |
 | Espace Membre et formation | fait | | | | | à faire |
 | Événements et publications | fait | | | | | à faire |
 | Notifications | fait | | | | | à faire |

@@ -50,7 +50,7 @@ public class CategorieController {
     }
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RESPONSABLE_CLUB')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @SecurityRequirement(name = "BearerAuth")
     @Operation(summary = "Créer une nouvelle catégorie (UC-25)")
     public ResponseEntity<CategorieDto> createCategorie(@Valid @RequestBody CategorieRequestDto dto) {
@@ -59,7 +59,7 @@ public class CategorieController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN', 'RESPONSABLE_CLUB')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @SecurityRequirement(name = "BearerAuth")
     @Operation(summary = "Modifier une catégorie existante (UC-25)")
     public ResponseEntity<CategorieDto> updateCategorie(@PathVariable Long id, @Valid @RequestBody CategorieRequestDto dto) {
@@ -71,8 +71,8 @@ public class CategorieController {
     @PreAuthorize("hasAnyRole('ADMIN', 'SUPER_ADMIN')")
     @SecurityRequirement(name = "BearerAuth")
     @Operation(summary = "Supprimer logiquement une catégorie (UC-25)")
-    public ResponseEntity<Map<String, String>> deleteCategorie(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCategorie(@PathVariable Long id) {
         categorieService.deleteCategorie(id);
-        return ResponseEntity.ok(Map.of("message", "Catégorie supprimée avec succès"));
+        return ResponseEntity.noContent().build();
     }
 }

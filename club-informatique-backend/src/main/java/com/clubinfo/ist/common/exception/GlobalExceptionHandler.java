@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
@@ -91,6 +94,10 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<Probleme> accesRefuse(AccessDeniedException ex, HttpServletRequest request) {
+        Authentication authentification = SecurityContextHolder.getContext().getAuthentication();
+        if (authentification == null || authentification instanceof AnonymousAuthenticationToken) {
+            return reponse(HttpStatus.UNAUTHORIZED, null, "Vous devez être connecté pour accéder à cette ressource.", request);
+        }
         log.warn("Accès refusé sur {}", request.getRequestURI());
         return reponse(HttpStatus.FORBIDDEN, null, "Vous n’avez pas les droits nécessaires pour cette opération.", request);
     }

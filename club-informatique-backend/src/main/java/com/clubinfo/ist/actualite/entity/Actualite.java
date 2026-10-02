@@ -5,6 +5,8 @@ import com.clubinfo.ist.common.audit.BaseEntity;
 import com.clubinfo.ist.user.entity.Utilisateur;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
@@ -53,6 +55,11 @@ public class Actualite extends BaseEntity {
     @Column(nullable = false)
     @Builder.Default
     private Boolean publie = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private Visibilite visibilite = Visibilite.PUBLIC;
 
     @Column(name = "date_publication")
     private LocalDateTime datePublication;

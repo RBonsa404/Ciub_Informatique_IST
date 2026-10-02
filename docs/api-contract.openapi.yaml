@@ -279,7 +279,7 @@ paths:
   "/pages/{slug}":
     get:
       tags: [Contenus publics]
-      summary: Page d’information (accueil, présentation).
+      summary: Page d’information (accueil, présentation). 404 tant que le club ne l’a pas rédigée.
       operationId: getPagesSlug
       security: []
       parameters:
@@ -295,6 +295,38 @@ paths:
             "application/json":
               schema:
                 $ref: "#/components/schemas/PageInformation"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    put:
+      tags: [Administration]
+      summary: Rédiger ou modifier une page d’information (accueil, présentation).
+      operationId: putPagesSlug
+      x-roles: [ADMIN]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/PageSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageInformation"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
         "404":
           $ref: "#/components/responses/Erreur404"
   "/bureau":
@@ -2613,6 +2645,8 @@ paths:
               schema:
                 type: string
                 format: binary
+        "401":
+          $ref: "#/components/responses/Erreur401"
         "403":
           $ref: "#/components/responses/Erreur403"
         "404":
@@ -2910,6 +2944,14 @@ components:
         updatedAt:
           type: [string, "null"]
           format: date-time
+    PageSaisie:
+      type: object
+      required: [titre, contenu]
+      properties:
+        titre:
+          type: string
+        contenu:
+          type: string
     MembreBureau:
       type: object
       description: Aucune photo.

@@ -89,6 +89,9 @@ app:
     from: ${MAIL_FROM:ne-pas-repondre@localhost}
     from-name: Club Informatique de l'IST
     contact: clubinformatique.ist@gmail.com
+  contact:
+    # Adresse du club qui reçoit les messages du formulaire de contact.
+    destinataire: ${CONTACT_EMAIL:clubinformatique.ist@gmail.com}
   # Adresse publique du frontend, pour les liens placés dans les courriels.
   frontend-url: ${APP_FRONTEND_URL:http://localhost:4200}
   storage:

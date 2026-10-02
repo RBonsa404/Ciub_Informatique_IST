@@ -18,6 +18,8 @@ spring:
     port: 1025
 
 app:
+  contact:
+    destinataire: club@club.test
   mail:
     from: ne-pas-repondre@club.test
   storage:
