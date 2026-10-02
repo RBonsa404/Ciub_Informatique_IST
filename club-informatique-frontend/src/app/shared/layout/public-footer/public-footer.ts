@@ -46,8 +46,8 @@ const SOCIAL: readonly SocialLink[] = [
             <div class="footer-brand">
               <div class="flex items-center gap-3">
                 <img
-                  src="img/logo-88.png"
-                  srcset="img/logo-88.png 1x, img/logo-176.png 2x"
+                  src="img/logo-88.webp"
+                  srcset="img/logo-88.webp 1x, img/logo-176.webp 2x"
                   alt=""
                   width="40"
                   height="40"

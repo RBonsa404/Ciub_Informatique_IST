@@ -34,7 +34,8 @@ const SKIP_LINK = `<app-skip-link />`;
   template: `
     ${SKIP_LINK} ${GLOWS}
     <app-public-header />
-    <main id="contenu" tabindex="-1" class="relative z-[1] outline-none">
+    <!-- Hauteur d'écran au moins : le pied de page ne se déplace pas sous les yeux à l'arrivée des données. -->
+    <main id="contenu" tabindex="-1" class="relative z-[1] outline-none" style="min-height: 100svh">
       <router-outlet />
     </main>
     <app-public-footer />

@@ -45,7 +45,10 @@ const ROLE_LABELS: Record<string, string> = { PORTEUR: 'Porteur du projet', CONT
         <h1 class="page-title">Projets <span class="accent">du club</span></h1>
         <p class="page-lead">Les projets réalisés par les membres du Club Informatique de l’IST.</p>
 
-        @if (categories().length > 0) {
+        @if (categoriesPending()) {
+          <!-- Place réservée aux filtres pendant leur chargement : la liste ne se décale pas à leur arrivée. -->
+          <div class="filter-chips" style="min-height: 2.5rem; margin-bottom: 2rem" aria-hidden="true"></div>
+        } @else if (categories().length > 0) {
           <div class="filter-chips" style="margin-bottom: 2rem" role="group" aria-label="Filtrer par catégorie">
             <button type="button" class="btn btn-sm" [class]="list.categorieId() === null ? 'btn-primary' : 'btn-secondary'" [attr.aria-pressed]="list.categorieId() === null" (click)="list.setCategorie(null)">
               Tous
@@ -124,6 +127,7 @@ export class ProjetsListPage {
   protected readonly list = new PagedList<Projet>((query) => this.api.projets(query), 9);
   private readonly categoriesState = new ResourceState<readonly Categorie[]>(() => this.api.categories().pipe(catchError(() => of([]))));
   protected readonly categories = computed(() => this.categoriesState.data() ?? []);
+  protected readonly categoriesPending = computed(() => this.categoriesState.status() === 'loading');
 
   constructor() {
     inject(SeoService).apply({ title: 'Projets', description: 'Projets des membres du Club Informatique de l’IST.', path: '/projets' });

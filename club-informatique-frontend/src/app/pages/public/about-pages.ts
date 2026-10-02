@@ -132,6 +132,7 @@ const SOCIAL: readonly { name: BrandName; label: string; href: string }[] = [
           <div class="pill" style="margin-bottom: 1.25rem">Présentation</div>
           <h1>Qui sommes-<span class="accent">nous</span></h1>
           <app-data-zone
+            style="display: block; min-height: 4.4rem"
             [status]="page.status()"
             emptyMessage="Le contenu de cette page est en cours de mise à jour."
             emptyIcon="file-text"
@@ -154,7 +155,7 @@ const SOCIAL: readonly { name: BrandName; label: string; href: string }[] = [
         </div>
         <div class="split-decor" style="position: relative" aria-hidden="true">
           <div class="visual">
-            <img src="img/logo-176.png" alt="" width="90" height="90" />
+            <img src="img/logo-176.webp" alt="" width="90" height="90" />
             <svg style="position: absolute; top: 0; right: 0; width: 200px; height: 200px; opacity: 0.2" viewBox="0 0 200 200">
               <line x1="0" y1="50" x2="100" y2="50" stroke="#38BDF8" stroke-width="1.5" />
               <circle cx="100" cy="50" r="4" fill="#38BDF8" />
@@ -167,6 +168,16 @@ const SOCIAL: readonly { name: BrandName; label: string; href: string }[] = [
       </div>
     </section>
 
+    @if (page.status() === 'loading') {
+      <!-- Place des sections réservée pendant le chargement : la suite de la page ne se déplace pas à leur arrivée. -->
+      <section style="padding: 3rem 0 4rem" aria-hidden="true">
+        <div class="page-container cards">
+          <app-skeleton height="9rem" radius="var(--radius-lg)" />
+          <app-skeleton height="9rem" radius="var(--radius-lg)" />
+          <app-skeleton height="9rem" radius="var(--radius-lg)" />
+        </div>
+      </section>
+    }
     @if ((content()?.sections ?? []).length > 0) {
       <section style="padding: 3rem 0 4rem">
         <div class="page-container cards">

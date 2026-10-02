@@ -107,7 +107,7 @@ const FILIERE_MAX = 100;
       <div class="auth-grid" style="grid-template-columns: 280px 1fr 340px; gap: 2rem; max-width: 1300px">
         <div class="brand-col auth-decor" aria-hidden="true">
           <div class="logo-ring">
-            <img src="img/logo-176.png" alt="" width="110" height="110" />
+            <img src="img/logo-220.webp" alt="" width="110" height="110" />
           </div>
           <div class="font-heading" style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary)">Club Informatique</div>
           <div style="font-size: 1.1rem; color: var(--accent-active); font-weight: 700">de l’IST</div>

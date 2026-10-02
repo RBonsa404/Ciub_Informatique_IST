@@ -182,7 +182,7 @@ import { Skeleton } from '../../shared/ui/states/states';
           <div class="arc-amber"></div>
           <div class="arc-cyan"></div>
           <div class="visual">
-            <img src="img/logo-176.png" alt="" width="80" height="80" />
+            <img src="img/logo-176.webp" alt="" width="80" height="80" />
             <div class="font-heading" style="font-size: 1.3rem; font-weight: 800">{{ site.shortName }}</div>
             <svg style="position: absolute; bottom: 0; left: 0; width: 100%; height: 60px; opacity: 0.3" viewBox="0 0 500 60">
               <line x1="0" y1="30" x2="150" y2="30" stroke="#38BDF8" stroke-width="1.5" />

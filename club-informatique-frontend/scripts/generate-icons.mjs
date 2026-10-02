@@ -27,9 +27,11 @@ await resize(180).toFile(join(icons, 'apple-touch-icon.png'));
 await resize(192).toFile(join(icons, 'icon-192.png'));
 await resize(512).toFile(join(icons, 'icon-512.png'));
 
-// Logo d'interface (44 px affichés, densités 1x et 2x)
-await resize(88).toFile(join(img, 'logo-88.png'));
-await resize(176).toFile(join(img, 'logo-176.png'));
+// Logo d'interface au format WebP (léger) : 88 et 176 px pour l'en-tête (44 px affichés), 220 px pour les grands visuels.
+const webp = (size) => sharp(source).resize(size, size, { fit: 'contain', background: '#FFFFFF' }).webp({ quality: 86 });
+await webp(88).toFile(join(img, 'logo-88.webp'));
+await webp(176).toFile(join(img, 'logo-176.webp'));
+await webp(220).toFile(join(img, 'logo-220.webp'));
 
 // Image de partage 1200 x 630 : logo redimensionné, centré sur fond Bleu Nuit Circuit
 const logoShare = await sharp(source).resize(420, 420).png().toBuffer();

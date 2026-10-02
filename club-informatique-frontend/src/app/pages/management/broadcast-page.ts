@@ -157,7 +157,7 @@ const LINK_MAX = 500;
           <div class="notch"></div>
           <div class="bubble">
             <div class="bubble-head">
-              <img src="img/logo-88.png" alt="" width="20" height="20" />
+              <img src="img/logo-88.webp" alt="" width="20" height="20" />
               <strong style="font-size: 0.75rem">{{ siteName }}</strong>
               <span style="margin-left: auto">Maintenant</span>
             </div>
