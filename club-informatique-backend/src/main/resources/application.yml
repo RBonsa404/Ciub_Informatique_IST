@@ -29,6 +29,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        # Les associations paresseuses se chargent par lots, pas une requête par ligne.
+        default_batch_fetch_size: 50
         jdbc:
           time_zone: UTC
   flyway:

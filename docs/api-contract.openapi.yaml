@@ -782,7 +782,7 @@ paths:
   "/inscriptions/evenements/{evenementId}":
     post:
       tags: [Espace Membre]
-      summary: S’inscrire à un événement ; liste d’attente si la capacité est atteinte.
+      summary: "S’inscrire à un événement ; liste d’attente si la capacité est atteinte. 409 : déjà inscrit (DEJA_INSCRIT) ou inscriptions closes (INSCRIPTIONS_CLOSES)."
       operationId: postInscriptionsEvenementsEvenementId
       x-roles: [MEMBRE]
       parameters:
@@ -938,7 +938,7 @@ paths:
       tags: [Formation]
       summary: Modifier une formation dont on est le formateur.
       operationId: putFormationsId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -969,7 +969,7 @@ paths:
           $ref: "#/components/responses/Erreur404"
     delete:
       tags: [Formation]
-      summary: Supprimer une formation.
+      summary: Supprimer une formation. 409 (FORMATION_SUIVIE) tant que des membres sont inscrits à une séance à venir.
       operationId: deleteFormationsId
       x-roles: [RESPONSABLE_CLUB]
       parameters:
@@ -1022,7 +1022,7 @@ paths:
       tags: [Formation]
       summary: Publier un devoir.
       operationId: postFormationsIdDevoirs
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -1108,7 +1108,7 @@ paths:
       tags: [Formation]
       summary: Modifier une ressource dont on est l’auteur.
       operationId: putRessourcesId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -1141,7 +1141,7 @@ paths:
       tags: [Formation]
       summary: Supprimer une ressource dont on est l’auteur.
       operationId: deleteRessourcesId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -1358,7 +1358,7 @@ paths:
       tags: [Formation]
       summary: Planifier une séance ; refuse un conflit de planning.
       operationId: postFormationsIdSessions
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -1394,7 +1394,7 @@ paths:
       tags: [Formation]
       summary: Modifier une séance.
       operationId: putFormationsIdSessionsSessionId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -1433,9 +1433,9 @@ paths:
           $ref: "#/components/responses/Erreur409"
     delete:
       tags: [Formation]
-      summary: Supprimer une séance.
+      summary: Supprimer une séance ; ses inscrits sont désinscrits et prévenus.
       operationId: deleteFormationsIdSessionsSessionId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -1463,7 +1463,7 @@ paths:
       tags: [Formation]
       summary: Supprimer un devoir.
       operationId: deleteFormationsIdDevoirsDevoirId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: id
           in: path
@@ -1516,7 +1516,7 @@ paths:
       tags: [Formation]
       summary: Feuille d’émargement d’une séance.
       operationId: getPresencesSessionsSessionId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: sessionId
           in: path
@@ -1543,7 +1543,7 @@ paths:
       tags: [Formation]
       summary: Enregistrer des pointages.
       operationId: postPresencesSessionsSessionId
-      x-roles: [FORMATEUR]
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
       parameters:
         - name: sessionId
           in: path
@@ -1925,7 +1925,7 @@ paths:
   "/evenements/{id}":
     put:
       tags: [Gestion du club]
-      summary: Modifier un événement.
+      summary: Modifier un événement. 409 si la capacité devient inférieure au nombre d’inscrits ; une capacité accrue profite à la liste d’attente.
       operationId: putEvenementsId
       x-roles: [RESPONSABLE_CLUB]
       parameters:
@@ -1956,9 +1956,11 @@ paths:
           $ref: "#/components/responses/Erreur403"
         "404":
           $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
     delete:
       tags: [Gestion du club]
-      summary: Supprimer un événement.
+      summary: Supprimer un événement ; ses inscrits sont désinscrits et prévenus.
       operationId: deleteEvenementsId
       x-roles: [RESPONSABLE_CLUB]
       parameters:
@@ -1980,7 +1982,7 @@ paths:
   "/inscriptions/{id}/statut":
     put:
       tags: [Gestion du club]
-      summary: Changer le statut d’une inscription (promotion depuis la liste d’attente).
+      summary: Changer le statut d’une inscription. 409 (COMPLET) si la confirmation dépasserait la capacité ; une place libérée revient au premier en attente.
       operationId: putInscriptionsIdStatut
       x-roles: [RESPONSABLE_CLUB]
       parameters:
@@ -3141,7 +3143,7 @@ components:
           type: boolean
     Niveau:
       type: string
-      enum: [DEBUTANT, INTERMEDIAIRE, AVANCE]
+      enum: [DEBUTANT, INTERMEDIAIRE, AVANCE, TOUS_NIVEAUX]
     StatutSession:
       type: string
       enum: [PLANIFIEE, EN_COURS, TERMINEE, ANNULEE]

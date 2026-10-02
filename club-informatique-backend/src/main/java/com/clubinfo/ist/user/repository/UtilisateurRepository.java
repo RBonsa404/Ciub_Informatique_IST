@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -45,6 +46,8 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     long countActive();
 
     Optional<Utilisateur> findByNumeroMembreAndDeletedAtIsNull(String numeroMembre);
+
+    List<Utilisateur> findAllByStatutAndDeletedAtIsNull(StatutUtilisateur statut);
 
     @Query("SELECT COUNT(u) FROM Utilisateur u JOIN u.roles r WHERE u.deletedAt IS NULL AND u.test = false AND r.nom = :role")
     long compterReelsAvecRole(@Param("role") String role);
