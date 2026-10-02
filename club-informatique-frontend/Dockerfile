@@ -9,7 +9,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
-RUN npm run check && npm run build
+RUN npm run check && npm run build && node deploiement/optimiser-pages.mjs
 
 # ── Étape 2 : service ───────────────────────────────────────────────
 FROM nginx:1.29-alpine AS service
@@ -20,7 +20,8 @@ ENV PORT=8080 \
     NGINX_ENTRYPOINT_LOCAL_RESOLVERS=1 \
     NGINX_ENVSUBST_FILTER="^(PORT|API_URL|NGINX_LOCAL_RESOLVERS)$"
 COPY deploiement/nginx.conf.template /etc/nginx/templates/default.conf.template
-COPY deploiement/en-tetes.conf /etc/nginx/snippets/en-tetes.conf
+# En-têtes de sécurité complétés à la construction par l'empreinte du script du thème inscrit dans les pages.
+COPY --from=construction /app/dist/club-informatique-frontend/en-tetes.conf /etc/nginx/snippets/en-tetes.conf
 COPY --from=construction /app/dist/club-informatique-frontend/browser /usr/share/nginx/html
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s CMD wget -q -O /dev/null "http://127.0.0.1:${PORT}/sante" || exit 1

@@ -67,27 +67,24 @@ server {
         try_files $uri =404;
     }
 
-    # Polices, images et icônes : noms stables, cache d'une journée.
+    # Polices, images et icônes : noms stables, cache d'un mois.
     location ~* "\.(?:woff2|png|jpg|jpeg|webp|svg|ico|webmanifest)$" {
         include /etc/nginx/snippets/en-tetes.conf;
-        add_header Cache-Control "public, max-age=86400" always;
+        add_header Cache-Control "public, max-age=2592000" always;
         try_files $uri =404;
     }
 
-    # Page d'entrée et script du thème : toujours revalidés, pour qu'une nouvelle version soit servie aussitôt.
-    location = /index.html {
-        include /etc/nginx/snippets/en-tetes.conf;
-        add_header Cache-Control "no-cache" always;
-    }
+    # Script du thème : toujours revalidé, pour qu'une nouvelle version soit servie aussitôt.
     location = /theme-init.js {
         include /etc/nginx/snippets/en-tetes.conf;
         add_header Cache-Control "no-cache" always;
     }
 
-    # Application monopage : toute autre adresse rend la page d'entrée, le routage se fait dans le navigateur.
+    # Pages : une page publique pré-rendue à la construction est servie telle quelle ; toute autre adresse reçoit
+    # la page d'entrée de l'application, dont le routage se fait dans le navigateur. Toujours revalidées.
     location / {
         include /etc/nginx/snippets/en-tetes.conf;
         add_header Cache-Control "no-cache" always;
-        try_files $uri /index.html;
+        try_files $uri $uri/index.html /index.csr.html;
     }
 }

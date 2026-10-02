@@ -1,5 +1,5 @@
-import { DOCUMENT } from '@angular/common';
-import { Injectable, inject } from '@angular/core';
+import { DOCUMENT, isPlatformServer } from '@angular/common';
+import { Injectable, PLATFORM_ID, inject } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
 import { environment } from '../../../environments/environment';
 import { SITE } from '../config/site';
@@ -23,6 +23,8 @@ export class SeoService {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
   private readonly document = inject(DOCUMENT);
+  /** Au pré-rendu, l'adresse publique du site n'est connue que si elle est configurée : sinon aucune adresse absolue n'est écrite. */
+  private readonly sansOrigine = isPlatformServer(inject(PLATFORM_ID)) && !environment.siteUrl;
 
   apply(page: PageMeta): void {
     const fullTitle = `${page.title} | ${SITE.name}`;
@@ -32,15 +34,15 @@ export class SeoService {
     this.setName('robots', page.noindex ? 'noindex, nofollow' : 'index, follow');
 
     const url = this.absolute(page.path ?? this.document.location.pathname);
-    this.setCanonical(page.noindex ? null : url);
+    this.setCanonical(page.noindex || this.sansOrigine ? null : url);
 
     this.setProperty('og:type', 'website');
     this.setProperty('og:locale', 'fr_FR');
     this.setProperty('og:site_name', SITE.name);
     this.setProperty('og:title', fullTitle);
     this.setProperty('og:description', page.description);
-    this.setProperty('og:url', url);
-    this.setProperty('og:image', this.absolute(page.image ?? DEFAULT_IMAGE));
+    this.setProperty('og:url', this.sansOrigine ? undefined : url);
+    this.setProperty('og:image', this.sansOrigine ? undefined : this.absolute(page.image ?? DEFAULT_IMAGE));
     this.setName('twitter:card', 'summary_large_image');
     this.setName('twitter:title', fullTitle);
     this.setName('twitter:description', page.description);
@@ -49,7 +51,7 @@ export class SeoService {
   /** Données structurées de l'organisation : informations réelles uniquement. */
   setOrganizationJsonLd(): void {
     const id = 'ld-organisation';
-    if (this.document.getElementById(id)) return;
+    if (this.sansOrigine || this.document.getElementById(id)) return;
     const script = this.document.createElement('script');
     script.id = id;
     script.type = 'application/ld+json';
