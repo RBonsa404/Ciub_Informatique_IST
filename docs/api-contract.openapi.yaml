@@ -1,0 +1,4038 @@
+openapi: "3.1.0"
+info:
+  title: "Club Informatique de l’IST : contrat d’API"
+  version: "1.0.0"
+  description: |
+    Contrat de référence entre le frontend et le backend.
+
+    Conventions : dates en ISO 8601 UTC ; pagination uniforme (« content », « page », « size », « totalElements », « totalPages ») ;
+    erreurs au format RFC 9457 avec un code stable et des messages en français ; identifiants numériques stables.
+    Le jeton d’accès est transmis par l’en-tête « Authorization » ; le jeton de rafraîchissement par un cookie HttpOnly.
+    L’extension « x-roles » liste les rôles autorisés ; un Formateur et un Responsable du Club héritent des droits du Membre, un Super Admin de ceux de l’Administrateur.
+    Les droits sont appliqués par le serveur, par rôle et par propriété de la ressource.
+servers:
+  - url: /api/v1
+tags:
+  - name: Authentification
+  - name: Compte
+  - name: Contenus publics
+  - name: Espace Membre
+  - name: Notifications
+  - name: Formation
+  - name: Projets
+  - name: Gestion du club
+  - name: Administration
+  - name: Système et conformité
+  - name: Fichiers
+security:
+  - jetonAcces: []
+paths:
+  "/auth/register":
+    post:
+      tags: [Authentification]
+      summary: Créer un compte et envoyer le courriel de vérification. Réponse identique que l’adresse existe ou non.
+      operationId: postAuthRegister
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/InscriptionCompte"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Message"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "429":
+          $ref: "#/components/responses/Erreur429"
+  "/auth/verification":
+    post:
+      tags: [Authentification]
+      summary: Activer le compte à partir du jeton reçu par courriel (usage unique).
+      operationId: postAuthVerification
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/JetonVerification"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "400":
+          $ref: "#/components/responses/Erreur400"
+  "/auth/login":
+    post:
+      tags: [Authentification]
+      summary: Ouvrir une session ; pose le cookie de rafraîchissement HttpOnly.
+      operationId: postAuthLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Identifiants"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "429":
+          $ref: "#/components/responses/Erreur429"
+  "/auth/refresh":
+    post:
+      tags: [Authentification]
+      summary: Renouveler la session à partir du cookie ; fait tourner le jeton et détecte sa réutilisation.
+      operationId: postAuthRefresh
+      security: []
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Session"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/auth/logout":
+    post:
+      tags: [Authentification]
+      summary: "Fermer la session : révoque le jeton de rafraîchissement et efface le cookie."
+      operationId: postAuthLogout
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/auth/forgot-password":
+    post:
+      tags: [Authentification]
+      summary: Demander un lien de réinitialisation. Réponse identique que le compte existe ou non.
+      operationId: postAuthForgotPassword
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/DemandeReinitialisation"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "429":
+          $ref: "#/components/responses/Erreur429"
+  "/auth/reset-password":
+    post:
+      tags: [Authentification]
+      summary: Choisir un nouveau mot de passe ; ferme toutes les sessions.
+      operationId: postAuthResetPassword
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Reinitialisation"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "400":
+          $ref: "#/components/responses/Erreur400"
+  "/users/me":
+    get:
+      tags: [Compte]
+      summary: Profil de l’utilisateur connecté.
+      operationId: getUsersMe
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Profil"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+    put:
+      tags: [Compte]
+      summary: Modifier son profil.
+      operationId: putUsersMe
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ProfilMiseAJour"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Profil"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/users/me/password":
+    put:
+      tags: [Compte]
+      summary: Changer son mot de passe ; lève l’indicateur de changement obligatoire.
+      operationId: putUsersMePassword
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ChangementMotDePasse"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/users/me/preferences":
+    get:
+      tags: [Compte]
+      summary: Préférences de notification.
+      operationId: getUsersMePreferences
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Preferences"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+    put:
+      tags: [Compte]
+      summary: Modifier ses préférences de notification.
+      operationId: putUsersMePreferences
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Preferences"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Preferences"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/users/me/export":
+    get:
+      tags: [Compte]
+      summary: Copie des données personnelles du compte (droit d’accès).
+      operationId: getUsersMeExport
+      responses:
+        "200":
+          description: Fichier JSON à enregistrer.
+          content:
+            "application/json":
+              schema:
+                type: object
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/users/me/suppression":
+    post:
+      tags: [Compte]
+      summary: Supprimer son compte, après confirmation par le mot de passe.
+      operationId: postUsersMeSuppression
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SuppressionCompte"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/pages/{slug}":
+    get:
+      tags: [Contenus publics]
+      summary: Page d’information (accueil, présentation).
+      operationId: getPagesSlug
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageInformation"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/bureau":
+    get:
+      tags: [Contenus publics]
+      summary: Composition du bureau, par ordre d’affichage.
+      operationId: getBureau
+      security: []
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MembreBureau"
+    post:
+      tags: [Gestion du club]
+      summary: Ajouter un membre du bureau.
+      operationId: postBureau
+      x-roles: [RESPONSABLE_CLUB]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/MembreBureauSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/MembreBureau"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/categories":
+    get:
+      tags: [Contenus publics]
+      summary: Catégories.
+      operationId: getCategories
+      security: []
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Categorie"
+    post:
+      tags: [Administration]
+      summary: Créer une catégorie.
+      operationId: postCategories
+      x-roles: [ADMIN]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CategorieSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Categorie"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+  "/actualites":
+    get:
+      tags: [Contenus publics]
+      summary: Actualités publiées et publiques.
+      operationId: getActualites
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/categorieId"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageActualite"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+    post:
+      tags: [Gestion du club]
+      summary: Créer une actualité.
+      operationId: postActualites
+      x-roles: [RESPONSABLE_CLUB]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ActualiteSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Actualite"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/actualites/slug/{slug}":
+    get:
+      tags: [Contenus publics]
+      summary: Actualité publiée.
+      operationId: getActualitesSlugSlug
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Actualite"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/evenements":
+    get:
+      tags: [Contenus publics]
+      summary: Événements publiés.
+      operationId: getEvenements
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/categorieId"
+        - name: aVenir
+          in: query
+          schema:
+            type: boolean
+          description: Ne retenir que les événements non terminés.
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageEvenement"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+    post:
+      tags: [Gestion du club]
+      summary: Créer un événement.
+      operationId: postEvenements
+      x-roles: [RESPONSABLE_CLUB]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/EvenementSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Evenement"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/evenements/slug/{slug}":
+    get:
+      tags: [Contenus publics]
+      summary: Événement publié.
+      operationId: getEvenementsSlugSlug
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Evenement"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/evenements/{id}/calendrier":
+    get:
+      tags: [Contenus publics]
+      summary: Événement au format iCalendar (décision D-06).
+      operationId: getEvenementsIdCalendrier
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Fichier iCalendar.
+          content:
+            "text/calendar":
+              schema:
+                type: string
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/formations":
+    get:
+      tags: [Contenus publics]
+      summary: Formations publiées.
+      operationId: getFormations
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/categorieId"
+        - name: niveau
+          in: query
+          schema:
+            $ref: "#/components/schemas/Niveau"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageFormation"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+    post:
+      tags: [Formation]
+      summary: Créer une formation.
+      operationId: postFormations
+      x-roles: [FORMATEUR]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/FormationSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Formation"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/formations/slug/{slug}":
+    get:
+      tags: [Contenus publics]
+      summary: Formation publiée, avec ses séances.
+      operationId: getFormationsSlugSlug
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Formation"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/projets":
+    get:
+      tags: [Contenus publics]
+      summary: Projets validés, en cours ou terminés.
+      operationId: getProjets
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/categorieId"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageProjet"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+    post:
+      tags: [Espace Membre]
+      summary: Proposer un projet (statut « proposé »).
+      operationId: postProjets
+      x-roles: [MEMBRE]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ProjetSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Projet"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/projets/slug/{slug}":
+    get:
+      tags: [Contenus publics]
+      summary: Projet validé.
+      operationId: getProjetsSlugSlug
+      security: []
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Projet"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/ressources/publiques":
+    get:
+      tags: [Contenus publics]
+      summary: Ressources publiques.
+      operationId: getRessourcesPubliques
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/search"
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/TypeRessource"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageRessource"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+  "/contact":
+    post:
+      tags: [Contenus publics]
+      summary: Envoyer un message au club (enregistré, notifié par courriel, accusé de réception).
+      operationId: postContact
+      security: []
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/MessageContactSaisie"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "429":
+          $ref: "#/components/responses/Erreur429"
+  "/inscriptions/me":
+    get:
+      tags: [Espace Membre]
+      summary: Inscriptions de l’utilisateur.
+      operationId: getInscriptionsMe
+      x-roles: [MEMBRE]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [FORMATION, EVENEMENT]
+        - name: statut
+          in: query
+          schema:
+            $ref: "#/components/schemas/StatutInscription"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageInscription"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/inscriptions/evenements/{evenementId}":
+    post:
+      tags: [Espace Membre]
+      summary: S’inscrire à un événement ; liste d’attente si la capacité est atteinte.
+      operationId: postInscriptionsEvenementsEvenementId
+      x-roles: [MEMBRE]
+      parameters:
+        - name: evenementId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Inscription"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+    get:
+      tags: [Gestion du club]
+      summary: Inscrits d’un événement.
+      operationId: getInscriptionsEvenementsEvenementId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: evenementId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inscription"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/inscriptions/formations/{sessionId}":
+    post:
+      tags: [Espace Membre]
+      summary: S’inscrire à une séance de formation.
+      operationId: postInscriptionsFormationsSessionId
+      x-roles: [MEMBRE]
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Inscription"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+    get:
+      tags: [Formation]
+      summary: Inscrits d’une séance.
+      operationId: getInscriptionsFormationsSessionId
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Inscription"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/inscriptions/{id}":
+    delete:
+      tags: [Espace Membre]
+      summary: Annuler son inscription ; promeut le premier membre en liste d’attente.
+      operationId: deleteInscriptionsId
+      x-roles: [MEMBRE]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/formations/{id}":
+    get:
+      tags: [Espace Membre]
+      summary: Formation par identifiant.
+      operationId: getFormationsId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Formation"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    put:
+      tags: [Formation]
+      summary: Modifier une formation dont on est le formateur.
+      operationId: putFormationsId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/FormationSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Formation"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    delete:
+      tags: [Formation]
+      summary: Supprimer une formation.
+      operationId: deleteFormationsId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+  "/formations/{id}/devoirs":
+    get:
+      tags: [Espace Membre]
+      summary: Devoirs d’une formation, réservés aux inscrits confirmés et à l’équipe pédagogique.
+      operationId: getFormationsIdDevoirs
+      x-roles: [MEMBRE]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Devoir"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    post:
+      tags: [Formation]
+      summary: Publier un devoir.
+      operationId: postFormationsIdDevoirs
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/DevoirSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Devoir"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/ressources/formation/{formationId}":
+    get:
+      tags: [Espace Membre]
+      summary: Supports d’une formation, réservés aux inscrits confirmés et à l’équipe pédagogique.
+      operationId: getRessourcesFormationFormationId
+      x-roles: [MEMBRE]
+      parameters:
+        - name: formationId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Ressource"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/ressources/{id}":
+    get:
+      tags: [Espace Membre]
+      summary: Ressource ; une ressource non publique exige l’inscription à sa formation.
+      operationId: getRessourcesId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Ressource"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    put:
+      tags: [Formation]
+      summary: Modifier une ressource dont on est l’auteur.
+      operationId: putRessourcesId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/RessourceSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Ressource"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    delete:
+      tags: [Formation]
+      summary: Supprimer une ressource dont on est l’auteur.
+      operationId: deleteRessourcesId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/publications":
+    get:
+      tags: [Espace Membre]
+      summary: Annonces publiées réservées aux membres (décision D-01).
+      operationId: getPublications
+      x-roles: [MEMBRE]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageActualite"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/publications/slug/{slug}":
+    get:
+      tags: [Espace Membre]
+      summary: Annonce réservée aux membres.
+      operationId: getPublicationsSlugSlug
+      x-roles: [MEMBRE]
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Actualite"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/projets/mes-projets":
+    get:
+      tags: [Espace Membre]
+      summary: Projets proposés par l’utilisateur, tous statuts.
+      operationId: getProjetsMesProjets
+      x-roles: [MEMBRE]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: statut
+          in: query
+          schema:
+            $ref: "#/components/schemas/StatutProjet"
+        - $ref: "#/components/parameters/categorieId"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageProjet"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/notifications":
+    get:
+      tags: [Notifications]
+      summary: Notifications de l’utilisateur.
+      operationId: getNotifications
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: type
+          in: query
+          schema:
+            $ref: "#/components/schemas/TypeNotification"
+        - name: lue
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageNotification"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/notifications/non-lues/count":
+    get:
+      tags: [Notifications]
+      summary: Nombre de notifications non lues.
+      operationId: getNotificationsNonLuesCount
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/CompteurNonLues"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/notifications/{id}/lue":
+    put:
+      tags: [Notifications]
+      summary: Marquer une notification comme lue.
+      operationId: putNotificationsIdLue
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/notifications/lire-toutes":
+    put:
+      tags: [Notifications]
+      summary: Marquer toutes ses notifications comme lues.
+      operationId: putNotificationsLireToutes
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+  "/notifications/globales":
+    post:
+      tags: [Notifications]
+      summary: Diffuser une notification à tous les membres actifs.
+      operationId: postNotificationsGlobales
+      x-roles: [RESPONSABLE_CLUB]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/NotificationGlobale"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/gestion/formations":
+    get:
+      tags: [Formation]
+      summary: "Formations gérées : celles du formateur connecté, toutes pour le Responsable."
+      operationId: getGestionFormations
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: publie
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageFormation"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/formations/{id}/sessions":
+    post:
+      tags: [Formation]
+      summary: Planifier une séance ; refuse un conflit de planning.
+      operationId: postFormationsIdSessions
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SessionSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SessionFormation"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+  "/formations/{id}/sessions/{sessionId}":
+    put:
+      tags: [Formation]
+      summary: Modifier une séance.
+      operationId: putFormationsIdSessionsSessionId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SessionSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/SessionFormation"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+    delete:
+      tags: [Formation]
+      summary: Supprimer une séance.
+      operationId: deleteFormationsIdSessionsSessionId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/formations/{id}/devoirs/{devoirId}":
+    delete:
+      tags: [Formation]
+      summary: Supprimer un devoir.
+      operationId: deleteFormationsIdDevoirsDevoirId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: devoirId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/ressources":
+    post:
+      tags: [Formation]
+      summary: Publier une ressource.
+      operationId: postRessources
+      x-roles: [FORMATEUR]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/RessourceSaisie"
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Ressource"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/presences/sessions/{sessionId}":
+    get:
+      tags: [Formation]
+      summary: Feuille d’émargement d’une séance.
+      operationId: getPresencesSessionsSessionId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Presence"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    post:
+      tags: [Formation]
+      summary: Enregistrer des pointages.
+      operationId: postPresencesSessionsSessionId
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: sessionId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Pointages"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Presence"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/projets/{id}":
+    get:
+      tags: [Projets]
+      summary: Projet par identifiant ; un projet non publié est réservé à son porteur, aux formateurs et à la gestion.
+      operationId: getProjetsId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Projet"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/projets/{id}/suivi":
+    put:
+      tags: [Projets]
+      summary: Enregistrer le suivi d’un formateur (note et avancement).
+      operationId: putProjetsIdSuivi
+      x-roles: [FORMATEUR]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/SuiviProjet"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Projet"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/projets/en-attente":
+    get:
+      tags: [Projets]
+      summary: Propositions en attente de décision.
+      operationId: getProjetsEnAttente
+      x-roles: [RESPONSABLE_CLUB]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Projet"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/gestion/projets":
+    get:
+      tags: [Projets]
+      summary: Tous les projets, tous statuts.
+      operationId: getGestionProjets
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: statut
+          in: query
+          schema:
+            $ref: "#/components/schemas/StatutProjet"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageProjet"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/gestion/projets/compteurs":
+    get:
+      tags: [Projets]
+      summary: Décompte des projets par décision.
+      operationId: getGestionProjetsCompteurs
+      x-roles: [RESPONSABLE_CLUB]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/CompteursProjets"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/projets/{id}/validation":
+    put:
+      tags: [Projets]
+      summary: Approuver ou rejeter une proposition ; notifie le porteur.
+      operationId: putProjetsIdValidation
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/DecisionProjet"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Projet"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+  "/gestion/indicateurs":
+    get:
+      tags: [Gestion du club]
+      summary: Effectif actif et fréquentation mensuelle.
+      operationId: getGestionIndicateurs
+      x-roles: [RESPONSABLE_CLUB]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Indicateurs"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/gestion/actualites":
+    get:
+      tags: [Gestion du club]
+      summary: Toutes les actualités, publiées ou non.
+      operationId: getGestionActualites
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: publie
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageActualite"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/actualites/{id}":
+    get:
+      tags: [Gestion du club]
+      summary: Actualité par identifiant, brouillon compris.
+      operationId: getActualitesId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Actualite"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    put:
+      tags: [Gestion du club]
+      summary: Modifier une actualité.
+      operationId: putActualitesId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/ActualiteSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Actualite"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    delete:
+      tags: [Gestion du club]
+      summary: Supprimer une actualité.
+      operationId: deleteActualitesId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/actualites/{id}/publication":
+    patch:
+      tags: [Gestion du club]
+      summary: Publier ou retirer une actualité (état explicite).
+      operationId: patchActualitesIdPublication
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Publication"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Actualite"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/gestion/evenements":
+    get:
+      tags: [Gestion du club]
+      summary: Tous les événements, publiés ou non.
+      operationId: getGestionEvenements
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: du
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Début de la période (date de début de l’événement).
+        - name: au
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageEvenement"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/evenements/{id}":
+    put:
+      tags: [Gestion du club]
+      summary: Modifier un événement.
+      operationId: putEvenementsId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/EvenementSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Evenement"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    delete:
+      tags: [Gestion du club]
+      summary: Supprimer un événement.
+      operationId: deleteEvenementsId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/inscriptions/{id}/statut":
+    put:
+      tags: [Gestion du club]
+      summary: Changer le statut d’une inscription (promotion depuis la liste d’attente).
+      operationId: putInscriptionsIdStatut
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/StatutInscriptionSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Inscription"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+  "/bureau/{id}":
+    put:
+      tags: [Gestion du club]
+      summary: Modifier un membre du bureau.
+      operationId: putBureauId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/MembreBureauSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/MembreBureau"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    delete:
+      tags: [Gestion du club]
+      summary: Retirer un membre du bureau.
+      operationId: deleteBureauId
+      x-roles: [RESPONSABLE_CLUB]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/gestion/messages":
+    get:
+      tags: [Gestion du club]
+      summary: Messages de contact reçus.
+      operationId: getGestionMessages
+      x-roles: [RESPONSABLE_CLUB, ADMIN]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: traite
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageMessageContact"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/gestion/messages/{id}/traite":
+    put:
+      tags: [Gestion du club]
+      summary: Marquer un message comme traité.
+      operationId: putGestionMessagesIdTraite
+      x-roles: [RESPONSABLE_CLUB, ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/MessageContact"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/admin/users":
+    get:
+      tags: [Administration]
+      summary: Comptes non supprimés.
+      operationId: getAdminUsers
+      x-roles: [ADMIN]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - $ref: "#/components/parameters/search"
+        - name: role
+          in: query
+          schema:
+            $ref: "#/components/schemas/Role"
+        - name: statut
+          in: query
+          schema:
+            $ref: "#/components/schemas/StatutCompte"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageCompte"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/admin/users/{id}":
+    get:
+      tags: [Administration]
+      summary: Compte.
+      operationId: getAdminUsersId
+      x-roles: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Compte"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+    put:
+      tags: [Administration]
+      summary: Modifier l’identité d’un compte.
+      operationId: putAdminUsersId
+      x-roles: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CompteMiseAJour"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Compte"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/admin/users/{id}/roles":
+    put:
+      tags: [Administration]
+      summary: Attribuer les rôles ; refuse d’élever un compte au-dessus du sien et de modifier ses propres rôles.
+      operationId: putAdminUsersIdRoles
+      x-roles: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/RolesSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Compte"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/admin/users/{id}/status":
+    patch:
+      tags: [Administration]
+      summary: Suspendre ou réactiver un compte ; refusé sur soi-même et sur le dernier Super Admin.
+      operationId: patchAdminUsersIdStatus
+      x-roles: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/StatutCompteSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Compte"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/admin/users/{id}/deverrouillage":
+    post:
+      tags: [Administration]
+      summary: Lever le verrouillage posé après des échecs de connexion.
+      operationId: postAdminUsersIdDeverrouillage
+      x-roles: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+  "/admin/users/invitations":
+    post:
+      tags: [Administration]
+      summary: "Inviter une personne : elle choisit son mot de passe par un lien à usage unique."
+      operationId: postAdminUsersInvitations
+      x-roles: [ADMIN]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Invitation"
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+  "/admin/roles":
+    get:
+      tags: [Administration]
+      summary: Rôles et permissions effectives.
+      operationId: getAdminRoles
+      x-roles: [ADMIN]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DefinitionRole"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/admin/permissions":
+    get:
+      tags: [Administration]
+      summary: Permissions.
+      operationId: getAdminPermissions
+      x-roles: [ADMIN]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Permission"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/categories/{id}":
+    put:
+      tags: [Administration]
+      summary: Modifier une catégorie.
+      operationId: putCategoriesId
+      x-roles: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/CategorieSaisie"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Categorie"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+    delete:
+      tags: [Administration]
+      summary: Supprimer une catégorie inutilisée.
+      operationId: deleteCategoriesId
+      x-roles: [ADMIN]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        "204":
+          description: Opération réalisée, sans contenu.
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
+  "/admin/statistiques":
+    get:
+      tags: [Administration]
+      summary: Totaux et répartitions.
+      operationId: getAdminStatistiques
+      x-roles: [ADMIN]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Statistiques"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/admin/security/alerts":
+    get:
+      tags: [Administration]
+      summary: Comptes signalés (verrouillages, suspensions).
+      operationId: getAdminSecurityAlerts
+      x-roles: [ADMIN]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alerte"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/admin/security/audit-logs":
+    get:
+      tags: [Administration]
+      summary: Journal d’audit.
+      operationId: getAdminSecurityAuditLogs
+      x-roles: [ADMIN]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+        - name: utilisateur
+          in: query
+          schema:
+            type: string
+          description: Adresse du compte.
+        - name: statut
+          in: query
+          schema:
+            type: string
+            enum: [SUCCES, ECHEC]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageEntreeJournal"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/admin/system/config":
+    get:
+      tags: [Système et conformité]
+      summary: Réglages persistants de la plateforme.
+      operationId: getAdminSystemConfig
+      x-roles: [SUPER_ADMIN]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Configuration"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+    put:
+      tags: [Système et conformité]
+      summary: Modifier les réglages.
+      operationId: putAdminSystemConfig
+      x-roles: [SUPER_ADMIN]
+      requestBody:
+        required: true
+        content:
+          "application/json":
+            schema:
+              $ref: "#/components/schemas/Configuration"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Configuration"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/admin/system/sauvegardes":
+    get:
+      tags: [Système et conformité]
+      summary: Dernières sauvegardes enregistrées par la tâche planifiée (décision D-09).
+      operationId: getAdminSystemSauvegardes
+      x-roles: [SUPER_ADMIN]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Sauvegarde"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/dsi/conformite":
+    get:
+      tags: [Système et conformité]
+      summary: Contrôles de conformité calculés.
+      operationId: getDsiConformite
+      x-roles: [DSI]
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Conformite"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/dsi/conformite/logs":
+    get:
+      tags: [Système et conformité]
+      summary: Journal d’audit en consultation.
+      operationId: getDsiConformiteLogs
+      x-roles: [DSI]
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/size"
+        - $ref: "#/components/parameters/sort"
+      responses:
+        "200":
+          description: Succès.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/PageEntreeJournal"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+  "/fichiers":
+    post:
+      tags: [Fichiers]
+      summary: Déposer un fichier (taille, type et signature binaire contrôlés).
+      operationId: postFichiers
+      x-roles: [FORMATEUR, RESPONSABLE_CLUB]
+      requestBody:
+        required: true
+        content:
+          "multipart/form-data":
+            schema:
+              type: object
+              required: [fichier]
+              properties:
+                fichier:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Ressource créée.
+          content:
+            "application/json":
+              schema:
+                $ref: "#/components/schemas/Fichier"
+        "400":
+          $ref: "#/components/responses/Erreur400"
+        "401":
+          $ref: "#/components/responses/Erreur401"
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "413":
+          $ref: "#/components/responses/Erreur413"
+        "415":
+          $ref: "#/components/responses/Erreur415"
+  "/fichiers/{id}":
+    get:
+      tags: [Fichiers]
+      summary: Télécharger un fichier, selon les droits de la ressource qui le porte.
+      operationId: getFichiersId
+      security: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contenu du fichier.
+          content:
+            "application/octet-stream":
+              schema:
+                type: string
+                format: binary
+        "403":
+          $ref: "#/components/responses/Erreur403"
+        "404":
+          $ref: "#/components/responses/Erreur404"
+components:
+  securitySchemes:
+    jetonAcces:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    page:
+      name: page
+      in: query
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: Numéro de page, à partir de zéro.
+    size:
+      name: size
+      in: query
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 10
+      description: Taille de page.
+    sort:
+      name: sort
+      in: query
+      schema:
+        type: string
+      description: "Tri : « champ,asc » ou « champ,desc »."
+    search:
+      name: search
+      in: query
+      schema:
+        type: string
+      description: Recherche plein texte ; facultative.
+    categorieId:
+      name: categorieId
+      in: query
+      schema:
+        type: integer
+        format: int64
+  responses:
+    Erreur400:
+      description: "Requête invalide : erreurs de champ dans « errors »."
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+    Erreur401:
+      description: Session absente ou expirée, ou identifiants refusés.
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+    Erreur403:
+      description: Droits insuffisants (rôle ou propriété de la ressource).
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+    Erreur404:
+      description: Ressource introuvable.
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+    Erreur409:
+      description: Conflit avec l’état actuel des données.
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+    Erreur413:
+      description: Fichier trop volumineux.
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+    Erreur415:
+      description: Type de fichier refusé.
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+    Erreur429:
+      description: "Trop de requêtes : limitation de débit."
+      content:
+        "application/problem+json":
+          schema:
+            $ref: "#/components/schemas/Probleme"
+  schemas:
+    Probleme:
+      type: object
+      description: Erreur au format RFC 9457. Le champ « code » est stable ; « detail » est rédigé en français.
+      required: [title, status, code]
+      properties:
+        type:
+          type: [string, "null"]
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+          format: int64
+        detail:
+          type: [string, "null"]
+        instance:
+          type: [string, "null"]
+        code:
+          type: string
+        errors:
+          type: [array, "null"]
+          items:
+            $ref: "#/components/schemas/ErreurChamp"
+    ErreurChamp:
+      type: object
+      required: [field, message]
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    Message:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+    Identifiants:
+      type: object
+      required: [email, motDePasse]
+      properties:
+        email:
+          type: string
+          format: email
+        motDePasse:
+          type: string
+    InscriptionCompte:
+      type: object
+      required: [nom, prenom, email, motDePasse, filiere, consentement]
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        motDePasse:
+          type: string
+        filiere:
+          type: string
+        consentement:
+          type: boolean
+    JetonVerification:
+      type: object
+      required: [jeton]
+      properties:
+        jeton:
+          type: string
+    DemandeReinitialisation:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+    Reinitialisation:
+      type: object
+      required: [token, nouveauMotDePasse]
+      properties:
+        token:
+          type: string
+        nouveauMotDePasse:
+          type: string
+    Session:
+      type: object
+      description: Le jeton de rafraîchissement voyage en cookie HttpOnly, jamais dans le corps.
+      required: [accessToken, expiresIn, utilisateur]
+      properties:
+        accessToken:
+          type: string
+        expiresIn:
+          type: integer
+          format: int64
+        utilisateur:
+          $ref: "#/components/schemas/UtilisateurCourant"
+    UtilisateurCourant:
+      type: object
+      required: [id, email, nom, prenom, roles, changementMotDePasseRequis]
+      properties:
+        id:
+          type: integer
+          format: int64
+        email:
+          type: string
+          format: email
+        nom:
+          type: string
+        prenom:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+        changementMotDePasseRequis:
+          type: boolean
+    Role:
+      type: string
+      enum: [MEMBRE, FORMATEUR, RESPONSABLE_CLUB, ADMIN, SUPER_ADMIN, DSI]
+    StatutCompte:
+      type: string
+      enum: [ACTIF, INACTIF, SUSPENDU, EN_ATTENTE_ACTIVATION]
+    Profil:
+      type: object
+      required: [id, nom, prenom, email, statut]
+      properties:
+        id:
+          type: integer
+          format: int64
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        filiere:
+          type: [string, "null"]
+        biographie:
+          type: [string, "null"]
+        numeroMembre:
+          type: [string, "null"]
+        dateAdhesion:
+          type: [string, "null"]
+          format: date
+        statut:
+          $ref: "#/components/schemas/StatutCompte"
+    ProfilMiseAJour:
+      type: object
+      required: [nom, prenom, filiere]
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        filiere:
+          type: string
+        biographie:
+          type: [string, "null"]
+    ChangementMotDePasse:
+      type: object
+      required: [ancienMotDePasse, nouveauMotDePasse]
+      properties:
+        ancienMotDePasse:
+          type: string
+        nouveauMotDePasse:
+          type: string
+    Preferences:
+      type: object
+      required: [notificationsCourriel]
+      properties:
+        notificationsCourriel:
+          type: boolean
+    SuppressionCompte:
+      type: object
+      required: [motDePasse]
+      properties:
+        motDePasse:
+          type: string
+    PageInformation:
+      type: object
+      required: [slug, titre, contenu]
+      properties:
+        slug:
+          type: string
+        titre:
+          type: string
+        contenu:
+          type: string
+        updatedAt:
+          type: [string, "null"]
+          format: date-time
+    MembreBureau:
+      type: object
+      description: Aucune photo.
+      required: [id, nom, prenom, fonction, ordre]
+      properties:
+        id:
+          type: integer
+          format: int64
+        nom:
+          type: string
+        prenom:
+          type: string
+        fonction:
+          type: string
+        filiere:
+          type: [string, "null"]
+        ordre:
+          type: integer
+          format: int64
+    MembreBureauSaisie:
+      type: object
+      required: [nom, prenom, fonction, ordre]
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        fonction:
+          type: string
+        filiere:
+          type: [string, "null"]
+        ordre:
+          type: integer
+          format: int64
+    Categorie:
+      type: object
+      required: [id, nom, slug]
+      properties:
+        id:
+          type: integer
+          format: int64
+        nom:
+          type: string
+        slug:
+          type: string
+        description:
+          type: [string, "null"]
+        couleur:
+          type: [string, "null"]
+    CategorieSaisie:
+      type: object
+      required: [nom]
+      properties:
+        nom:
+          type: string
+        description:
+          type: [string, "null"]
+        couleur:
+          type: [string, "null"]
+    Visibilite:
+      type: string
+      enum: [PUBLIC, MEMBRES]
+    Actualite:
+      type: object
+      required: [id, titre, slug, contenu, publie, visibilite, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        titre:
+          type: string
+        slug:
+          type: string
+        contenu:
+          type: string
+        resume:
+          type: [string, "null"]
+        image:
+          type: [string, "null"]
+          format: uri
+        publie:
+          type: boolean
+        visibilite:
+          $ref: "#/components/schemas/Visibilite"
+        datePublication:
+          type: [string, "null"]
+          format: date-time
+        auteurNom:
+          type: [string, "null"]
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+        categorieNom:
+          type: [string, "null"]
+        createdAt:
+          type: string
+          format: date-time
+    ActualiteSaisie:
+      type: object
+      required: [titre, contenu, publie, visibilite]
+      properties:
+        titre:
+          type: string
+        contenu:
+          type: string
+        resume:
+          type: [string, "null"]
+        image:
+          type: [string, "null"]
+          format: uri
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+        publie:
+          type: boolean
+        visibilite:
+          $ref: "#/components/schemas/Visibilite"
+    Publication:
+      type: object
+      required: [publie]
+      properties:
+        publie:
+          type: boolean
+    Evenement:
+      type: object
+      description: « nombreInscrits » et « placesRestantes » sont calculés en base sur les inscriptions confirmées.
+      required: [id, titre, slug, description, dateDebut, dateFin, lieu, nombreInscrits, publie]
+      properties:
+        id:
+          type: integer
+          format: int64
+        titre:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        dateDebut:
+          type: string
+          format: date-time
+        dateFin:
+          type: string
+          format: date-time
+        lieu:
+          type: string
+        capaciteMax:
+          type: [integer, "null"]
+          format: int64
+        nombreInscrits:
+          type: integer
+          format: int64
+        placesRestantes:
+          type: [integer, "null"]
+          format: int64
+        publie:
+          type: boolean
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+        categorieNom:
+          type: [string, "null"]
+        organisateurNom:
+          type: [string, "null"]
+    EvenementSaisie:
+      type: object
+      required: [titre, description, dateDebut, dateFin, lieu, publie]
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        dateDebut:
+          type: string
+          format: date-time
+        dateFin:
+          type: string
+          format: date-time
+        lieu:
+          type: string
+        capaciteMax:
+          type: [integer, "null"]
+          format: int64
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+        publie:
+          type: boolean
+    Niveau:
+      type: string
+      enum: [DEBUTANT, INTERMEDIAIRE, AVANCE]
+    StatutSession:
+      type: string
+      enum: [PLANIFIEE, EN_COURS, TERMINEE, ANNULEE]
+    SessionFormation:
+      type: object
+      required: [id, formationId, dateDebut, dateFin, nombreInscrits, statut]
+      properties:
+        id:
+          type: integer
+          format: int64
+        formationId:
+          type: integer
+          format: int64
+        dateDebut:
+          type: string
+          format: date-time
+        dateFin:
+          type: string
+          format: date-time
+        lieu:
+          type: [string, "null"]
+        lienVisio:
+          type: [string, "null"]
+          format: uri
+        capaciteMax:
+          type: [integer, "null"]
+          format: int64
+        nombreInscrits:
+          type: integer
+          format: int64
+        placesRestantes:
+          type: [integer, "null"]
+          format: int64
+        statut:
+          $ref: "#/components/schemas/StatutSession"
+    SessionSaisie:
+      type: object
+      required: [dateDebut, dateFin, lieu, statut]
+      properties:
+        dateDebut:
+          type: string
+          format: date-time
+        dateFin:
+          type: string
+          format: date-time
+        lieu:
+          type: string
+        lienVisio:
+          type: [string, "null"]
+          format: uri
+        capaciteMax:
+          type: [integer, "null"]
+          format: int64
+        statut:
+          $ref: "#/components/schemas/StatutSession"
+    Formation:
+      type: object
+      required: [id, titre, slug, description, niveau, publie, sessions]
+      properties:
+        id:
+          type: integer
+          format: int64
+        titre:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        niveau:
+          $ref: "#/components/schemas/Niveau"
+        prerequis:
+          type: [string, "null"]
+        objectifs:
+          type: [string, "null"]
+        publie:
+          type: boolean
+        formateurId:
+          type: [integer, "null"]
+          format: int64
+        formateurNom:
+          type: [string, "null"]
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+        categorieNom:
+          type: [string, "null"]
+        sessions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SessionFormation"
+    FormationSaisie:
+      type: object
+      required: [titre, description, niveau, publie]
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        niveau:
+          $ref: "#/components/schemas/Niveau"
+        prerequis:
+          type: [string, "null"]
+        objectifs:
+          type: [string, "null"]
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+        publie:
+          type: boolean
+    Devoir:
+      type: object
+      description: "Consultation seule : aucune remise en ligne (décision D-03)."
+      required: [id, formationId, titre, description, dateLimite, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        formationId:
+          type: integer
+          format: int64
+        formationTitre:
+          type: [string, "null"]
+        titre:
+          type: string
+        description:
+          type: string
+        dateLimite:
+          type: string
+          format: date-time
+        fichierConsigne:
+          type: [string, "null"]
+          format: uri
+        createdAt:
+          type: string
+          format: date-time
+    DevoirSaisie:
+      type: object
+      required: [titre, description, dateLimite]
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        dateLimite:
+          type: string
+          format: date-time
+        fichierConsigne:
+          type: [string, "null"]
+          format: uri
+    TypeRessource:
+      type: string
+      enum: [DOCUMENT_PDF, SUPPORT_COURS, LIEN_EXTERNE, VIDEO, CODE_SOURCE]
+    Ressource:
+      type: object
+      required: [id, titre, type, urlFichier, estPublique, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        titre:
+          type: string
+        description:
+          type: [string, "null"]
+        type:
+          $ref: "#/components/schemas/TypeRessource"
+        urlFichier:
+          type: string
+          format: uri
+        estPublique:
+          type: boolean
+        formationId:
+          type: [integer, "null"]
+          format: int64
+        formationTitre:
+          type: [string, "null"]
+        categorieNom:
+          type: [string, "null"]
+        auteurNom:
+          type: [string, "null"]
+        createdAt:
+          type: string
+          format: date-time
+    RessourceSaisie:
+      type: object
+      required: [titre, type, urlFichier, estPublique]
+      properties:
+        titre:
+          type: string
+        description:
+          type: [string, "null"]
+        type:
+          $ref: "#/components/schemas/TypeRessource"
+        urlFichier:
+          type: string
+          format: uri
+        estPublique:
+          type: boolean
+        formationId:
+          type: [integer, "null"]
+          format: int64
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+    StatutInscription:
+      type: string
+      enum: [CONFIRMEE, LISTE_ATTENTE, ANNULEE]
+    Inscription:
+      type: object
+      description: Les champs « utilisateur… » ne sont renseignés que dans les listes de gestion.
+      required: [id, dateInscription, statut]
+      properties:
+        id:
+          type: integer
+          format: int64
+        evenementId:
+          type: [integer, "null"]
+          format: int64
+        evenementTitre:
+          type: [string, "null"]
+        evenementSlug:
+          type: [string, "null"]
+        sessionFormationId:
+          type: [integer, "null"]
+          format: int64
+        formationId:
+          type: [integer, "null"]
+          format: int64
+        formationSlug:
+          type: [string, "null"]
+        formationTitre:
+          type: [string, "null"]
+        lieu:
+          type: [string, "null"]
+        dateDebut:
+          type: [string, "null"]
+          format: date-time
+        dateFin:
+          type: [string, "null"]
+          format: date-time
+        dateInscription:
+          type: string
+          format: date-time
+        statut:
+          $ref: "#/components/schemas/StatutInscription"
+        motifAnnulation:
+          type: [string, "null"]
+        utilisateurId:
+          type: [integer, "null"]
+          format: int64
+        utilisateurNom:
+          type: [string, "null"]
+        utilisateurEmail:
+          type: [string, "null"]
+          format: email
+        utilisateurFiliere:
+          type: [string, "null"]
+    StatutInscriptionSaisie:
+      type: object
+      required: [statut]
+      properties:
+        statut:
+          $ref: "#/components/schemas/StatutInscription"
+        motif:
+          type: [string, "null"]
+    StatutPresence:
+      type: string
+      enum: [PRESENT, ABSENT, EXCUSE]
+    Presence:
+      type: object
+      required: [id, inscriptionId, sessionId, statut, datePointage]
+      properties:
+        id:
+          type: integer
+          format: int64
+        inscriptionId:
+          type: integer
+          format: int64
+        utilisateurNom:
+          type: [string, "null"]
+        sessionId:
+          type: integer
+          format: int64
+        statut:
+          $ref: "#/components/schemas/StatutPresence"
+        datePointage:
+          type: string
+          format: date-time
+        remarque:
+          type: [string, "null"]
+    Pointages:
+      type: object
+      required: [presences]
+      properties:
+        presences:
+          type: array
+          items:
+            $ref: "#/components/schemas/Pointage"
+    Pointage:
+      type: object
+      required: [inscriptionId, statut]
+      properties:
+        inscriptionId:
+          type: integer
+          format: int64
+        statut:
+          $ref: "#/components/schemas/StatutPresence"
+        remarque:
+          type: [string, "null"]
+    StatutProjet:
+      type: string
+      enum: [PROPOSE, VALIDE, REJETE, EN_COURS, TERMINE]
+    MembreProjet:
+      type: object
+      required: [id, utilisateurNom, role]
+      properties:
+        id:
+          type: integer
+          format: int64
+        utilisateurNom:
+          type: string
+        role:
+          type: string
+          enum: [PORTEUR, CONTRIBUTEUR]
+    Projet:
+      type: object
+      required: [id, titre, slug, description, statut, porteurId, porteurNom, avancementPourcentage, membres, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        titre:
+          type: string
+        slug:
+          type: string
+        description:
+          type: string
+        objectifs:
+          type: [string, "null"]
+        technologies:
+          type: [string, "null"]
+        depotGit:
+          type: [string, "null"]
+          format: uri
+        documentationUrl:
+          type: [string, "null"]
+          format: uri
+        statut:
+          $ref: "#/components/schemas/StatutProjet"
+        porteurId:
+          type: integer
+          format: int64
+        porteurNom:
+          type: string
+        porteurFiliere:
+          type: [string, "null"]
+        motifDecision:
+          type: [string, "null"]
+        suiviFormateur:
+          type: [string, "null"]
+        avancementPourcentage:
+          type: integer
+          format: int64
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+        categorieNom:
+          type: [string, "null"]
+        membres:
+          type: array
+          items:
+            $ref: "#/components/schemas/MembreProjet"
+        createdAt:
+          type: string
+          format: date-time
+    ProjetSaisie:
+      type: object
+      required: [titre, description, technologies]
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        objectifs:
+          type: [string, "null"]
+        technologies:
+          type: string
+        depotGit:
+          type: [string, "null"]
+          format: uri
+        categorieId:
+          type: [integer, "null"]
+          format: int64
+    SuiviProjet:
+      type: object
+      required: [avancementPourcentage]
+      properties:
+        suiviFormateur:
+          type: [string, "null"]
+        avancementPourcentage:
+          type: integer
+          format: int64
+    DecisionProjet:
+      type: object
+      description: Le motif est obligatoire pour un rejet.
+      required: [statut]
+      properties:
+        statut:
+          type: string
+          enum: [VALIDE, REJETE]
+        motif:
+          type: [string, "null"]
+    CompteursProjets:
+      type: object
+      required: [enAttente, valides, rejetes]
+      properties:
+        enAttente:
+          type: integer
+          format: int64
+        valides:
+          type: integer
+          format: int64
+        rejetes:
+          type: integer
+          format: int64
+    TypeNotification:
+      type: string
+      enum: [INSCRIPTION, VALIDATION_PROJET, RAPPEL_SESSION, MESSAGE_GLOBAL, SYSTEME]
+    Notification:
+      type: object
+      required: [id, titre, message, type, lue, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        titre:
+          type: string
+        message:
+          type: string
+        type:
+          $ref: "#/components/schemas/TypeNotification"
+        lien:
+          type: [string, "null"]
+        lue:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    CompteurNonLues:
+      type: object
+      required: [nonLues]
+      properties:
+        nonLues:
+          type: integer
+          format: int64
+    NotificationGlobale:
+      type: object
+      description: « lien » est un chemin interne du site.
+      required: [titre, message]
+      properties:
+        titre:
+          type: string
+        message:
+          type: string
+        lien:
+          type: [string, "null"]
+    MessageContactSaisie:
+      type: object
+      description: « siteWeb » est un champ piège, toujours vide pour un humain.
+      required: [nom, email, sujet, message, siteWeb, dureeSaisieMs]
+      properties:
+        nom:
+          type: string
+        email:
+          type: string
+          format: email
+        sujet:
+          type: string
+        message:
+          type: string
+        siteWeb:
+          type: string
+        dureeSaisieMs:
+          type: integer
+          format: int64
+    MessageContact:
+      type: object
+      required: [id, nom, email, sujet, message, traite, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        nom:
+          type: string
+        email:
+          type: string
+          format: email
+        sujet:
+          type: string
+        message:
+          type: string
+        traite:
+          type: boolean
+        dateReponse:
+          type: [string, "null"]
+          format: date-time
+        reponseParNom:
+          type: [string, "null"]
+        createdAt:
+          type: string
+          format: date-time
+    Indicateurs:
+      type: object
+      description: Calculés en base, hors comptes de test.
+      required: [membresActifs, frequentation]
+      properties:
+        membresActifs:
+          type: integer
+          format: int64
+        frequentation:
+          type: array
+          items:
+            $ref: "#/components/schemas/PointFrequentation"
+    PointFrequentation:
+      type: object
+      required: [mois, inscriptions]
+      properties:
+        mois:
+          type: string
+        inscriptions:
+          type: integer
+          format: int64
+    Compte:
+      type: object
+      required: [id, nom, prenom, email, statut, roles, verrouille, createdAt]
+      properties:
+        id:
+          type: integer
+          format: int64
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        filiere:
+          type: [string, "null"]
+        statut:
+          $ref: "#/components/schemas/StatutCompte"
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+        verrouille:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+    CompteMiseAJour:
+      type: object
+      required: [nom, prenom]
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        filiere:
+          type: [string, "null"]
+    RolesSaisie:
+      type: object
+      required: [roles]
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Role"
+    StatutCompteSaisie:
+      type: object
+      required: [statut]
+      properties:
+        statut:
+          $ref: "#/components/schemas/StatutCompte"
+    Invitation:
+      type: object
+      required: [nom, prenom, email, role]
+      properties:
+        nom:
+          type: string
+        prenom:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: "#/components/schemas/Role"
+    DefinitionRole:
+      type: object
+      required: [nom, permissions]
+      properties:
+        nom:
+          $ref: "#/components/schemas/Role"
+        description:
+          type: [string, "null"]
+        permissions:
+          type: array
+          items:
+            type: string
+    Permission:
+      type: object
+      required: [nom, description]
+      properties:
+        nom:
+          type: string
+        description:
+          type: string
+    Statistiques:
+      type: object
+      description: Agrégations calculées en base, hors comptes de test et éléments supprimés.
+      required: [totalMembres, membresActifs, totalEvenements, totalFormations, totalProjets, totalRessources, totalMessagesNonTraites, repartitionMembresParRole, repartitionProjetsParStatut]
+      properties:
+        totalMembres:
+          type: integer
+          format: int64
+        membresActifs:
+          type: integer
+          format: int64
+        totalEvenements:
+          type: integer
+          format: int64
+        totalFormations:
+          type: integer
+          format: int64
+        totalProjets:
+          type: integer
+          format: int64
+        totalRessources:
+          type: integer
+          format: int64
+        totalMessagesNonTraites:
+          type: integer
+          format: int64
+        repartitionMembresParRole:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+        repartitionProjetsParStatut:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int64
+    Alerte:
+      type: object
+      required: [typeAlerte, description, gravite]
+      properties:
+        typeAlerte:
+          type: string
+        description:
+          type: string
+        utilisateurCible:
+          type: [string, "null"]
+          format: email
+        utilisateurId:
+          type: [integer, "null"]
+          format: int64
+        gravite:
+          type: string
+          enum: [FAIBLE, MOYENNE, CRITIQUE]
+    EntreeJournal:
+      type: object
+      required: [id, action, dateAction, statut]
+      properties:
+        id:
+          type: integer
+          format: int64
+        action:
+          type: string
+        description:
+          type: [string, "null"]
+        utilisateurEmail:
+          type: [string, "null"]
+          format: email
+        ipAddress:
+          type: [string, "null"]
+        dateAction:
+          type: string
+          format: date-time
+        statut:
+          type: string
+          enum: [SUCCES, ECHEC]
+    Configuration:
+      type: object
+      required: [nomPlateforme, maintenanceMode, inscriptionsOuvertes, maxLoginAttempts, lockoutDurationMinutes]
+      properties:
+        nomPlateforme:
+          type: string
+        version:
+          type: [string, "null"]
+        maintenanceMode:
+          type: boolean
+        inscriptionsOuvertes:
+          type: boolean
+        maxLoginAttempts:
+          type: integer
+          format: int64
+        lockoutDurationMinutes:
+          type: integer
+          format: int64
+    Sauvegarde:
+      type: object
+      required: [id, date, statut]
+      properties:
+        id:
+          type: integer
+          format: int64
+        date:
+          type: string
+          format: date-time
+        tailleOctets:
+          type: [integer, "null"]
+          format: int64
+        statut:
+          type: string
+          enum: [REUSSIE, ECHOUEE]
+    Conformite:
+      type: object
+      required: [statut, versionBackend, versionJava, comptesActifs, tentativesEchouees, verifications]
+      properties:
+        statut:
+          type: string
+          enum: [CONFORME, A_EXAMINER]
+        versionBackend:
+          type: string
+        versionJava:
+          type: string
+        comptesActifs:
+          type: integer
+          format: int64
+        tentativesEchouees:
+          type: integer
+          format: int64
+        verifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Verification"
+    Verification:
+      type: object
+      description: Chaque contrôle est calculé, jamais codé en dur.
+      required: [code, libelle, conforme]
+      properties:
+        code:
+          type: string
+        libelle:
+          type: string
+        conforme:
+          type: boolean
+    Fichier:
+      type: object
+      required: [id, url, nom, type, tailleOctets]
+      properties:
+        id:
+          type: string
+        url:
+          type: string
+          format: uri
+        nom:
+          type: string
+        type:
+          type: string
+        tailleOctets:
+          type: integer
+          format: int64
+    PageActualite:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Actualite"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageEvenement:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Evenement"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageFormation:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Formation"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageProjet:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Projet"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageRessource:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Ressource"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageInscription:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Inscription"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageNotification:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageMessageContact:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/MessageContact"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageCompte:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/Compte"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer
+    PageEntreeJournal:
+      type: object
+      description: Page de résultats (pagination uniforme).
+      required: [content, page, size, totalElements, totalPages]
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntreeJournal"
+        page:
+          type: integer
+        size:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        totalPages:
+          type: integer

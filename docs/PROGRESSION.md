@@ -6,8 +6,8 @@ Dernière mise à jour : 2 octobre 2026
 | Phase | Statut | Validation utilisateur |
 |---|---|---|
 | 0. Reconnaissance | terminée | validée le 1er octobre 2026 |
-| 1. Frontend d'après la maquette | terminée le 2 octobre 2026 : 67 pages construites et recettées, à valider au point d'arrêt 3 | point d'arrêt 2 validé |
-| 2. Analyse et besoins backend | à faire | |
+| 1. Frontend d'après la maquette | terminée le 2 octobre 2026 : 61 pages construites et recettées (tableau ci-dessous), à valider au point d'arrêt 3 | point d'arrêt 2 validé |
+| 2. Analyse et besoins backend | terminée le 2 octobre 2026 : `besoins-backend.md`, `api-contract.openapi.yaml` (106 opérations, description validée), `plan-reprise-backend.md` | à valider (point d'arrêt 3) |
 | 3. Reprise du backend | à faire | |
 | 4. Intégration | à faire | |
 | 5. Parcours utilisateur | à faire | |
