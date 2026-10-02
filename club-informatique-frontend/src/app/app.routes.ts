@@ -1,6 +1,6 @@
 import { Route, Routes, UrlSegment } from '@angular/router';
 import { environment } from '../environments/environment';
-import { authGuard, featureGuard, guestGuard, roleGuard, spaceHomeGuard } from './core/auth/guards';
+import { authGuard, featureGuard, guestGuard, passwordChangeGuard, roleGuard, spaceHomeGuard } from './core/auth/guards';
 
 const publicPages = () => import('./pages/public/about-pages');
 const actualites = () => import('./pages/public/actualites-pages');
@@ -56,8 +56,28 @@ export const routes: Routes = [
   {
     path: 'espace',
     canActivate: [authGuard],
+    canActivateChild: [passwordChangeGuard],
     loadComponent: () => import('./layouts/layouts').then((m) => m.DashboardLayout),
     children: [
+      {
+        path: 'mot-de-passe',
+        data: { fil: [{ label: 'Choix du mot de passe' }] },
+        loadComponent: () => import('./pages/system/forced-password-page').then((m) => m.ForcedPasswordPage),
+      },
+      {
+        path: 'systeme',
+        canMatch: [featureGuard('systeme')],
+        canActivate: [roleGuard('SUPER_ADMIN')],
+        data: { fil: [{ label: 'Configuration du système' }] },
+        loadComponent: () => import('./pages/system/system-pages').then((m) => m.SystemConfigPage),
+      },
+      {
+        path: 'dsi',
+        canMatch: [featureGuard('conformite')],
+        canActivate: [roleGuard('DSI')],
+        data: { fil: [{ label: 'Supervision technique' }] },
+        loadComponent: () => import('./pages/system/system-pages').then((m) => m.CompliancePage),
+      },
       {
         path: 'membre',
         canMatch: [featureGuard('inscriptions')],

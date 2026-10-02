@@ -1,12 +1,12 @@
 # Suivi de progression
 
-Dernière mise à jour : 1er octobre 2026
+Dernière mise à jour : 2 octobre 2026
 
 ## Phases
 | Phase | Statut | Validation utilisateur |
 |---|---|---|
 | 0. Reconnaissance | terminée | validée le 1er octobre 2026 |
-| 1. Frontend d'après la maquette | en cours (socle) | |
+| 1. Frontend d'après la maquette | terminée le 2 octobre 2026 : 67 pages construites et recettées, à valider au point d'arrêt 3 | point d'arrêt 2 validé |
 | 2. Analyse et besoins backend | à faire | |
 | 3. Reprise du backend | à faire | |
 | 4. Intégration | à faire | |
@@ -92,9 +92,9 @@ Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.
 | 55 | Statistiques | `/espace/admin/statistiques` | A, SA | fait | fait | fait (7 largeurs) | chargement, erreur, contenu | verte | axe : 0 | verts | docs/recette/55-statistiques-utilisation-detaillees | existant (totaux réels vus) ; exclusion des comptes de test à faire (B-39) | oui si le module est ouvert (rôle Administrateur) | terminé (Phase 1) |
 | D7 | Sécurité des comptes | `/espace/admin/securite` | A, SA | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu | verte | axe : 0 | verts | docs/recette/D7-securite-comptes | existant (liste réelle vide vue) ; identifiant du compte et verrouillage à créer | oui (barre latérale, rôle Administrateur) | terminé (Phase 1) |
 | D6 | Journal d'audit | `/espace/admin/journal` | A, SA | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu, filtre | verte | axe : 0 | verts | docs/recette/D6-journal-audit | existant (journal réel vide vu) ; alimentation du journal et filtres à créer | oui (barre latérale, rôle Administrateur) | terminé (Phase 1) |
-| 56 | Configuration et sauvegardes | `/espace/systeme` | SA | | | | | | | | | | | à faire |
-| D8 | Mot de passe imposé | `/espace/mot-de-passe` | SA | | | | | | | | | | | à faire |
-| 57 | Supervision technique | `/espace/dsi` | D | | | | | | | | | | | à faire |
+| 56 | Configuration et sauvegardes | `/espace/systeme` | SA | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu, validation, confirmation | verte | axe : 0 | verts | docs/recette/56-configuration-systeme-sauvegardes | réglages : existant mais non persistant (enregistrement réel vu) ; état des sauvegardes à créer | oui si le module est ouvert (rôle Super Admin) | terminé (Phase 1) |
+| D8 | Mot de passe imposé | `/espace/mot-de-passe` | SA | fait | fait | fait (7 largeurs) | initial, verrou de navigation, validation, succès | verte | axe : 0 | verts | docs/recette/D8-mot-de-passe-impose | changement de mot de passe : existant (refus réel vu) ; indicateur de changement obligatoire à créer | aucune (redirection imposée) | terminé (Phase 1) |
+| 57 | Supervision technique | `/espace/dsi` | D | fait | fait | fait (7 largeurs) | chargement, vide, erreur, contenu, non conforme | verte | axe : 0 | verts | docs/recette/57-supervision-conformite-dsi | existant mais simulé (contrôles codés en dur) : à calculer avant ouverture du module | oui si le module est ouvert (rôle DSI) | terminé (Phase 1) |
 
 ## Modules backend
 | Module | Audit | Bogues corrigés | Conception reprise | Tests | OpenAPI | Statut |
@@ -114,5 +114,5 @@ D-01 à D-13 : propositions appliquées par défaut depuis la validation de la P
 
 ## Blocages
 - Mesures de la section 6.12 (crochet `commit-msg`, exclusions locales, attribution) non automatisées : opération refusée par le contrôle d'autorisations de l'environnement. Mesure compensatoire : contrôle manuel à chaque commit (`docs/decisions.md`, section 6).
-- Lot initial du frontend à 323,81 kio bruts : avertissement du budget de 300 kio (non bloquant), à réduire lors de la passe de performance.
+- Lot initial du frontend à 357,02 kio bruts (94,89 kio transférés) : avertissement du budget de 300 kio (non bloquant), à réduire lors de la passe de performance.
 - GitHub CLI absent du poste (nécessaire pour la pull request en Phase 6, ou ouverture depuis l'interface web).

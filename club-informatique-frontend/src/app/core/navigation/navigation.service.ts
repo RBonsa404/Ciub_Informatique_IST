@@ -19,7 +19,8 @@ export class NavigationService {
   readonly notificationsEnabled = computed(() => this.features.isEnabled('notifications'));
 
   readonly space = computed<readonly NavSection[]>(() => {
-    if (!this.auth.isAuthenticated()) return [];
+    // Tant que le changement de mot de passe imposé n'est pas fait, aucune autre page de l'espace n'est proposée.
+    if (!this.auth.isAuthenticated() || this.auth.user()?.changementMotDePasseRequis) return [];
     return SPACE_NAV.map((section) => ({
       title: section.title,
       entries: section.entries.filter((entry) => this.isVisible(entry)),

@@ -44,8 +44,8 @@ export class AuthStore {
     if (remember) this.writeHint(true);
   }
 
-  /** Répercute une modification du profil (nom, prénom) sur la session en cours. */
-  patchUser(changes: Partial<Pick<CurrentUser, 'nom' | 'prenom'>>): void {
+  /** Répercute sur la session en cours une modification du profil ou la levée du changement de mot de passe imposé. */
+  patchUser(changes: Partial<Pick<CurrentUser, 'nom' | 'prenom' | 'changementMotDePasseRequis'>>): void {
     this.currentUser.update((user) => (user ? { ...user, ...changes } : user));
   }
 

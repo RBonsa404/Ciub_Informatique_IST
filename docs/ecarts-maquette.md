@@ -59,6 +59,8 @@ Ce registre consigne toute différence entre la maquette HTML et le produit. Cla
 | E-50 | Comptes : rôle unique, adresse modifiable, suspension immédiate, historique fictif, invitation inactive | écrans 51, 52 | Rôles multiples réels, adresse en lecture seule, suspension confirmée et impossible sur soi-même, historique tiré du journal d'audit, invitation par lien à usage unique | assumé (UC-23, UC-24) |
 | E-51 | Matrice des permissions modifiable, sept fonctionnalités | écran 53 | Matrice en lecture seule des permissions et rôles réels | retrait (D-07) |
 | E-52 | Catégories : décomptes « 18 articles • 3 cours », « Archiver » | écran 54 | Décomptes retirés ; suppression confirmée, refusée par le serveur si la catégorie est utilisée ; couleur réelle | retrait et assumé |
+| E-53 | Configuration : expiration du jeton modifiable, « snapshot » immédiat, archives téléchargeables à nom et poids fixes | écran 56 | Réglages réels du serveur (nom, verrouillage, maintenance avec confirmation) ; état réel des sauvegardes réalisées hors application, sans téléchargement | retrait et assumé (D-09, 6.11) |
+| E-54 | Supervision DSI : tuiles « TLS 1.3 », « 100% Conforme », « SHA-256 Validé », certificat, empreintes et emplacements | écran 57 | Versions, compteurs et contrôles renvoyés par le serveur, listés avec leur résultat ; journal réel ; aucun contrôle de double authentification | assumé et retrait (section 1, 6.6) |
 
 ## 2. Données d'illustration non reprises
 
