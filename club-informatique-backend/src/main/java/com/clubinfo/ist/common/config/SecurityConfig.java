@@ -2,6 +2,7 @@ package com.clubinfo.ist.common.config;
 
 import com.clubinfo.ist.common.security.JwtAuthenticationEntryPoint;
 import com.clubinfo.ist.common.security.JwtAuthenticationFilter;
+import com.clubinfo.ist.common.security.MaintenanceFilter;
 import com.clubinfo.ist.common.security.RateLimitFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,7 @@ public class SecurityConfig {
     private static final String POLITIQUE_DE_PERMISSIONS = "camera=(), microphone=(), geolocation=(), payment=()";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final MaintenanceFilter maintenanceFilter;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final RateLimitFilter rateLimitFilter;
     private final UserDetailsService userDetailsService;
@@ -84,7 +86,8 @@ public class SecurityConfig {
                     .anyRequest().authenticated()
             )
             .addFilterBefore(rateLimitFilter, UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+            .addFilterAfter(maintenanceFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

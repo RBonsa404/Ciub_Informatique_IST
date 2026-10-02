@@ -1,5 +1,6 @@
 package com.clubinfo.ist.auth.service;
 
+import com.clubinfo.ist.admin.service.ParametresService;
 import com.clubinfo.ist.auth.dto.AuthDtos.Identifiants;
 import com.clubinfo.ist.auth.dto.AuthDtos.InscriptionCompte;
 import com.clubinfo.ist.auth.dto.AuthDtos.Reinitialisation;
@@ -16,7 +17,6 @@ import com.clubinfo.ist.user.repository.UtilisateurRepository;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -50,17 +50,16 @@ public class AuthService {
     private final SessionService sessions;
     private final CourrielsDeCompte courriels;
     private final JournalService journal;
-
-    @Value("${app.security.max-login-attempts}")
-    private int echecsAvantVerrou;
-    @Value("${app.security.lock-duration-minutes}")
-    private int minutesDeVerrou;
+    private final ParametresService parametres;
 
     /** Empreinte sans compte : vérifiée quand l'adresse est inconnue, pour que le refus prenne le même temps. */
     private String empreinteFactice;
 
     @Transactional
     public void inscrire(InscriptionCompte demande) {
+        if (!parametres.reglages().inscriptionsOuvertes()) {
+            throw new BusinessException("Les inscriptions sont fermées pour le moment.", HttpStatus.FORBIDDEN, "INSCRIPTIONS_FERMEES");
+        }
         String email = normaliser(demande.email());
         String empreinte = passwordEncoder.encode(demande.motDePasse());
         Optional<Utilisateur> existant = utilisateurs.findByEmail(email);
@@ -119,9 +118,10 @@ public class AuthService {
         if (!passwordEncoder.matches(identifiants.motDePasse(), compte.getMotDePasse())) {
             if (!compte.estVerrouille()) {
                 compte.incrementerTentativesConnexion();
-                if (compte.getTentativesConnexion() >= echecsAvantVerrou) {
-                    compte.setVerrouilleJusqua(LocalDateTime.now().plusMinutes(minutesDeVerrou));
-                    journal.enregistrer("VERROUILLAGE_COMPTE", "Compte verrouillé après " + echecsAvantVerrou + " échecs de connexion", email, Resultat.ECHEC);
+                ParametresService.Reglages reglages = parametres.reglages();
+                if (compte.getTentativesConnexion() >= reglages.maxLoginAttempts()) {
+                    compte.setVerrouilleJusqua(LocalDateTime.now().plusMinutes(reglages.lockoutDurationMinutes()));
+                    journal.enregistrer("VERROUILLAGE_COMPTE", "Compte verrouillé après " + reglages.maxLoginAttempts() + " échecs de connexion", email, Resultat.ECHEC);
                 }
             }
             journal.enregistrer("CONNEXION", "Connexion refusée", email, Resultat.ECHEC);
@@ -155,7 +155,9 @@ public class AuthService {
 
     @Transactional
     public void reinitialiser(Reinitialisation demande) {
+        // Le lien d'une invitation sert au même usage : choisir son mot de passe.
         Utilisateur compte = jetons.consommer(demande.token(), JetonUsageUnique.Type.REINITIALISATION)
+                .or(() -> jetons.consommer(demande.token(), JetonUsageUnique.Type.INVITATION))
                 .flatMap(utilisateurs::findByIdAndDeletedAtIsNull)
                 .orElseThrow(AuthService::jetonInvalide);
         compte.setMotDePasse(passwordEncoder.encode(demande.nouveauMotDePasse()));

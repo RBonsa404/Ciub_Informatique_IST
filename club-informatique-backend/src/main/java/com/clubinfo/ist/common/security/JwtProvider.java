@@ -48,9 +48,11 @@ public class JwtProvider {
     private long accessTokenExpirationMs;
 
     private SecretKey cle;
+    private boolean secretFourni;
 
     @PostConstruct
     void initialiser() {
+        this.secretFourni = jwtSecret != null && !jwtSecret.isBlank();
         this.cle = Keys.hmacShaKeyFor(octetsDuSecret(jwtSecret, environment.acceptsProfiles(Profiles.of("prod"))));
     }
 
@@ -106,6 +108,11 @@ public class JwtProvider {
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
                 .signWith(cle)
                 .compact();
+    }
+
+    /** Vrai si le secret vient de l'environnement ; faux si une clé aléatoire a été tirée au démarrage. */
+    public boolean secretFourni() {
+        return secretFourni;
     }
 
     /** Durée de validité d'un jeton d'accès, en secondes. */

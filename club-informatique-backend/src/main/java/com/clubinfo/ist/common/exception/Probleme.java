@@ -41,6 +41,7 @@ public record Probleme(String type, String title, int status, String detail, Str
             case UNSUPPORTED_MEDIA_TYPE -> "TYPE_REFUSE";
             case LOCKED -> "COMPTE_VERROUILLE";
             case TOO_MANY_REQUESTS -> "DEBIT_DEPASSE";
+            case SERVICE_UNAVAILABLE -> "MAINTENANCE";
             default -> statut.is5xxServerError() ? "ERREUR_INTERNE" : "ERREUR";
         };
     }
@@ -57,6 +58,7 @@ public record Probleme(String type, String title, int status, String detail, Str
             case UNSUPPORTED_MEDIA_TYPE -> "Type de contenu refusé";
             case LOCKED -> "Compte verrouillé";
             case TOO_MANY_REQUESTS -> "Trop de requêtes";
+            case SERVICE_UNAVAILABLE -> "Service indisponible";
             default -> statut.is5xxServerError() ? "Erreur interne" : "Erreur";
         };
     }

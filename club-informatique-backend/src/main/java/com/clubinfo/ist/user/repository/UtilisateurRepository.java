@@ -59,6 +59,19 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     @Query(value = "SELECT nextval('numero_membre_seq')", nativeQuery = true)
     long prochainNumeroDeMembre();
 
+    /** Comptes non supprimés, avec recherche (nom, prénom, adresse), rôle et statut facultatifs. */
+    @Query(value = "SELECT DISTINCT u FROM Utilisateur u LEFT JOIN u.roles r WHERE u.deletedAt IS NULL " +
+           "AND (CAST(:search AS string) IS NULL OR LOWER(u.nom) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(u.prenom) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))) " +
+           "AND (CAST(:role AS string) IS NULL OR r.nom = CAST(:role AS string)) AND (:statut IS NULL OR u.statut = :statut)",
+           countQuery = "SELECT COUNT(DISTINCT u) FROM Utilisateur u LEFT JOIN u.roles r WHERE u.deletedAt IS NULL " +
+           "AND (CAST(:search AS string) IS NULL OR LOWER(u.nom) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(u.prenom) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%'))) " +
+           "AND (CAST(:role AS string) IS NULL OR r.nom = CAST(:role AS string)) AND (:statut IS NULL OR u.statut = :statut)")
+    Page<Utilisateur> gerer(@Param("search") String search, @Param("role") String role, @Param("statut") StatutUtilisateur statut, Pageable pageable);
+
     /** Comptes actifs portant le rôle. */
     @Query("SELECT DISTINCT u FROM Utilisateur u JOIN u.roles r WHERE u.deletedAt IS NULL " +
            "AND u.statut = com.clubinfo.ist.user.entity.StatutUtilisateur.ACTIF AND r.nom = :role")

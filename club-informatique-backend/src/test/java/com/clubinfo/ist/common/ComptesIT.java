@@ -78,6 +78,8 @@ class ComptesIT extends IntegrationTest {
     @Test
     @DisplayName("8.9 : les comptes de test sont marqués, sur le domaine .invalid, et retirables en une commande")
     void comptesDeTest() {
+        // D'autres tests ont pu laisser des comptes marqués « test » : on repart d'une base qui n'en a aucun.
+        comptesDeTest.purger();
         int crees = comptesDeTest.creer("Recette@2026x");
         assertThat(crees).isEqualTo(6);
         assertThat(comptesDeTest.creer("Recette@2026x")).isZero();

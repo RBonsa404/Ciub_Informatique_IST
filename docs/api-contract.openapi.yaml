@@ -30,7 +30,7 @@ paths:
   "/auth/register":
     post:
       tags: [Authentification]
-      summary: Créer un compte et envoyer le courriel de vérification. Réponse identique que l’adresse existe ou non.
+      summary: Créer un compte et envoyer le courriel de vérification. Réponse identique que l’adresse existe ou non. 403 (INSCRIPTIONS_FERMEES) si le Super Admin a fermé les inscriptions.
       operationId: postAuthRegister
       security: []
       requestBody:
@@ -48,6 +48,8 @@ paths:
                 $ref: "#/components/schemas/Message"
         "400":
           $ref: "#/components/responses/Erreur400"
+        "403":
+          $ref: "#/components/responses/Erreur403"
         "429":
           $ref: "#/components/responses/Erreur429"
   "/auth/verification":
@@ -140,7 +142,7 @@ paths:
   "/auth/reset-password":
     post:
       tags: [Authentification]
-      summary: Choisir un nouveau mot de passe ; ferme toutes les sessions.
+      summary: Choisir un nouveau mot de passe par le lien de réinitialisation ou d’invitation ; ferme toutes les sessions.
       operationId: postAuthResetPassword
       security: []
       requestBody:
@@ -2250,6 +2252,8 @@ paths:
           $ref: "#/components/responses/Erreur403"
         "404":
           $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
   "/admin/users/{id}/status":
     patch:
       tags: [Administration]
@@ -2284,6 +2288,8 @@ paths:
           $ref: "#/components/responses/Erreur403"
         "404":
           $ref: "#/components/responses/Erreur404"
+        "409":
+          $ref: "#/components/responses/Erreur409"
   "/admin/users/{id}/deverrouillage":
     post:
       tags: [Administration]
@@ -2446,7 +2452,7 @@ paths:
   "/admin/security/alerts":
     get:
       tags: [Administration]
-      summary: Comptes signalés (verrouillages, suspensions).
+      summary: "Comptes signalés : verrouillages, suspensions, échecs de connexion répétés depuis 24 heures."
       operationId: getAdminSecurityAlerts
       x-roles: [ADMIN]
       responses:
@@ -2498,7 +2504,7 @@ paths:
   "/admin/system/config":
     get:
       tags: [Système et conformité]
-      summary: Réglages persistants de la plateforme.
+      summary: "Réglages persistants et appliqués : verrouillage des comptes, ouverture des inscriptions, mode maintenance (503 MAINTENANCE hors administration)."
       operationId: getAdminSystemConfig
       x-roles: [SUPER_ADMIN]
       responses:
@@ -3658,7 +3664,7 @@ components:
           format: date-time
     Indicateurs:
       type: object
-      description: Calculés en base, hors comptes de test.
+      description: Calculés en base, hors comptes de test. « frequentation » couvre les six derniers mois.
       required: [membresActifs, frequentation]
       properties:
         membresActifs:

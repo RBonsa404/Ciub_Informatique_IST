@@ -58,6 +58,18 @@ public class CourrielsDeCompte {
                 """.formatted(utilisateur.getPrenom(), base(), jeton, minutesDeValidite));
     }
 
+    public void invitation(Utilisateur utilisateur, String jeton, long heuresDeValidite) {
+        envoyer(utilisateur, "Invitation à rejoindre la plateforme du Club Informatique de l'IST", """
+                Bonjour %s,
+
+                Un compte vient d'être créé pour vous sur la plateforme du Club Informatique de l'IST. Pour l'activer, choisissez votre mot de passe en ouvrant ce lien :
+
+                %s/reinitialisation?jeton=%s
+
+                Ce lien est valable %d heures et ne peut servir qu'une fois. Passé ce délai, utilisez « mot de passe oublié » avec cette adresse.
+                """.formatted(utilisateur.getPrenom(), base(), jeton, heuresDeValidite));
+    }
+
     public void motDePasseModifie(Utilisateur utilisateur) {
         envoyer(utilisateur, "Votre mot de passe a été modifié", """
                 Bonjour %s,

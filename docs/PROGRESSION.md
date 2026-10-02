@@ -105,9 +105,9 @@ Ordre de construction de la Phase 1. Identifiants : voir `docs/inventaire-pages.
 | Espace Membre et formation | fait | B-02, B-10, B-18, B-35 (séances) | propriété des formations, conflits de planning, accès réservé aux inscrits, émargement vérifié, migration V7 | FormationsIT (7), InscriptionsIT (7) | à jour | terminé |
 | Événements et publications | fait | B-08 (événements), B-11, B-35 (événements) | quota sous verrou, liste d'attente, bornes de période, iCalendar, annonces aux membres | EvenementsIT (7), InscriptionsIT, ContenusPublicsIT | à jour | terminé |
 | Notifications | fait | notifications créées par les seules annonces globales | création par les événements métier, filtres, préférence de courriel, rappels | NotificationsIT (4) | à jour | terminé |
-| Projets | fait | | | | | à faire |
-| Gestion et administration | fait | | | | | à faire |
-| Tableaux de bord et statistiques | fait | | | | | à faire |
+| Projets | fait | B-08 (projets), B-09, B-12, B-36, B-37 | proposition réservée, décision motivée et unique, mes projets, suivi, compteurs, migration V8 | ProjetsIT (5) | à jour | terminé |
+| Gestion et administration | fait | B-03, B-16, B-25, B-26 | comptes (recherche, filtres), hiérarchie des rôles, invitation, verrouillage, alertes, journal filtrable | AdministrationIT (9), ContactIT, ComptesIT | à jour | terminé |
+| Tableaux de bord et statistiques | fait | B-19, B-39, B-42, B-43, B-44 | statistiques et indicateurs en SQL hors comptes de test, réglages persistants et appliqués, sauvegardes lues en base, conformité calculée, migration V9 | AdministrationIT, SystemeIT (6) | à jour | terminé |
 
 ## Décisions en attente de l'utilisateur
 D-01 à D-13 : propositions appliquées par défaut depuis la validation de la Phase 0, révisables (`docs/decisions.md`, section 5). Informations du club : voir `docs/informations-a-fournir.md`.
