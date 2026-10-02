@@ -42,8 +42,8 @@ Aucun.
 | Contenus | textes, noms, dates et chiffres d’illustration | données renvoyées par l’API | assumé (section 1) |
 | Barre supérieure | champ de recherche globale, pastille à valeur fixe | fil d’Ariane, cloche avec le nombre réel de notifications non lues, thème, menu du compte | assumé (E-31) |
 | Compteurs « 8 projets suivis », « 3 à relancer » | valeurs fixes | nombre réel de projets validés ; « à relancer » retiré (notion absente) | assumé et retrait (section 1) |
-| Filtres « Développement », « IA », « Mobile » | liste fixe | catégories réelles du serveur | assumé |
-| Pastilles « Mobile », « IA » | texte dans la pastille | icône unique | assumé (6.4) |
+| Filtres par domaine | liste fixe de trois domaines | catégories réelles du serveur | assumé |
+| Pastilles de domaine | texte dans la pastille | icône unique | assumé (6.4) |
 | « Voir le projet », « Examiner le livrable » | liens vers l’écran du Responsable | « Suivre le projet » : fiche et formulaire de suivi (avancement, note) | dérivation (UC-17) |
 
 ## États

@@ -110,8 +110,8 @@ export const PAGES = {
     ecarts: [
       ...ECARTS_ESPACE,
       ['Compteurs « 8 projets suivis », « 3 à relancer »', 'valeurs fixes', 'nombre réel de projets validés ; « à relancer » retiré (notion absente)', 'assumé et retrait (section 1)'],
-      ['Filtres « Développement », « IA », « Mobile »', 'liste fixe', 'catégories réelles du serveur', 'assumé'],
-      ['Pastilles « Mobile », « IA »', 'texte dans la pastille', 'icône unique', 'assumé (6.4)'],
+      ['Filtres par domaine', 'liste fixe de trois domaines', 'catégories réelles du serveur', 'assumé'],
+      ['Pastilles de domaine', 'texte dans la pastille', 'icône unique', 'assumé (6.4)'],
       ['« Voir le projet », « Examiner le livrable »', 'liens vers l’écran du Responsable', '« Suivre le projet » : fiche et formulaire de suivi (avancement, note)', 'dérivation (UC-17)'],
     ],
     etats: ['Liste : squelettes, vide, erreur, contenu paginé côté serveur.', 'Suivi : squelette, introuvable, validation, notification de succès.'],
