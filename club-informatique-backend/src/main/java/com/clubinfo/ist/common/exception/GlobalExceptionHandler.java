@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -62,7 +63,8 @@ public class GlobalExceptionHandler {
         return reponse(HttpStatus.BAD_REQUEST, "REQUETE_ILLISIBLE", "Le contenu de la requête est illisible ou incomplet.", request);
     }
 
-    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class, PropertyReferenceException.class})
+    @ExceptionHandler({MethodArgumentTypeMismatchException.class, MissingServletRequestParameterException.class,
+            MissingServletRequestPartException.class, PropertyReferenceException.class})
     public ResponseEntity<Probleme> parametre(Exception ex, HttpServletRequest request) {
         return reponse(HttpStatus.BAD_REQUEST, "PARAMETRE_INVALIDE", "Un paramètre de la requête est absent ou invalide.", request);
     }

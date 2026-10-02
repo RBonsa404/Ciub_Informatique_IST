@@ -18,6 +18,11 @@ spring:
     port: 1025
 
 app:
+  mail:
+    from: ne-pas-repondre@club.test
+  storage:
+    local:
+      directory: target/depots-test
   jwt:
     secret: test-secret-key-that-is-long-enough-for-hs512-algorithm-testing-purposes-only
     access-token-expiration-ms: 60000

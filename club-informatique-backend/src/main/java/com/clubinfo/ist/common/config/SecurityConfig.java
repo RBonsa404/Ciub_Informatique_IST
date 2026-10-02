@@ -68,6 +68,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/contact").permitAll()
                     .requestMatchers(HttpMethod.GET, "/pages/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/bureau").permitAll()
+                    // Lecture d'un fichier : les droits sont vérifiés fichier par fichier
+                    .requestMatchers(HttpMethod.GET, "/fichiers/*").permitAll()
                     .requestMatchers(HttpMethod.GET, "/actualites/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/evenements/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/formations/**").permitAll()

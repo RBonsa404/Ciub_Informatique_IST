@@ -1,6 +1,7 @@
 package com.clubinfo.ist.common.amorcage;
 
 import com.clubinfo.ist.common.journal.JournalService;
+import com.clubinfo.ist.fichier.FichierService;
 import com.clubinfo.ist.user.entity.Role;
 import com.clubinfo.ist.user.entity.StatutUtilisateur;
 import com.clubinfo.ist.user.entity.Utilisateur;
@@ -57,6 +58,7 @@ public class ComptesDeTestService {
     private final PasswordEncoder passwordEncoder;
     private final JdbcTemplate jdbc;
     private final JournalService journal;
+    private final FichierService fichiers;
 
     /** Crée les comptes manquants. @return le nombre de comptes créés. */
     @Transactional
@@ -98,6 +100,7 @@ public class ComptesDeTestService {
     /** Retire les comptes de test et tout ce qui leur est rattaché. @return le nombre de comptes retirés. */
     @Transactional
     public int purger() {
+        fichiers.supprimerDepotsDesComptesDeTest();
         CONTENUS_RATTACHES.forEach(jdbc::update);
         int retires = jdbc.update("DELETE FROM utilisateur WHERE test");
         journal.enregistrer("PURGE_COMPTES_DE_TEST", retires + " compte(s) de test retiré(s) avec leurs données", JournalService.Resultat.SUCCES);
