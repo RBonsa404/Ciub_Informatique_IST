@@ -1,2 +1,7 @@
 # Les scripts shell gardent des fins de ligne Unix, quel que soit le poste.
 *.sh text eol=lf
+# Fichiers lus dans des conteneurs Linux : fins de ligne LF sur tous les postes.
+Dockerfile text eol=lf
+*.conf text eol=lf
+*.template text eol=lf
+*.toml text eol=lf

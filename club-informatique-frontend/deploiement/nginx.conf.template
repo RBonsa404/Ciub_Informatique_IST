@@ -1,0 +1,76 @@
+# Service du frontend construit. ${PORT}, ${API_URL} et ${NGINX_LOCAL_RESOLVERS} sont remplacés au démarrage du conteneur ;
+# les variables propres à Nginx ($uri, $host…) sont laissées telles quelles.
+
+server {
+    listen ${PORT};
+    listen [::]:${PORT};
+    server_name _;
+    server_tokens off;
+
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Le dépôt de fichier est limité à 10 Mo par le backend ; la marge couvre l'enveloppe de la requête.
+    client_max_body_size 11m;
+
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/javascript application/json application/manifest+json image/svg+xml text/calendar;
+
+    # Sonde de l'hébergeur : ne dépend pas du backend.
+    location = /sante {
+        access_log off;
+        default_type text/plain;
+        return 200 "ok\n";
+    }
+
+    # API : même origine que le site, le cookie de session reste de première partie.
+    # L'adresse passe par une variable : Nginx la résout à l'usage, et non une fois pour toutes au démarrage
+    # (le backend peut changer d'adresse interne à chaque redéploiement).
+    resolver ${NGINX_LOCAL_RESOLVERS} valid=10s;
+    location /api/ {
+        set $backend "${API_URL}";
+        proxy_pass $backend;
+        proxy_http_version 1.1;
+        # Le backend reçoit l'hôte, le schéma et l'adresse du client tels que le navigateur les a présentés
+        # (le schéma et l'adresse viennent du proxy de l'hébergeur, placé devant ce serveur).
+        proxy_set_header Host $http_host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $http_x_forwarded_proto;
+        proxy_connect_timeout 5s;
+        proxy_read_timeout 60s;
+    }
+
+    # Fichiers à empreinte (nom unique par version) : cache d'un an, jamais revalidés.
+    location ~* "-[A-Za-z0-9_-]{8}\.(?:js|css)$" {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable" always;
+        try_files $uri =404;
+    }
+
+    # Polices, images et icônes : noms stables, cache d'une journée.
+    location ~* "\.(?:woff2|png|jpg|jpeg|webp|svg|ico|webmanifest)$" {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "public, max-age=86400" always;
+        try_files $uri =404;
+    }
+
+    # Page d'entrée et script du thème : toujours revalidés, pour qu'une nouvelle version soit servie aussitôt.
+    location = /index.html {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "no-cache" always;
+    }
+    location = /theme-init.js {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "no-cache" always;
+    }
+
+    # Application monopage : toute autre adresse rend la page d'entrée, le routage se fait dans le navigateur.
+    location / {
+        include /etc/nginx/snippets/en-tetes.conf;
+        add_header Cache-Control "no-cache" always;
+        try_files $uri /index.html;
+    }
+}
