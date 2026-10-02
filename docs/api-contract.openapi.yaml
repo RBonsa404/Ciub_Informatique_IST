@@ -325,7 +325,7 @@ paths:
   "/pages/{slug}":
     get:
       tags: [Contenus publics]
-      summary: Page d’information (accueil, présentation). 404 tant que le club ne l’a pas rédigée.
+      summary: Page d’information (accueil, présentation). Contenu vide tant que le club ne l’a pas rédigée ; 404 pour toute autre page.
       operationId: getPagesSlug
       security: []
       parameters:
@@ -2990,12 +2990,12 @@ components:
           type: string
     PageInformation:
       type: object
-      required: [slug, titre, contenu]
+      required: [slug, contenu]
       properties:
         slug:
           type: string
         titre:
-          type: string
+          type: [string, "null"]
         contenu:
           type: string
         updatedAt:
@@ -3816,7 +3816,7 @@ components:
           type: string
     Statistiques:
       type: object
-      description: Agrégations calculées en base, hors comptes de test et éléments supprimés.
+      description: Agrégations calculées en base, hors comptes de test et éléments supprimés. « totalMembres » et « membresActifs » comptent tous les comptes réels, quel que soit leur rôle ; les comptes de test et ce qu’ils ont créé sont exclus de tous les totaux.
       required: [totalMembres, membresActifs, totalEvenements, totalFormations, totalProjets, totalRessources, totalMessagesNonTraites, repartitionMembresParRole, repartitionProjetsParStatut]
       properties:
         totalMembres:

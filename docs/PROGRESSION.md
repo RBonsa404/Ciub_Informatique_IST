@@ -10,7 +10,7 @@ Dernière mise à jour : 2 octobre 2026
 | 2. Analyse et besoins backend | terminée le 2 octobre 2026 : `besoins-backend.md`, `api-contract.openapi.yaml` (106 opérations, description validée), `plan-reprise-backend.md` | point d'arrêt 3 validé le 2 octobre 2026 |
 | 3. Reprise du backend | terminée le 2 octobre 2026 : dix lots du plan, migrations V3 à V10, 156 tests verts (36 unitaires, 120 d'intégration sur PostgreSQL réel), couverture 92 % des instructions et 74 % des branches, contrat à 107 opérations, mesures dans `performance.md`, exploitation et test de restauration dans `exploitation.md` | à valider (point d'arrêt 4) |
 | 4. Intégration | terminée le 2 octobre 2026 : 61 pages rejouées sur la pile réelle (backend, base de recette, courriels capturés), 19 modules prouvés (`docs/recette/integration.md`) et activés, photo de profil ajoutée, image de production du frontend | point d'arrêt 4 validé le 2 octobre 2026 |
-| 5. Parcours utilisateur | à faire | |
+| 5. Parcours utilisateur | terminée le 2 octobre 2026 : 11 parcours sur 11 conformes sur la pile réelle (base vierge, backend construit, frontend de production servi par Nginx), 108 étapes, rejoués intégralement après corrections (`docs/recette/parcours.md`) | sans point d'arrêt |
 | 6. Finalisation et fusion | à faire | |
 
 ## Preuves de la Phase 0
@@ -21,6 +21,16 @@ Dernière mise à jour : 2 octobre 2026
 | Styles calculés | `docs/maquette-ref/styles-calcules.json` (54 sélecteurs, deux thèmes) |
 | Tests du backend existant | `mvn -B test` : 17 tests, 0 échec ; couverture 12,9 % des lignes |
 | Livrables | `inventaire-pages.md`, `architecture-navigation.md`, `audit-backend.md`, `ecarts-maquette.md`, `decisions.md`, `informations-a-fournir.md` |
+
+## Preuves de la Phase 5
+| Élément | Preuve |
+|---|---|
+| Parcours du Visiteur, du Membre, du Formateur, du Responsable, de l'Administrateur, du Super Admin et de la DSI | `docs/recette/parcours.md` : étapes, verdicts ; captures et traces reproductibles par `node e2e/parcours.mjs` |
+| Cas négatifs (session, rôle, jeton expiré, rotation, champs, doublons, débit, téléversement, coupure du backend) | même rapport, parcours 12.9 : 10 étapes conformes |
+| Base vide : aucun nombre sans origine sur 47 écrans | même rapport, relevé par écran |
+| Appareils : parcours principaux à 360 et 768 pixels, sans débordement horizontal | même rapport, parcours 12.11 |
+| Retrait des comptes de test exécuté puis rejoué ; amorçage du Super Admin vérifié en base | même rapport, parcours 12.7 |
+| Défauts révélés et corrigés | `docs/decisions.md`, T-83 |
 
 ## Preuves de la Phase 4
 | Élément | Preuve |

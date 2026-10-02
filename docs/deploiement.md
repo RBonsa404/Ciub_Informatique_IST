@@ -63,6 +63,7 @@ Réglages du service : dossier racine `club-informatique-frontend` ; constructio
 |---|---|
 | `GET https://<site>/sante` | `ok` |
 | `GET https://<site>/api/v1/actuator/health` | `{"status":"UP"}` |
+| `GET https://<site>/robots.txt` et `/sitemap.xml` | adresses en `https` sur le domaine public ; espace connecté et API exclus |
 | Page d'accueil | logo, favicon, polices et pictogrammes affichés ; aucune erreur dans la console du navigateur |
 | En-têtes de la page d'accueil | `Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options`, `Cache-Control: no-cache` ; fichiers à empreinte en `immutable` |
 | Connexion du Super Admin d'amorçage | redirection vers le choix du mot de passe ; cookie `club_session` marqué `HttpOnly`, `Secure`, `SameSite=Strict` |

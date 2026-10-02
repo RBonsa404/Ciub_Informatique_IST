@@ -1,6 +1,12 @@
 # Service du frontend construit. ${PORT}, ${API_URL} et ${NGINX_LOCAL_RESOLVERS} sont remplacés au démarrage du conteneur ;
 # les variables propres à Nginx ($uri, $host…) sont laissées telles quelles.
 
+# Schéma vu par le visiteur : celui que transmet le proxy de l'hébergeur, à défaut celui de la connexion directe.
+map $http_x_forwarded_proto $schema_public {
+    default $http_x_forwarded_proto;
+    ""      $scheme;
+}
+
 server {
     listen ${PORT};
     listen [::]:${PORT};
@@ -24,6 +30,17 @@ server {
         access_log off;
         default_type text/plain;
         return 200 "ok\n";
+    }
+
+    # Consignes aux robots et plan du site : routes publiques seulement, adresses construites sur l'hôte demandé
+    # (aucun nom de domaine n'est écrit dans l'application).
+    location = /robots.txt {
+        default_type text/plain;
+        return 200 "User-agent: *\nAllow: /\nDisallow: /espace/\nDisallow: /api/\nDisallow: /connexion\nDisallow: /inscription\nSitemap: $schema_public://$http_host/sitemap.xml\n";
+    }
+    location = /sitemap.xml {
+        default_type application/xml;
+        return 200 '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n<url><loc>$schema_public://$http_host/</loc></url>\n<url><loc>$schema_public://$http_host/presentation</loc></url>\n<url><loc>$schema_public://$http_host/bureau</loc></url>\n<url><loc>$schema_public://$http_host/actualites</loc></url>\n<url><loc>$schema_public://$http_host/evenements</loc></url>\n<url><loc>$schema_public://$http_host/formations</loc></url>\n<url><loc>$schema_public://$http_host/projets</loc></url>\n<url><loc>$schema_public://$http_host/ressources</loc></url>\n<url><loc>$schema_public://$http_host/contact</loc></url>\n<url><loc>$schema_public://$http_host/mentions-legales</loc></url>\n<url><loc>$schema_public://$http_host/confidentialite</loc></url>\n<url><loc>$schema_public://$http_host/conditions-utilisation</loc></url>\n</urlset>\n';
     }
 
     # API : même origine que le site, le cookie de session reste de première partie.
