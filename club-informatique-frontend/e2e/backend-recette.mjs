@@ -44,4 +44,16 @@ const processus = spawn(
   { cwd: backend, env, stdio: 'inherit' },
 );
 processus.on('exit', (code) => process.exit(code ?? 0));
-for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => processus.kill());
+// Sous Windows, la commande « java » peut n'être qu'un lanceur : c'est tout l'arbre de processus qu'il faut arrêter.
+const arreter = () => {
+  if (process.platform === 'win32') {
+    try {
+      execFileSync('taskkill', ['/PID', String(processus.pid), '/T', '/F'], { stdio: 'pipe' });
+    } catch {
+      // Processus déjà terminé.
+    }
+  } else {
+    processus.kill();
+  }
+};
+for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, arreter);

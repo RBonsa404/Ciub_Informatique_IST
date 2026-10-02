@@ -37,7 +37,7 @@ export const PAGES = {
         before: async (page) => {
           await page.route('**/api/v1/evenements*', (route) => json(route, pageVide));
           await page.route('**/api/v1/actualites*', (route) => json(route, pageVide));
-          await page.route('**/api/v1/pages/accueil', (route) => json(route, { status: 404 }, 404));
+          await page.route('**/api/v1/pages/accueil', (route) => json(route, { slug: 'accueil', titre: null, contenu: '' }));
         },
         expectedConsole: ['404'],
         check: async (page) => ((await page.locator('main section').count()) === 1 ? null : 'les sections sans donnée doivent être masquées'),
