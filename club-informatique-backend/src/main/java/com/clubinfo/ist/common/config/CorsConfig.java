@@ -7,40 +7,30 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Configuration CORS : autorise les environnements Railway, localhost et origines spécifiées.
+ * CORS en liste blanche : seules les origines déclarées par CORS_ALLOWED_ORIGINS sont acceptées, à l'identique.
+ * Aucun motif générique : un autre site hébergé chez le même fournisseur n'est pas une origine de confiance.
  */
 @Configuration
 public class CorsConfig {
 
-    @Value("${app.cors.allowed-origins:http://localhost:4200,https://istclubinformatique.up.railway.app}")
+    @Value("${app.cors.allowed-origins:}")
     private String allowedOrigins;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        List<String> origines = Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .filter(origine -> !origine.isEmpty() && !origine.contains("*"))
+                .toList();
+
         CorsConfiguration configuration = new CorsConfiguration();
-
-        List<String> patterns = new ArrayList<>(List.of(
-                "http://localhost:*",
-                "https://*.up.railway.app",
-                "https://*.railway.app"
-        ));
-
-        if (allowedOrigins != null && !allowedOrigins.trim().isEmpty()) {
-            Arrays.stream(allowedOrigins.split(","))
-                    .map(String::trim)
-                    .filter(s -> !s.isEmpty())
-                    .forEach(patterns::add);
-        }
-
-        configuration.setAllowedOriginPatterns(patterns);
+        configuration.setAllowedOrigins(origines);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         configuration.setAllowCredentials(true);
         configuration.setMaxAge(3600L);
 

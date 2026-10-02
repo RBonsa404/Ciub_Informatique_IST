@@ -25,9 +25,9 @@ public interface ProjetRepository extends JpaRepository<Projet, Long> {
 
     @Query("SELECT p FROM Projet p WHERE p.deletedAt IS NULL AND p.statut IN (:statuts) " +
            "AND (:categorieId IS NULL OR p.categorie.id = :categorieId) " +
-           "AND (:search IS NULL OR LOWER(p.titre) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(p.technologies) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (CAST(:search AS string) IS NULL OR LOWER(p.titre) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(p.description) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(p.technologies) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))")
     Page<Projet> findByStatutInWithFilters(
             @Param("statuts") List<StatutProjet> statuts,
             @Param("categorieId") Long categorieId,

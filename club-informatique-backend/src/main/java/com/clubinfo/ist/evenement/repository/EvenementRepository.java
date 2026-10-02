@@ -25,8 +25,8 @@ public interface EvenementRepository extends JpaRepository<Evenement, Long> {
     @Query("SELECT e FROM Evenement e WHERE e.deletedAt IS NULL AND e.publie = true " +
            "AND (:aVenir IS NULL OR (:aVenir = true AND e.dateDebut >= :now) OR (:aVenir = false AND e.dateFin < :now)) " +
            "AND (:categorieId IS NULL OR e.categorie.id = :categorieId) " +
-           "AND (:search IS NULL OR LOWER(e.titre) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(e.description) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(e.lieu) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (CAST(:search AS string) IS NULL OR LOWER(e.titre) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(e.description) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) OR LOWER(e.lieu) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))")
     Page<Evenement> findPublishedWithFilters(
             @Param("aVenir") Boolean aVenir,
             @Param("categorieId") Long categorieId,

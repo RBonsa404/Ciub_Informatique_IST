@@ -29,9 +29,9 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
     Optional<Utilisateur> findByIdAndDeletedAtIsNull(Long id);
 
     @Query("SELECT u FROM Utilisateur u WHERE u.deletedAt IS NULL " +
-           "AND (:search IS NULL OR LOWER(u.nom) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(u.prenom) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (CAST(:search AS string) IS NULL OR LOWER(u.nom) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(u.prenom) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(u.email) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))")
     Page<Utilisateur> findAllActiveWithSearch(@Param("search") String search, Pageable pageable);
 
     @Query("SELECT u FROM Utilisateur u WHERE u.deletedAt IS NULL AND u.statut = :statut")

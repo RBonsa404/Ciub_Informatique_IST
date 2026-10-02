@@ -10,6 +10,11 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 public class ClubInfoApplication {
 
+    static {
+        // Les horodatages sont produits, conservés et sérialisés en UTC, quel que soit le fuseau de l'hôte.
+        java.util.TimeZone.setDefault(java.util.TimeZone.getTimeZone("UTC"));
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(ClubInfoApplication.class, args);
     }

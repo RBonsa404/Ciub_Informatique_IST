@@ -44,10 +44,10 @@ public class ContactController {
     @PreAuthorize("hasAnyRole('RESPONSABLE_CLUB', 'ADMIN', 'SUPER_ADMIN')")
     @SecurityRequirement(name = "BearerAuth")
     @Operation(summary = "Consulter les messages de contact reçus (UC-04)")
-    public ResponseEntity<Page<MessageContactDto>> getAllMessages(
+    public ResponseEntity<Page<MessageContactDto>> listerMessages(
             @RequestParam(required = false) Boolean traite,
             @PageableDefault(size = 15) Pageable pageable) {
-        Page<MessageContactDto> messages = contactService.getAllMessages(traite, pageable);
+        Page<MessageContactDto> messages = contactService.listerMessages(traite, pageable);
         return ResponseEntity.ok(messages);
     }
 

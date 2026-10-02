@@ -1,19 +1,26 @@
 # ===================================================================
-# Club Informatique IST — Configuration commune
+# Club Informatique de l'IST : configuration commune
+# Tout secret vient de l'environnement ; aucune valeur sensible n'est écrite ici.
 # ===================================================================
 
 server:
   port: ${PORT:${SERVER_PORT:8080}}
   servlet:
-    context-path: /api
+    context-path: /api/v1
+  compression:
+    enabled: true
+    mime-types: application/json,application/problem+json,text/calendar
+    min-response-size: 1024
+  error:
+    include-message: never
+    include-stacktrace: never
+    include-binding-errors: never
 
 spring:
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
   application:
     name: club-informatique-backend
-
-  # JPA
   jpa:
     open-in-view: false
     hibernate:
@@ -24,14 +31,9 @@ spring:
         format_sql: true
         jdbc:
           time_zone: UTC
-
-  # Flyway
   flyway:
     enabled: true
-    baseline-on-migrate: true
     locations: classpath:db/migration
-
-  # Jackson
   jackson:
     serialization:
       write-dates-as-timestamps: false
@@ -39,47 +41,42 @@ spring:
       fail-on-unknown-properties: false
     default-property-inclusion: non_null
     time-zone: UTC
-
-  # File upload
+  data:
+    web:
+      pageable:
+        default-page-size: 10
+        max-page-size: 200
   servlet:
     multipart:
       max-file-size: 10MB
-      max-request-size: 20MB
+      max-request-size: 12MB
 
-# ===================================================================
-# Application custom properties
-# ===================================================================
 app:
   jwt:
-    secret: ${JWT_SECRET:changeThisSecretInProductionToAVeryLongAndSecureValue}
+    # Obligatoire en production (JWT_SECRET, 32 octets au moins). Absent ailleurs : clé aléatoire jusqu'au redémarrage.
+    secret: ${JWT_SECRET:}
     access-token-expiration-ms: 900000        # 15 minutes
-    refresh-token-expiration-ms: 604800000    # 7 days
-
+    refresh-token-expiration-ms: 604800000    # 7 jours
   cors:
+    # Liste blanche d'origines exactes, séparées par des virgules.
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:4200}
-
   rate-limit:
     auth:
-      capacity: 5
-      refill-tokens: 5
+      capacity: ${RATE_LIMIT_AUTH_CAPACITY:20}
       refill-duration-minutes: 15
     password-reset:
-      capacity: 3
-      refill-tokens: 3
+      capacity: 5
       refill-duration-minutes: 60
-
+    contact:
+      capacity: 5
+      refill-duration-minutes: 60
   security:
-    bcrypt-strength: 12
+    bcrypt-strength: ${BCRYPT_STRENGTH:12}
     max-login-attempts: 5
-    lock-duration-minutes: 30
-
+    lock-duration-minutes: 15
   upload:
     directory: ${UPLOAD_DIR:./uploads}
-    allowed-extensions: pdf,doc,docx,ppt,pptx,xls,xlsx,jpg,jpeg,png,gif,zip
 
-# ===================================================================
-# SpringDoc / Swagger
-# ===================================================================
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -88,18 +85,15 @@ springdoc:
     operations-sorter: method
     tags-sorter: alpha
 
-# ===================================================================
-# Actuator — Healthcheck Railway
-# ===================================================================
 management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health
       base-path: /actuator
   endpoint:
     health:
-      show-details: always
+      show-details: never
       probes:
         enabled: true
   health:
@@ -107,3 +101,5 @@ management:
       enabled: true
     readinessstate:
       enabled: true
+    mail:
+      enabled: false

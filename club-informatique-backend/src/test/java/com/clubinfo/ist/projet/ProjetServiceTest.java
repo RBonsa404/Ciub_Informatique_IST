@@ -64,7 +64,7 @@ class ProjetServiceTest {
         mockCollaborateur.setId(2L);
 
         mockProjet = Projet.builder()
-                .titre("Plateforme IA IST")
+                .titre("Plateforme de suivi IST")
                 .slug("plateforme-ia-ist")
                 .description("Application de recommandation")
                 .statut(StatutProjet.EN_COURS)
@@ -77,7 +77,7 @@ class ProjetServiceTest {
     @DisplayName("Proposition de projet initialise avec statut PROPOSE et assigne le porteur (UC-11)")
     void testProposerProjet() {
         ProjetCreateDto dto = ProjetCreateDto.builder()
-                .titre("Plateforme IA IST")
+                .titre("Plateforme de suivi IST")
                 .description("Application de recommandation")
                 .build();
 
@@ -89,7 +89,7 @@ class ProjetServiceTest {
         });
         when(projetMapper.toDto(any(Projet.class))).thenReturn(ProjetDto.builder()
                 .id(50L)
-                .titre("Plateforme IA IST")
+                .titre("Plateforme de suivi IST")
                 .statut(StatutProjet.PROPOSE)
                 .build());
 

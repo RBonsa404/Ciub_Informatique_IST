@@ -9,7 +9,7 @@ public interface ContactService {
 
     MessageContactDto envoyerMessage(MessageContactCreateDto dto);
 
-    Page<MessageContactDto> getAllMessages(Boolean traite, Pageable pageable);
+    Page<MessageContactDto> listerMessages(Boolean traite, Pageable pageable);
 
     MessageContactDto marquerCommeTraite(Long id, String repondeurEmail);
 }

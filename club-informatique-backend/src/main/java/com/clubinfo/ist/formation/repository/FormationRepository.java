@@ -25,8 +25,8 @@ public interface FormationRepository extends JpaRepository<Formation, Long> {
     @Query("SELECT f FROM Formation f WHERE f.deletedAt IS NULL AND f.publie = true " +
            "AND (:categorieId IS NULL OR f.categorie.id = :categorieId) " +
            "AND (:niveau IS NULL OR f.niveau = :niveau) " +
-           "AND (:search IS NULL OR LOWER(f.titre) LIKE LOWER(CONCAT('%', :search, '%')) " +
-           "OR LOWER(f.description) LIKE LOWER(CONCAT('%', :search, '%')))")
+           "AND (CAST(:search AS string) IS NULL OR LOWER(f.titre) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')) " +
+           "OR LOWER(f.description) LIKE LOWER(CONCAT('%', CAST(:search AS string), '%')))")
     Page<Formation> findPublishedWithFilters(
             @Param("categorieId") Long categorieId,
             @Param("niveau") NiveauFormation niveau,

@@ -72,7 +72,7 @@ class InscriptionServiceTest {
         mockUser.setId(10L);
 
         mockEvent = Evenement.builder()
-                .titre("Hackathon IA 2026")
+                .titre("Hackathon du club 2026")
                 .dateDebut(LocalDateTime.now().plusDays(5))
                 .dateFin(LocalDateTime.now().plusDays(6))
                 .lieu("Amphi 3")

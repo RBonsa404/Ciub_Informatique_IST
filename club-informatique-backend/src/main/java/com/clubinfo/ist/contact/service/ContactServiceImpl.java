@@ -44,7 +44,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<MessageContactDto> getAllMessages(Boolean traite, Pageable pageable) {
+    public Page<MessageContactDto> listerMessages(Boolean traite, Pageable pageable) {
         if (traite != null) {
             return messageContactRepository.findAllByTraiteOrderByCreatedAtDesc(traite, pageable)
                     .map(messageContactMapper::toDto);
