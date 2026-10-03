@@ -202,7 +202,7 @@ public class FormationService {
         AdresseWebSure.Validateur.fichierDepose(consigne).ifPresent(fichier -> fichiers.ouvrirA(fichier, Fichier.Acces.MEMBRES));
         for (Long inscrit : inscritsConfirmes(formationId)) {
             notifications.notifier(inscrit, TypeNotification.SYSTEME, "Nouveau devoir",
-                    "Un devoir a été publié pour la formation « " + formation.getTitre() + " » : " + devoir.getTitre() + ".", "/espace/membre/supports");
+                    "Un devoir a été publié pour la formation « " + formation.getTitre() + " » : " + devoir.getTitre() + ".", "/espace/supports");
         }
         return DevoirDto.de(devoir);
     }

@@ -121,7 +121,7 @@ class ProjetsIT extends ActivitesTestBase {
 
         mvc.perform(en(get("/notifications").param("type", "VALIDATION_PROJET"), porteur))
                 .andExpect(jsonPath("$.content[0].titre").value("Votre projet est validé"))
-                .andExpect(jsonPath("$.content[0].lien").value("/espace/membre/projets"));
+                .andExpect(jsonPath("$.content[0].lien").value("/espace/projets"));
 
         String publique = mvc.perform(get("/projets/slug/" + proposition.path("slug").asText()))
                 .andExpect(status().isOk())
