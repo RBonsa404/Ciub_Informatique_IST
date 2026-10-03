@@ -266,7 +266,7 @@ export class ContactPage {
   constructor() {
     inject(SeoService).apply({
       title: 'Contact',
-      description: 'Contacter le Club Informatique de l’IST : formulaire, courriel, téléphone et réseaux sociaux.',
+      description: 'Une question, une proposition ou l’envie de rejoindre le club ? Écrivez au Club Informatique de l’IST par formulaire, courriel ou WhatsApp.',
       path: '/contact',
     });
     this.form.controls.consentement.valueChanges.subscribe(() => this.tick.update((n) => n + 1));

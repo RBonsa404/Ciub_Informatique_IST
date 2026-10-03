@@ -116,7 +116,7 @@ export class EvenementsListPage {
   protected readonly others = computed(() => (this.list.page() === 0 ? this.list.items().slice(1) : this.list.items()));
 
   constructor() {
-    inject(SeoService).apply({ title: 'Événements', description: 'Événements à venir du Club Informatique de l’IST.', path: '/evenements' });
+    inject(SeoService).apply({ title: 'Événements', description: 'Ateliers, rencontres et activités à venir du Club Informatique de l’IST à Ouagadougou. Consultez les dates et inscrivez-vous en ligne.', path: '/evenements' });
   }
 
   protected dateRange(event: Evenement): string {

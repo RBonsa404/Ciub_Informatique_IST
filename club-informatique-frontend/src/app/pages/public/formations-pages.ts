@@ -121,7 +121,7 @@ export class FormationsListPage {
   protected readonly list = new PagedList<Formation>((query) => this.api.formations(query), 9);
 
   constructor() {
-    inject(SeoService).apply({ title: 'Formations', description: 'Formations et ateliers du Club Informatique de l’IST.', path: '/formations' });
+    inject(SeoService).apply({ title: 'Formations', description: 'Formations et ateliers proposés par le Club Informatique de l’IST : programme, séances et inscription en ligne pour les membres du club.', path: '/formations' });
   }
 }
 
@@ -412,7 +412,7 @@ export class RessourcesPage {
   protected readonly list = new PagedList<Ressource>((query) => this.api.ressourcesPubliques(query), 12);
 
   constructor() {
-    inject(SeoService).apply({ title: 'Ressources', description: 'Ressources pédagogiques publiques du Club Informatique de l’IST.', path: '/ressources' });
+    inject(SeoService).apply({ title: 'Ressources', description: 'Supports de cours et ressources pédagogiques partagés par le Club Informatique de l’IST, consultables librement.', path: '/ressources' });
   }
 
   protected icon(resource: Ressource): IconName {

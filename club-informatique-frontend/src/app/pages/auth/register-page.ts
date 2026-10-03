@@ -274,7 +274,7 @@ export class RegisterPage {
   constructor() {
     inject(SeoService).apply({
       title: 'Inscription',
-      description: 'Créez votre compte pour rejoindre le Club Informatique de l’IST.',
+      description: 'Créez votre compte pour participer aux formations, aux événements et aux projets du Club Informatique de l’IST.',
       path: '/inscription',
     });
     this.form.statusChanges.subscribe(() => this.tick.update((n) => n + 1));

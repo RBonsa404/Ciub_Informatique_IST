@@ -126,7 +126,7 @@ export class ActualitesListPage {
   });
 
   constructor() {
-    inject(SeoService).apply({ title: 'Actualités', description: 'Actualités du Club Informatique de l’IST.', path: '/actualites' });
+    inject(SeoService).apply({ title: 'Actualités', description: 'Les dernières nouvelles du Club Informatique de l’IST : annonces, comptes rendus d’activités et informations utiles aux étudiants.', path: '/actualites' });
     this.categoriesState.load();
     inject(DestroyRef).onDestroy(() => this.categoriesState.destroy());
   }

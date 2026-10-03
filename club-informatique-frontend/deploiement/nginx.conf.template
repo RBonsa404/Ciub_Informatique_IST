@@ -85,6 +85,10 @@ server {
     location / {
         include /etc/nginx/snippets/en-tetes.conf;
         add_header Cache-Control "no-cache" always;
+        # Les pages construites portent une origine provisoire dans leurs adresses absolues (adresse canonique, aperçus
+        # de lien, données structurées) : elle devient ici l'adresse sous laquelle la page est demandée.
+        sub_filter 'https://origine-du-site.invalid' '$schema_public://$http_host';
+        sub_filter_once off;
         try_files $uri $uri/index.html /index.csr.html;
     }
 }
