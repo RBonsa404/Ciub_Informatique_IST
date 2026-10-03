@@ -152,7 +152,7 @@ public class ProjetService {
                 rejet ? "Votre projet n'a pas été retenu" : "Votre projet est validé",
                 rejet ? "Le projet « " + projet.getTitre() + " » n'a pas été retenu. Motif : " + motif
                         : "Le projet « " + projet.getTitre() + " » est validé" + (motif == null ? "." : ". " + motif),
-                "/espace/membre/projets");
+                "/espace/projets");
         journal.enregistrer(rejet ? "PROJET_REJETE" : "PROJET_VALIDE", projet.getTitre(), JournalService.Resultat.SUCCES);
         return ProjetDto.de(projet, true);
     }
