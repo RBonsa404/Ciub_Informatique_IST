@@ -26,6 +26,7 @@ Plateforme web du Club Informatique de l'Institut Supérieur de Technologie, Oua
 - [Architecture](#architecture)
 - [Démarrage rapide](#démarrage-rapide)
 - [Variables d'environnement](#variables-denvironnement)
+- [Comptes de test](#comptes-de-test)
 - [Tests et contrôles qualité](#tests-et-contrôles-qualité)
 - [Déploiement](#déploiement)
 - [Exploitation](#exploitation)
@@ -51,7 +52,7 @@ Trois principes guident le projet :
 | Membre | profil et photo, inscriptions aux formations et aux événements, supports de cours, devoirs, propositions de projets, notifications |
 | Formateur | cours, séances, présences, supports et devoirs |
 | Responsable du Club | actualités, événements, bureau, décisions sur les projets, inscriptions, messages de contact |
-| Administrateur | comptes et rôles, catégories, statistiques, sécurité des comptes, journal d'audit |
+| Administrateur | comptes et rôles, catégories, textes des pages d'accueil et de présentation, statistiques, sécurité des comptes, journal d'audit |
 | Super Admin | configuration du système, sauvegardes |
 | DSI | supervision technique et contrôles de conformité |
 
@@ -154,7 +155,8 @@ Le fichier [`club-informatique-backend/.env.example`](club-informatique-backend/
 | `UPLOAD_DIR` | avec `local` | dossier des fichiers déposés ; `/app/uploads` en ligne, sur un volume persistant |
 | `STORAGE_S3_ENDPOINT`, `STORAGE_S3_REGION`, `STORAGE_S3_BUCKET`, `STORAGE_S3_ACCESS_KEY`, `STORAGE_S3_SECRET_KEY` | avec `s3` | stockage objet compatible S3 |
 | `APP_BOOTSTRAP_ADMIN_EMAIL`, `APP_BOOTSTRAP_ADMIN_PASSWORD` | premier démarrage | création du premier Super Admin ; à retirer ensuite |
-| `APP_SEED_TEST_ACCOUNTS`, `APP_TEST_ACCOUNTS_PASSWORD`, `APP_PURGE_TEST_ACCOUNTS` | essais seulement | création et retrait des comptes de test |
+| `APP_SEED_TEST_ACCOUNTS`, `APP_TEST_ACCOUNTS_PASSWORD`, `APP_PURGE_TEST_ACCOUNTS` | essais seulement | création et retrait des comptes de test du bureau |
+| `APP_TRIAL_ACCOUNTS_PASSWORD` | essais seulement | mot de passe des comptes d'essai confiés aux étudiants ; ces comptes ne sont créés que si la variable est renseignée |
 | `BCRYPT_STRENGTH` | facultative | coût du hachage des mots de passe, 11 par défaut |
 | `DB_POOL_MAX` | facultative | taille du pool de connexions, 10 par défaut |
 | `RATE_LIMIT_AUTH_CAPACITY` | facultative | tentatives d'authentification autorisées par fenêtre, 20 par défaut |
@@ -165,6 +167,40 @@ Le fichier [`club-informatique-backend/.env.example`](club-informatique-backend/
 |---|:---:|---|
 | `API_URL` | requise | adresse interne du backend, sans barre finale, par exemple `http://club-backend.railway.internal:8080` |
 | `PORT` | fournie par l'hébergeur | port d'écoute de Nginx, `8080` par défaut |
+
+## Comptes de test
+
+Pour la période d'essai, le backend crée deux groupes de comptes au démarrage lorsque `APP_SEED_TEST_ACCOUNTS=true`. Ils sont marqués comme comptes de test, exclus de toutes les statistiques, et se retirent en une seule opération avec tout ce qu'ils ont produit (`APP_PURGE_TEST_ACCOUNTS=true`). Leur domaine, `recette.invalid`, est réservé : aucun courriel ne peut leur parvenir.
+
+### Comptes du bureau
+
+Un compte par rôle, au nom des membres du bureau exécutif. Mot de passe : valeur de `APP_TEST_ACCOUNTS_PASSWORD`.
+
+| Membre du bureau | Rôle | Identifiant de connexion |
+|---|---|---|
+| Abdoul Rachid Bonsa | Super Admin et Administrateur | `abdoul-rachid.bonsa@recette.invalid` |
+| Prince Pamousso | Administrateur | `prince.pamousso@recette.invalid` |
+| Ramatou Sidibé | Responsable du Club | `ramatou.sidibe@recette.invalid` |
+| Arnaud Ouare | Formateur | `arnaud.ouare@recette.invalid` |
+| Tony Darel Zongo | DSI | `tony-darel.zongo@recette.invalid` |
+| Christ Orient Salou | Membre | `christ-orient.salou@recette.invalid` |
+
+### Comptes d'essai pour les étudiants
+
+Quatre comptes de simple membre, à confier aux étudiants invités à essayer la plateforme. Ils n'ont accès qu'à l'espace Membre. Mot de passe : valeur de `APP_TRIAL_ACCOUNTS_PASSWORD`, distincte de celle des comptes du bureau.
+
+| Compte | Rôle | Identifiant de connexion |
+|---|---|---|
+| Compte Essai 1 | Membre | `essai1@recette.invalid` |
+| Compte Essai 2 | Membre | `essai2@recette.invalid` |
+| Compte Essai 3 | Membre | `essai3@recette.invalid` |
+| Compte Essai 4 | Membre | `essai4@recette.invalid` |
+
+### Mots de passe
+
+Le dépôt est public : les mots de passe n'y figurent pas. Ils sont choisis par le Super Admin dans les variables du service backend sur Railway, puis transmis aux personnes concernées par un canal privé. Pour en changer, modifier la variable et redémarrer le service : les comptes déjà créés gardent leur mot de passe ; il faut d'abord les retirer (`APP_PURGE_TEST_ACCOUNTS=true`) pour qu'ils soient recréés avec le nouveau. Procédure complète : [mise en service, étape 8](docs/mise-en-service.md#8-comptes-de-test).
+
+En local, la pile de recette (`node club-informatique-frontend/e2e/backend-recette.mjs`) crée ces mêmes comptes avec les mots de passe de recette : `Recette@2026` pour le bureau, `Recette@2026-essai` pour les comptes d'essai. Ces valeurs ne valent que pour une base locale.
 
 ## Tests et contrôles qualité
 
@@ -203,7 +239,8 @@ Chaque fusion sur `main` redéploie automatiquement les deux services.
 - **Journaux** : en production, une ligne JSON par événement ; chaque requête porte un identifiant renvoyé dans l'en-tête `X-Request-Id`.
 - **Sauvegarde** : `club-informatique-backend/scripts/sauvegarde.sh`, au moins une fois par semaine ; restauration par `scripts/restauration.sh`.
 - **Premier Super Admin** : aucun compte n'est livré avec l'application. Tant qu'aucun Super Admin n'existe, le démarrage en crée un à partir de `APP_BOOTSTRAP_ADMIN_EMAIL` et `APP_BOOTSTRAP_ADMIN_PASSWORD`. Ce mot de passe doit être changé à la première connexion.
-- **Comptes de test** : `APP_SEED_TEST_ACCOUNTS=true` crée un compte par rôle sur le domaine réservé `recette.invalid`, exclu des statistiques ; `APP_PURGE_TEST_ACCOUNTS=true` les retire avec tout ce qu'ils ont créé.
+- **Comptes de test** : voir [Comptes de test](#comptes-de-test).
+- **Textes du site** : les textes des pages d'accueil et de présentation se modifient dans **Administration → Textes du site** ; ils sont publiés dès l'enregistrement.
 
 Détails : [docs/exploitation.md](docs/exploitation.md).
 

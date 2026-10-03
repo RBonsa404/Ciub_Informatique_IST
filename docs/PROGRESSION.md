@@ -34,6 +34,9 @@ Dernière mise à jour : 2 octobre 2026
 | Mise en ligne sur Railway (`https://istclubinformatique.up.railway.app`, commit `9e8860e`) | services `club-backend` et `club-frontend` verts ; `/sante` répond `ok` ; `/api/v1/actuator/health` répond `UP` à travers le site ; API publique en 200 ; connexion refusée avec le message prévu ; en-têtes de sécurité, `robots.txt` et `sitemap.xml` conformes ; page d'accueil sans erreur de console |
 | Vérifications en ligne restant à faire par le club | connexion du Super Admin d'amorçage, retrait du domaine public du backend, volume, courriels, sauvegarde : `docs/mise-en-service.md` |
 | Textes d'accueil et de présentation | migration V11 : première version des deux pages, sans date, effectif ni partenaire ; une page déjà rédigée n'est pas remplacée |
+| Écran « Textes du site » (`/espace/admin/textes`) | 6 tests unitaires ; vérifié sur l'image de production et le backend local : chargement, publication, texte visible sur la page publique, affichage à 360 et 1366 pixels sans débordement |
+| Comptes de test du bureau et comptes d'essai | `ComptesIT` vert (6 + 4 comptes, purge de 10) ; connexion d'un compte d'essai vérifiée sur le backend local |
+| Aperçus de lien | image Nginx : `og:image`, `og:url`, canonique, `twitter:image` et données structurées en adresses absolues sur l'hôte demandé ; image de partage 1200 × 630, 192 Kio |
 
 ## Preuves de la Phase 5
 | Élément | Preuve |
