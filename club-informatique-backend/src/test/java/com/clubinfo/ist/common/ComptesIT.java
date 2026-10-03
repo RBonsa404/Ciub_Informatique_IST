@@ -81,7 +81,7 @@ class ComptesIT extends IntegrationTest {
         // D'autres tests ont pu laisser des comptes marqués « test » : on repart d'une base qui n'en a aucun.
         comptesDeTest.purger();
         int crees = comptesDeTest.creer("Recette@2026x");
-        assertThat(crees).isEqualTo(6);
+        assertThat(crees).isEqualTo(7);
         assertThat(comptesDeTest.creer("Recette@2026x")).isZero();
         assertThat(comptesDeTest.creerEssais("Essai@2026xyz")).isEqualTo(4);
 
@@ -95,7 +95,7 @@ class ComptesIT extends IntegrationTest {
 
         Utilisateur reel = compte("MEMBRE");
         int retires = comptesDeTest.purger();
-        assertThat(retires).isEqualTo(10);
+        assertThat(retires).isEqualTo(11);
         assertThat(jdbc.queryForObject("select count(*) from utilisateur where test", Integer.class)).isZero();
         assertThat(utilisateurs.findById(reel.getId())).isPresent();
     }

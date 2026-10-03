@@ -174,7 +174,7 @@ Pour la période d'essai, le backend crée deux groupes de comptes au démarrage
 
 ### Comptes du bureau
 
-Un compte par rôle, au nom des membres du bureau exécutif. Mot de passe : valeur de `APP_TEST_ACCOUNTS_PASSWORD`.
+Un compte au nom de chaque membre du bureau exécutif, tous les rôles étant représentés. Mot de passe : valeur de `APP_TEST_ACCOUNTS_PASSWORD`.
 
 | Membre du bureau | Rôle | Identifiant de connexion |
 |---|---|---|
@@ -182,6 +182,7 @@ Un compte par rôle, au nom des membres du bureau exécutif. Mot de passe : vale
 | Prince Pamousso | Administrateur | `prince.pamousso@recette.invalid` |
 | Ramatou Sidibé | Responsable du Club | `ramatou.sidibe@recette.invalid` |
 | Arnaud Ouare | Formateur | `arnaud.ouare@recette.invalid` |
+| Sandrine Ki | Formateur | `sandrine.ki@recette.invalid` |
 | Tony Darel Zongo | DSI | `tony-darel.zongo@recette.invalid` |
 | Christ Orient Salou | Membre | `christ-orient.salou@recette.invalid` |
 

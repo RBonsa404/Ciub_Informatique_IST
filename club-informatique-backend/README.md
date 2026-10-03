@@ -101,7 +101,7 @@ Aucun compte n'est livré avec l'application. Tant qu'aucun Super Admin réel n'
 
 | Variable | Effet au démarrage |
 |---|---|
-| `APP_SEED_TEST_ACCOUNTS=true` | crée les comptes manquants sur le domaine réservé `recette.invalid` : un par rôle au nom des membres du bureau, et quatre comptes d'essai de simple membre |
+| `APP_SEED_TEST_ACCOUNTS=true` | crée les comptes manquants sur le domaine réservé `recette.invalid` : au nom des membres du bureau, tous les rôles représentés, et quatre comptes d'essai de simple membre |
 | `APP_TEST_ACCOUNTS_PASSWORD` | mot de passe des comptes du bureau, douze caractères au moins |
 | `APP_TRIAL_ACCOUNTS_PASSWORD` | mot de passe des comptes d'essai, distinct du précédent ; sans lui, ces comptes ne sont pas créés |
 | `APP_PURGE_TEST_ACCOUNTS=true` | retire les comptes de test et tout ce qu'ils ont créé, avec une entrée au journal d'audit |

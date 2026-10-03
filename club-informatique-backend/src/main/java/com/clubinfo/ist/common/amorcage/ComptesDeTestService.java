@@ -45,12 +45,13 @@ public class ComptesDeTestService {
         }
     }
 
-    /** Membres du bureau : un compte par rôle. */
+    /** Membres du bureau : chaque rôle est représenté. */
     static final List<Modele> BUREAU = List.of(
             new Modele("Abdoul Rachid", "Bonsa", List.of("ROLE_ADMIN", "ROLE_SUPER_ADMIN")),
             new Modele("Prince", "Pamousso", List.of("ROLE_ADMIN")),
             new Modele("Ramatou", "Sidibé", List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB")),
             new Modele("Arnaud", "Ouare", List.of("ROLE_MEMBRE", "ROLE_FORMATEUR")),
+            new Modele("Sandrine", "Ki", List.of("ROLE_MEMBRE", "ROLE_FORMATEUR")),
             new Modele("Tony Darel", "Zongo", List.of("ROLE_DSI")),
             new Modele("Christ Orient", "Salou", List.of("ROLE_MEMBRE")));
 

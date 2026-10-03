@@ -216,7 +216,7 @@ Une sauvegarde par semaine au moins : tâche planifiée Windows (Planificateur d
    | `APP_TEST_ACCOUNTS_PASSWORD` | mot de passe des comptes du bureau |
    | `APP_TRIAL_ACCOUNTS_PASSWORD` | mot de passe des comptes d'essai |
 
-3. Déployer. Au démarrage, **Deploy Logs** affiche « 6 compte(s) de test créé(s) », puis « 4 compte(s) de test créé(s) ».
+3. Déployer. Au démarrage, **Deploy Logs** affiche « 7 compte(s) de test créé(s) », puis « 4 compte(s) de test créé(s) ».
 4. Transmettre les identifiants et les mots de passe par message privé (jamais dans un groupe public, jamais dans le dépôt).
 
 **Vérification.** Se connecter sur `/connexion` avec `christ-orient.salou@recette.invalid`, puis avec `essai1@recette.invalid` : chacun arrive sur l'espace Membre.
