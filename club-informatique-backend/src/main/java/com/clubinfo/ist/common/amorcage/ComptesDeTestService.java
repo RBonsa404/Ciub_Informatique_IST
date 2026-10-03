@@ -14,15 +14,17 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 /**
- * Comptes de test : un par rôle, marqués {@code test = true}, sur le domaine réservé « .invalid »
- * (aucun courriel ne peut leur parvenir). Ils servent aux essais et se retirent en une opération,
- * avec tout ce qu'ils ont produit.
+ * Comptes de test, marqués {@code test = true}, sur le domaine réservé « .invalid » (aucun courriel ne peut leur parvenir) :
+ * un compte par rôle au nom des membres du bureau, et des comptes d'essai de simple membre à confier à des étudiants.
+ * Les deux groupes ont des mots de passe distincts. Ils se retirent en une opération, avec tout ce qu'ils ont produit.
  */
 @Service
 @RequiredArgsConstructor
@@ -31,20 +33,33 @@ public class ComptesDeTestService {
 
     static final String DOMAINE = "recette.invalid";
 
-    private record Modele(String prenom, String nom, String filiere, List<String> roles) {
-        String adresse() {
-            return (prenom + "." + nom).toLowerCase()
-                    .replace("é", "e").replace("è", "e").replace("ï", "i").replace(" ", "") + "@" + DOMAINE;
+    private record Modele(String prenom, String nom, String adresse, List<String> roles) {
+
+        Modele(String prenom, String nom, List<String> roles) {
+            this(prenom, nom, versAdresse(prenom) + "." + versAdresse(nom) + "@" + DOMAINE, roles);
+        }
+
+        private static String versAdresse(String texte) {
+            return Normalizer.normalize(texte, Normalizer.Form.NFD).replaceAll("\\p{M}", "")
+                    .toLowerCase(Locale.ROOT).trim().replaceAll("\\s+", "-");
         }
     }
 
-    private static final List<Modele> MODELES = List.of(
-            new Modele("Aminata", "Sawadogo", "Génie logiciel", List.of("ROLE_MEMBRE")),
-            new Modele("Issouf", "Ouédraogo", "Réseaux et télécommunications", List.of("ROLE_MEMBRE", "ROLE_FORMATEUR")),
-            new Modele("Rasmata", "Kaboré", "Génie logiciel", List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB")),
-            new Modele("Boukary", "Zongo", "Systèmes d'information", List.of("ROLE_ADMIN")),
-            new Modele("Salimata", "Compaoré", "Systèmes d'information", List.of("ROLE_ADMIN", "ROLE_SUPER_ADMIN")),
-            new Modele("Adama", "Traoré", "Réseaux et télécommunications", List.of("ROLE_DSI")));
+    /** Membres du bureau : un compte par rôle. */
+    static final List<Modele> BUREAU = List.of(
+            new Modele("Abdoul Rachid", "Bonsa", List.of("ROLE_ADMIN", "ROLE_SUPER_ADMIN")),
+            new Modele("Prince", "Pamousso", List.of("ROLE_ADMIN")),
+            new Modele("Ramatou", "Sidibé", List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB")),
+            new Modele("Arnaud", "Ouare", List.of("ROLE_MEMBRE", "ROLE_FORMATEUR")),
+            new Modele("Tony Darel", "Zongo", List.of("ROLE_DSI")),
+            new Modele("Christ Orient", "Salou", List.of("ROLE_MEMBRE")));
+
+    /** Comptes d'essai : simples membres, à confier aux étudiants invités à essayer la plateforme. */
+    static final List<Modele> ESSAIS = List.of(
+            new Modele("Compte", "Essai 1", "essai1@" + DOMAINE, List.of("ROLE_MEMBRE")),
+            new Modele("Compte", "Essai 2", "essai2@" + DOMAINE, List.of("ROLE_MEMBRE")),
+            new Modele("Compte", "Essai 3", "essai3@" + DOMAINE, List.of("ROLE_MEMBRE")),
+            new Modele("Compte", "Essai 4", "essai4@" + DOMAINE, List.of("ROLE_MEMBRE")));
 
     /** Contenus sans propriétaire obligatoire : la suppression du compte ne les emporterait pas. */
     private static final List<String> CONTENUS_RATTACHES = List.of(
@@ -60,16 +75,26 @@ public class ComptesDeTestService {
     private final JournalService journal;
     private final FichierService fichiers;
 
-    /** Crée les comptes manquants. @return le nombre de comptes créés. */
+    /** Crée les comptes du bureau manquants. @return le nombre de comptes créés. */
     @Transactional
     public int creer(String motDePasse) {
+        return creer(BUREAU, motDePasse, "APP_TEST_ACCOUNTS_PASSWORD");
+    }
+
+    /** Crée les comptes d'essai manquants. @return le nombre de comptes créés. */
+    @Transactional
+    public int creerEssais(String motDePasse) {
+        return creer(ESSAIS, motDePasse, "APP_TRIAL_ACCOUNTS_PASSWORD");
+    }
+
+    private int creer(List<Modele> modeles, String motDePasse, String variable) {
         if (motDePasse == null || motDePasse.length() < SuperAdminAmorcage.LONGUEUR_MINIMALE) {
             throw new IllegalArgumentException("Le mot de passe des comptes de test doit compter au moins "
-                    + SuperAdminAmorcage.LONGUEUR_MINIMALE + " caractères (APP_TEST_ACCOUNTS_PASSWORD).");
+                    + SuperAdminAmorcage.LONGUEUR_MINIMALE + " caractères (" + variable + ").");
         }
         String empreinte = passwordEncoder.encode(motDePasse);
         int crees = 0;
-        for (Modele modele : MODELES) {
+        for (Modele modele : modeles) {
             if (utilisateurs.existsByEmail(modele.adresse())) {
                 continue;
             }
@@ -82,7 +107,6 @@ public class ComptesDeTestService {
                     .nom(modele.nom())
                     .email(modele.adresse())
                     .motDePasse(empreinte)
-                    .filiere(modele.filiere())
                     .dateAdhesion(LocalDate.now())
                     .statut(StatutUtilisateur.ACTIF)
                     .test(true)

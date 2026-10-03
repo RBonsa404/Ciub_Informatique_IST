@@ -83,16 +83,19 @@ class ComptesIT extends IntegrationTest {
         int crees = comptesDeTest.creer("Recette@2026x");
         assertThat(crees).isEqualTo(6);
         assertThat(comptesDeTest.creer("Recette@2026x")).isZero();
+        assertThat(comptesDeTest.creerEssais("Essai@2026xyz")).isEqualTo(4);
 
-        Optional<Utilisateur> membre = utilisateurs.findByEmail("aminata.sawadogo@recette.invalid");
+        Optional<Utilisateur> membre = utilisateurs.findByEmail("christ-orient.salou@recette.invalid");
         assertThat(membre).isPresent();
         assertThat(membre.get().getTest()).isTrue();
+        assertThat(utilisateurs.findByEmail("ramatou.sidibe@recette.invalid")).isPresent();
+        assertThat(utilisateurs.findByEmail("essai1@recette.invalid")).hasValueSatisfying(essai -> assertThat(essai.getTest()).isTrue());
         Integer horsDomaine = jdbc.queryForObject("select count(*) from utilisateur where test and email not like '%.invalid'", Integer.class);
         assertThat(horsDomaine).isZero();
 
         Utilisateur reel = compte("MEMBRE");
         int retires = comptesDeTest.purger();
-        assertThat(retires).isEqualTo(6);
+        assertThat(retires).isEqualTo(10);
         assertThat(jdbc.queryForObject("select count(*) from utilisateur where test", Integer.class)).isZero();
         assertThat(utilisateurs.findById(reel.getId())).isPresent();
     }

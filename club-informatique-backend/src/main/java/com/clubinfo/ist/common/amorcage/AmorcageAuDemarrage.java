@@ -29,6 +29,8 @@ public class AmorcageAuDemarrage implements ApplicationRunner {
     private boolean retirerComptesDeTest;
     @Value("${app.test-accounts.password:}")
     private String motDePasseDeTest;
+    @Value("${app.test-accounts.trial-password:}")
+    private String motDePasseDesEssais;
 
     @Override
     public void run(ApplicationArguments arguments) {
@@ -39,6 +41,10 @@ public class AmorcageAuDemarrage implements ApplicationRunner {
                 log.error("Comptes de test non créés : APP_TEST_ACCOUNTS_PASSWORD est vide.");
             } else {
                 comptesDeTest.creer(motDePasseDeTest);
+            }
+            // Comptes d'essai confiés aux étudiants : mot de passe distinct, créés seulement s'il est fourni.
+            if (!motDePasseDesEssais.isBlank()) {
+                comptesDeTest.creerEssais(motDePasseDesEssais);
             }
         }
         superAdmin.amorcer(adresseAdmin, motDePasseAdmin);
