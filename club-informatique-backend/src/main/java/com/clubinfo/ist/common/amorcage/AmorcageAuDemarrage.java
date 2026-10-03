@@ -37,16 +37,25 @@ public class AmorcageAuDemarrage implements ApplicationRunner {
         if (retirerComptesDeTest) {
             comptesDeTest.purger();
         } else if (creerComptesDeTest) {
+            // Un réglage incorrect est signalé dans le journal sans empêcher le démarrage du site.
             if (motDePasseDeTest.isBlank()) {
                 log.error("Comptes de test non créés : APP_TEST_ACCOUNTS_PASSWORD est vide.");
             } else {
-                comptesDeTest.creer(motDePasseDeTest);
+                creerSansBloquer(() -> comptesDeTest.creer(motDePasseDeTest));
             }
             // Comptes d'essai confiés aux étudiants : mot de passe distinct, créés seulement s'il est fourni.
             if (!motDePasseDesEssais.isBlank()) {
-                comptesDeTest.creerEssais(motDePasseDesEssais);
+                creerSansBloquer(() -> comptesDeTest.creerEssais(motDePasseDesEssais));
             }
         }
         superAdmin.amorcer(adresseAdmin, motDePasseAdmin);
+    }
+
+    private static void creerSansBloquer(Runnable creation) {
+        try {
+            creation.run();
+        } catch (IllegalArgumentException refus) {
+            log.error("Comptes de test non créés : {}", refus.getMessage());
+        }
     }
 }

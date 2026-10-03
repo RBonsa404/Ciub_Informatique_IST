@@ -1,6 +1,7 @@
 package com.clubinfo.ist.common;
 
 import com.clubinfo.ist.admin.repository.AuditLogRepository;
+import com.clubinfo.ist.common.amorcage.AmorcageAuDemarrage;
 import com.clubinfo.ist.common.amorcage.ComptesDeTestService;
 import com.clubinfo.ist.common.amorcage.SuperAdminAmorcage;
 import com.clubinfo.ist.common.journal.JournalService;
@@ -11,11 +12,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -73,6 +76,23 @@ class ComptesIT extends IntegrationTest {
     void amorcageSansConfiguration() {
         assertThat(amorcage.amorcer("", "")).isFalse();
         assertThat(amorcage.amorcer("admin@essai.invalid", "court")).isFalse();
+    }
+
+    @Test
+    @DisplayName("Un mot de passe de comptes de test trop court est signalé sans empêcher le démarrage")
+    void demarrageAvecMotDePasseTropCourt(@Autowired AmorcageAuDemarrage demarrage) {
+        comptesDeTest.purger();
+        ReflectionTestUtils.setField(demarrage, "creerComptesDeTest", true);
+        ReflectionTestUtils.setField(demarrage, "motDePasseDeTest", "court");
+        ReflectionTestUtils.setField(demarrage, "motDePasseDesEssais", "court aussi");
+        try {
+            assertThatCode(() -> demarrage.run(null)).doesNotThrowAnyException();
+            assertThat(jdbc.queryForObject("select count(*) from utilisateur where test", Integer.class)).isZero();
+        } finally {
+            ReflectionTestUtils.setField(demarrage, "creerComptesDeTest", false);
+            ReflectionTestUtils.setField(demarrage, "motDePasseDeTest", "");
+            ReflectionTestUtils.setField(demarrage, "motDePasseDesEssais", "");
+        }
     }
 
     @Test
