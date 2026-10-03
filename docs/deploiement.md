@@ -71,6 +71,10 @@ Réglages du service : dossier racine `club-informatique-frontend` ; constructio
 | Dépôt d'un fichier (support de cours ou photo de profil) | fichier téléchargeable après un redéploiement du backend (volume persistant) |
 | Écran « Supervision technique » (DSI) | contrôles conformes, hors sauvegarde tant que la première n'est pas faite |
 
+Le pas à pas des réglages qui suivent la mise en ligne (Super Admin, domaine du backend, volume, courriels, sauvegarde, dépannage) est dans [mise-en-service.md](mise-en-service.md).
+
+Le **Root Directory** de chaque service doit désigner son dossier (`club-informatique-backend` ou `club-informatique-frontend`) : sinon Railway ignore son `railway.toml` et garde les réglages saisis dans le tableau de bord (sonde de santé notamment).
+
 Consigner dans `docs/PROGRESSION.md` l'adresse du site, la version déployée (identifiant du commit) et le résultat de chaque vérification.
 
 ## 7. Sauvegarde planifiée
