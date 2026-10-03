@@ -259,6 +259,7 @@ export const routes: Routes = [
           { path: 'utilisateurs/:id', data: { fil: [USERS_CRUMB, { label: 'Compte' }] }, loadComponent: () => adminUsers().then((m) => m.UserDetailPage) },
           { path: 'roles', data: { fil: [{ label: 'Rôles et permissions' }] }, loadComponent: () => adminReference().then((m) => m.RolesMatrixPage) },
           { path: 'categories', data: { fil: [{ label: 'Catégories' }] }, loadComponent: () => adminReference().then((m) => m.CategoriesPage) },
+          { path: 'textes', data: { fil: [{ label: 'Textes du site' }] }, loadComponent: () => import('./pages/admin/site-texts-page').then((m) => m.SiteTextsPage) },
           {
             path: 'statistiques',
             canMatch: [featureGuard('statistiques')],

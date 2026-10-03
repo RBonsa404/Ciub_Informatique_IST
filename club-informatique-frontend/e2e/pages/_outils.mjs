@@ -6,12 +6,12 @@ export const PASSWORD = process.env.RECETTE_MOT_DE_PASSE ?? 'Recette@2026';
 
 /** Comptes de test créés par le backend (APP_SEED_TEST_ACCOUNTS) : un par rôle, sur le domaine réservé « .invalid ». */
 export const COMPTES = {
-  membre: 'aminata.sawadogo@recette.invalid',
-  formateur: 'issouf.ouedraogo@recette.invalid',
-  responsable: 'rasmata.kabore@recette.invalid',
-  admin: 'boukary.zongo@recette.invalid',
-  superadmin: 'salimata.compaore@recette.invalid',
-  dsi: 'adama.traore@recette.invalid',
+  membre: 'christ-orient.salou@recette.invalid',
+  formateur: 'arnaud.ouare@recette.invalid',
+  responsable: 'ramatou.sidibe@recette.invalid',
+  admin: 'prince.pamousso@recette.invalid',
+  superadmin: 'abdoul-rachid.bonsa@recette.invalid',
+  dsi: 'tony-darel.zongo@recette.invalid',
 };
 
 /** Réponse vide conforme au contrat de pagination. */

@@ -32,6 +32,8 @@ const env = {
   UPLOAD_DIR: join(cible, 'depots-recette'),
   APP_SEED_TEST_ACCOUNTS: 'true',
   APP_TEST_ACCOUNTS_PASSWORD: motDePasse,
+  // Comptes d'essai (simples membres) : mot de passe distinct de celui des comptes du bureau.
+  APP_TRIAL_ACCOUNTS_PASSWORD: `${motDePasse}-essai`,
   // Premier Super Admin réel de la pile de recette : il sert à vérifier l'amorçage et le changement de mot de passe imposé.
   APP_BOOTSTRAP_ADMIN_EMAIL: process.env.RECETTE_ADMIN_EMAIL ?? 'premier.admin@club.test',
   APP_BOOTSTRAP_ADMIN_PASSWORD: process.env.RECETTE_ADMIN_MOT_DE_PASSE ?? `${motDePasse}-initial`,

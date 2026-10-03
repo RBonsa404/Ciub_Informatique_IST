@@ -130,7 +130,7 @@ export class ProjetsListPage {
   protected readonly categoriesPending = computed(() => this.categoriesState.status() === 'loading');
 
   constructor() {
-    inject(SeoService).apply({ title: 'Projets', description: 'Projets des membres du Club Informatique de l’IST.', path: '/projets' });
+    inject(SeoService).apply({ title: 'Projets', description: 'Les projets menés par les membres du Club Informatique de l’IST : applications, outils et réalisations construites en équipe.', path: '/projets' });
     this.categoriesState.load();
     inject(DestroyRef).onDestroy(() => this.categoriesState.destroy());
   }

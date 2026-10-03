@@ -231,8 +231,8 @@ export class PresentationPage {
 
   constructor() {
     inject(SeoService).apply({
-      title: 'Présentation',
-      description: 'Présentation du Club Informatique de l’Institut Supérieur de Technologie de Ouagadougou.',
+      title: 'Qui sommes-nous',
+      description: 'Découvrez le Club Informatique de l’IST à Ouagadougou : ses activités, son fonctionnement et la façon de le rejoindre, quel que soit votre niveau.',
       path: '/presentation',
     });
     this.page.load();
@@ -397,7 +397,7 @@ export class BureauPage {
   );
 
   constructor() {
-    inject(SeoService).apply({ title: 'Bureau du club', description: 'Composition du bureau du Club Informatique de l’IST.', path: '/bureau' });
+    inject(SeoService).apply({ title: 'Bureau du club', description: 'Les membres du bureau du Club Informatique de l’IST, qui organisent les activités du club et accompagnent les projets des étudiants.', path: '/bureau' });
     this.bureau.load();
     inject(DestroyRef).onDestroy(() => this.bureau.destroy());
   }

@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { ROLES, Role } from '../auth/auth.models';
 import { ApiClient, Page, PageRequest } from './api-client';
-import { Categorie, StatutCompte } from './models';
+import { Categorie, PageInfo, StatutCompte } from './models';
 import { toPage } from './public.api';
 
 /** Compte utilisateur vu par l'administration. */
@@ -172,6 +172,11 @@ export class AdminApi {
 
   modifierCategorie(id: number, payload: CategoriePayload): Observable<Categorie> {
     return this.api.put<Categorie>(`/categories/${id}`, payload);
+  }
+
+  /** Rédaction d'une page d'information (accueil, présentation). */
+  redigerPage(slug: string, payload: { readonly titre: string; readonly contenu: string }): Observable<PageInfo> {
+    return this.api.put<PageInfo>(`/pages/${encodeURIComponent(slug)}`, payload);
   }
 
   supprimerCategorie(id: number): Observable<void> {

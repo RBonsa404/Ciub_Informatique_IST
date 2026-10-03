@@ -311,7 +311,8 @@ export class HomePage {
     const seo = inject(SeoService);
     seo.apply({
       title: 'Accueil',
-      description: 'Site du Club Informatique de l’Institut Supérieur de Technologie de Ouagadougou : formations, événements, projets et actualités.',
+      fullTitle: 'Club Informatique de l’IST | Formations, projets et événements à Ouagadougou',
+      description: 'Le club des étudiants de l’Institut Supérieur de Technologie qui pratiquent l’informatique : formations, ateliers, projets en équipe et événements.',
       path: '/',
     });
     seo.setOrganizationJsonLd();

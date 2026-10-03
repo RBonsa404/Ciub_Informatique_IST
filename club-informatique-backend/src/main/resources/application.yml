@@ -114,9 +114,11 @@ app:
     admin-email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
     admin-password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
   test-accounts:
-    # Comptes d'essai (un par rôle, domaine .invalid). Jamais activés par défaut.
+    # Comptes de test (un par rôle, domaine .invalid). Jamais activés par défaut.
     seed: ${APP_SEED_TEST_ACCOUNTS:false}
     password: ${APP_TEST_ACCOUNTS_PASSWORD:}
+    # Comptes d'essai de simple membre, à confier aux étudiants : mot de passe distinct de celui du bureau.
+    trial-password: ${APP_TRIAL_ACCOUNTS_PASSWORD:}
     # Retrait des comptes d'essai et de leurs données au démarrage.
     purge: ${APP_PURGE_TEST_ACCOUNTS:false}
 

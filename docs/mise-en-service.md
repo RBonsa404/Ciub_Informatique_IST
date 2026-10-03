@@ -203,12 +203,34 @@ Une sauvegarde par semaine au moins : tâche planifiée Windows (Planificateur d
 
 ## 8. Comptes de test
 
-À ne faire que pour des essais en ligne.
+À ne faire que pendant la période d'essai. Les comptes et leurs identifiants sont listés dans le [README](../README.md#comptes-de-test).
 
-1. `club-backend` → **Variables** : `APP_SEED_TEST_ACCOUNTS` = `true` et `APP_TEST_ACCOUNTS_PASSWORD` = un mot de passe d'au moins douze caractères. Déployer.
-2. Un compte par rôle est créé sur le domaine réservé `recette.invalid` (`membre@recette.invalid`, `formateur@recette.invalid`, etc.). Ces comptes n'entrent dans aucune statistique et ne reçoivent aucun courriel.
-3. À la fin des essais : `APP_SEED_TEST_ACCOUNTS` = `false` et `APP_PURGE_TEST_ACCOUNTS` = `true`. Déployer. Les comptes de test et tout ce qu'ils ont créé sont retirés ; l'opération est inscrite au journal d'audit.
-4. Remettre `APP_PURGE_TEST_ACCOUNTS` = `false` et supprimer `APP_TEST_ACCOUNTS_PASSWORD`.
+### 8.1 Créer les comptes
+
+1. Choisir deux mots de passe d'au moins douze caractères, différents l'un de l'autre : un pour les comptes du bureau, un pour les comptes d'essai confiés aux étudiants. Le second circulera plus largement : il ne doit jamais ouvrir un compte du bureau.
+2. `club-backend` → **Variables** :
+
+   | Variable | Valeur |
+   |---|---|
+   | `APP_SEED_TEST_ACCOUNTS` | `true` |
+   | `APP_TEST_ACCOUNTS_PASSWORD` | mot de passe des comptes du bureau |
+   | `APP_TRIAL_ACCOUNTS_PASSWORD` | mot de passe des comptes d'essai |
+
+3. Déployer. Au démarrage, **Deploy Logs** affiche « 7 compte(s) de test créé(s) », puis « 4 compte(s) de test créé(s) ».
+4. Transmettre les identifiants et les mots de passe par message privé (jamais dans un groupe public, jamais dans le dépôt).
+
+**Vérification.** Se connecter sur `/connexion` avec `christ-orient.salou@recette.invalid`, puis avec `essai1@recette.invalid` : chacun arrive sur l'espace Membre.
+
+Ces comptes n'entrent dans aucune statistique et ne reçoivent aucun courriel. Un compte de test ne compte pas comme Super Admin réel : il n'empêche pas l'amorçage du premier Super Admin (étape 2).
+
+### 8.2 Changer un mot de passe
+
+Les comptes déjà créés gardent leur mot de passe : modifier la variable ne suffit pas. Il faut retirer les comptes (8.3), puis les recréer (8.1) avec la nouvelle valeur. Les contenus créés par les comptes de test disparaissent avec eux.
+
+### 8.3 Retirer les comptes en fin d'essai
+
+1. `APP_SEED_TEST_ACCOUNTS` = `false` et `APP_PURGE_TEST_ACCOUNTS` = `true`. Déployer. Les comptes de test et tout ce qu'ils ont créé sont retirés ; l'opération est inscrite au journal d'audit.
+2. Remettre `APP_PURGE_TEST_ACCOUNTS` = `false`, supprimer `APP_TEST_ACCOUNTS_PASSWORD` et `APP_TRIAL_ACCOUNTS_PASSWORD`. Déployer.
 
 **Vérification.** Dans l'espace DSI, le contrôle « Aucun compte de test présent » est conforme.
 
