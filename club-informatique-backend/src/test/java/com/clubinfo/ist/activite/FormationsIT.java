@@ -108,7 +108,7 @@ class FormationsIT extends ActivitesTestBase {
         long autreFormation = creerFormation(formateur, true).path("id").asLong();
         assertThat(envoyer(post("/formations/" + autreFormation + "/sessions"), formateur, seance(creneau + 1, 5), 409).path("code").asText())
                 .isEqualTo("CONFLIT_PLANNING");
-        envoyer(post("/formations/" + autreFormation + "/sessions"), formateur, seance(creneau + 2, 5), 201);
+        envoyer(post("/formations/" + autreFormation + "/sessions"), formateur, seance(creneau + 3, 5), 201);
         // Modifier la séance sans changer d'horaire n'entre pas en conflit avec elle-même.
         envoyer(put("/formations/" + id + "/sessions/" + idSeance), formateur, seance(creneau, 3), 200);
 
