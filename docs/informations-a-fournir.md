@@ -7,7 +7,7 @@ Ces informations ne peuvent être établies que par le club. Tant qu'elles manqu
 | E.1 | Statut juridique du club et formulation autorisée de son rattachement à l'IST | mentions légales, pied de page, données structurées | la maquette écrit « Association étudiante de l'Institut Supérieur de Technologie » : non confirmé | non |
 | E.2 | Représentant légal et directeur de la publication | mentions légales | absent de tous les documents | non |
 | E.3 | Adresse physique et horaires, s'ils sont publics | contact, mentions légales | seuls « Ouagadougou, Burkina Faso » sont établis | non |
-| E.4 | Année de création et description officielle de la mission | accueil, présentation | le CDC indique qu'aucun club d'informatique n'était actif ; aucune date ; les textes « vision, mission, valeurs » de la maquette sont des illustrations | non |
+| E.4 | Année de création et description officielle de la mission | accueil, présentation | le CDC indique qu'aucun club d'informatique n'était actif ; aucune date ; les textes « vision, mission, valeurs » de la maquette sont des illustrations ; une première version générale des deux pages est en place (migration V11), sans date ni chiffre | non (année et mission officielle) |
 | E.5 | Composition réelle du bureau (nom, fonction), avec l'accord des personnes | page Bureau | les cinq noms de la maquette sont fictifs | non |
 | E.6 | Partenaires réels et autorisation d'afficher leur nom | accueil (section masquée par défaut) | aucun | non |
 | E.7 | Courriel du premier Super Admin réel | amorçage (variables d'environnement) | le compte créé par l'ancienne migration utilise une adresse non confirmée | non |

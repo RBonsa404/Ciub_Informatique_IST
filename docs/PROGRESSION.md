@@ -31,6 +31,9 @@ Dernière mise à jour : 2 octobre 2026
 | Dépendances | frontend : `npm audit`, aucune vulnérabilité ; backend : Spring Boot 3.5.16 (dernier correctif de la branche), 159 tests verts |
 | Image du backend en profil de production, conteneur limité à 512 Mo | démarrage en 16 s, 378 Mio occupés, documentation interactive fermée, journaux JSON, en-têtes de sécurité |
 | Image du frontend | `docker build` : 11 pages pré-rendues, scripts en ligne limités à deux, autorisés par empreinte |
+| Mise en ligne sur Railway (`https://istclubinformatique.up.railway.app`, commit `9e8860e`) | services `club-backend` et `club-frontend` verts ; `/sante` répond `ok` ; `/api/v1/actuator/health` répond `UP` à travers le site ; API publique en 200 ; connexion refusée avec le message prévu ; en-têtes de sécurité, `robots.txt` et `sitemap.xml` conformes ; page d'accueil sans erreur de console |
+| Vérifications en ligne restant à faire par le club | connexion du Super Admin d'amorçage, retrait du domaine public du backend, volume, courriels, sauvegarde : `docs/mise-en-service.md` |
+| Textes d'accueil et de présentation | migration V11 : première version des deux pages, sans date, effectif ni partenaire ; une page déjà rédigée n'est pas remplacée |
 
 ## Preuves de la Phase 5
 | Élément | Preuve |
@@ -146,6 +149,6 @@ D-01 à D-13 : propositions appliquées par défaut depuis la validation de la P
 - Mesures de la section 6.12 (crochet `commit-msg`, exclusions locales, attribution) non automatisées : opération refusée par le contrôle d'autorisations de l'environnement. Mesure compensatoire : contrôle manuel à chaque commit (`docs/decisions.md`, section 6).
 - Lot initial du frontend à 389 kio bruts (105 kio transférés) : avertissement du budget de 300 kio (non bloquant) ; il est chargé après le premier affichage des pages pré-rendues.
 - GitHub CLI absent du poste : la pull request s'ouvre depuis l'interface web (description prête).
-- Mise en ligne sur Railway et vérifications en ligne : elles demandent l'accès au compte Railway du club (aucun outil ni identifiant sur ce poste) ; procédure complète dans `docs/deploiement.md`.
+- Vérifications en ligne qui demandent les identifiants du club (Super Admin, serveur de courriel, volume, sauvegarde) : à faire par le club selon `docs/mise-en-service.md`.
 - Analyse des dépendances Java par base de vulnérabilités : OSS Index exige un compte (réponse 401), analyse à rejouer avec un jeton.
 - Performance Lighthouse sous 90 sur quatre pages publiques en mesure locale (85 à 89) : à remesurer sur le site en ligne.
