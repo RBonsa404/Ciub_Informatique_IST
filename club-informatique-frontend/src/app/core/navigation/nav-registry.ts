@@ -91,6 +91,7 @@ export const SPACE_NAV: readonly NavSection[] = [
       { label: 'Utilisateurs', route: '/espace/admin/utilisateurs', module: 'administration', icon: 'users', roles: ADMIN },
       { label: 'Rôles et permissions', route: '/espace/admin/roles', module: 'administration', icon: 'shield', roles: ADMIN },
       { label: 'Catégories', route: '/espace/admin/categories', module: 'administration', icon: 'folder', roles: ADMIN },
+      { label: 'Textes du site', route: '/espace/admin/textes', module: 'administration', icon: 'edit', roles: ADMIN },
       { label: 'Messages de contact', route: '/espace/admin/messages', module: 'contact', icon: 'inbox', roles: ['ADMIN', 'RESPONSABLE_CLUB'] },
       { label: 'Statistiques', route: '/espace/admin/statistiques', module: 'statistiques', icon: 'bar-chart-2', roles: ADMIN },
       { label: 'Sécurité des comptes', route: '/espace/admin/securite', module: 'administration', icon: 'lock', roles: ADMIN },
