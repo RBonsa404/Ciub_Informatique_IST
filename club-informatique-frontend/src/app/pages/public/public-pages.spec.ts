@@ -9,6 +9,7 @@ import { formatDate, formatDateRange, formatTimeRange, initialsOf, parseApiDate,
 import { InscriptionAction } from '../../shared/inscription/inscription-action';
 import { parsePresentation } from './about-pages';
 import { ActualitesListPage } from './actualites-pages';
+import { APPLICATION_ANDROID, ApplicationPage } from './application-page';
 import { ContactPage } from './contact-page';
 import { HomePage } from './home-page';
 import { CONDITIONS_UTILISATION, MENTIONS_LEGALES, POLITIQUE_CONFIDENTIALITE } from './legal-content';
@@ -91,7 +92,9 @@ describe('HomePage', () => {
     http.expectOne((r) => r.url === '/api/v1/actualites').flush(page([]));
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelectorAll('section').length).toBe(1);
+    // Il reste l'en-tête et l'encart de l'application mobile, qui ne dépend d'aucune donnée.
+    expect(root.querySelectorAll('section').length).toBe(2);
+    expect(text(fixture)).toContain('L’application mobile du club');
     expect(text(fixture)).not.toContain('Prochains événements');
     expect(text(fixture)).not.toContain('actualités');
   });
@@ -282,5 +285,19 @@ describe('pages légales', () => {
     expect([...root.querySelectorAll('.number')].map((n) => n.textContent)).toEqual(['01', '02', '03', '04', '05']);
     expect(root.textContent).toContain('Dernière mise à jour : 1 octobre 2026');
     expect(root.querySelectorAll('h1').length).toBe(1);
+  });
+});
+
+describe('ApplicationPage', () => {
+  it('propose les fichiers Android servis par le site, avec leur version', () => {
+    setup();
+    const fixture = TestBed.createComponent(ApplicationPage);
+    fixture.detectChanges();
+    const root = fixture.nativeElement as HTMLElement;
+    const liens = [...root.querySelectorAll<HTMLAnchorElement>('a[download]')].map((a) => a.getAttribute('href'));
+    expect(liens).toEqual([APPLICATION_ANDROID.principal.fichier, APPLICATION_ANDROID.ancien.fichier]);
+    expect(liens.every((lien) => lien?.startsWith('/telechargements/') && lien.endsWith('.apk'))).toBe(true);
+    expect(text(fixture)).toContain(`Version ${APPLICATION_ANDROID.version}`);
+    expect(text(fixture)).toContain(APPLICATION_ANDROID.empreinteCertificat);
   });
 });

@@ -152,6 +152,15 @@ import { Skeleton } from '../../shared/ui/states/states';
     .news .media-visual {
       height: 140px;
     }
+    .app-band {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.25rem 2rem;
+      border-left: none;
+      border-top: 3px solid var(--color-amber-tech);
+    }
   `,
   template: `
     <section class="hero">
@@ -278,6 +287,18 @@ import { Skeleton } from '../../shared/ui/states/states';
         </div>
       </section>
     }
+
+    <section class="page-section" aria-labelledby="titre-application">
+      <div class="page-container">
+        <div class="glass-card app-band">
+          <div>
+            <h2 id="titre-application" style="font-size: 1.35rem; margin-bottom: 0.4rem">L’application mobile du club</h2>
+            <p style="color: var(--text-muted)">Formations, événements, inscriptions et notifications sur votre téléphone Android.</p>
+          </div>
+          <a appBtn routerLink="/application"><app-icon name="download" [size]="16" /> Télécharger l’application</a>
+        </div>
+      </div>
+    </section>
   `,
 })
 export class HomePage {

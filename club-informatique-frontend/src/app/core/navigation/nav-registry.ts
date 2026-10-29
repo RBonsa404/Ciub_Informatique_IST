@@ -38,6 +38,7 @@ export const PUBLIC_FOOTER_NAV: readonly NavEntry[] = [
   { label: 'Projets', route: '/projets', module: 'projets' },
   { label: 'Actualités', route: '/actualites', module: 'actualites' },
   { label: 'Ressources', route: '/ressources', module: 'ressources' },
+  { label: 'Application mobile', route: '/application', module: 'contenu-public' },
 ];
 
 /** Pages légales : statiques, sans module backend. */

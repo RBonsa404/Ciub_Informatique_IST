@@ -16,6 +16,7 @@ const PRE_RENDUES = [
   'projets',
   'formations',
   'ressources',
+  'application',
   'mentions-legales',
   'confidentialite',
   'conditions-utilisation',

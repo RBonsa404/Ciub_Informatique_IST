@@ -326,6 +326,7 @@ export const routes: Routes = [
       { path: 'formations', canMatch: [featureGuard('formations')], loadComponent: () => formations().then((m) => m.FormationsListPage) },
       { path: 'formations/:slug', canMatch: [featureGuard('formations')], loadComponent: () => formations().then((m) => m.FormationDetailPage) },
       { path: 'ressources', canMatch: [featureGuard('ressources')], loadComponent: () => formations().then((m) => m.RessourcesPage) },
+      { path: 'application', canMatch: [featureGuard('contenu-public')], loadComponent: () => import('./pages/public/application-page').then((m) => m.ApplicationPage) },
       { path: 'contact', canMatch: [featureGuard('contact')], loadComponent: () => import('./pages/public/contact-page').then((m) => m.ContactPage) },
       { path: 'mentions-legales', loadComponent: () => legal().then((m) => m.MentionsLegalesPage) },
       { path: 'confidentialite', loadComponent: () => legal().then((m) => m.ConfidentialitePage) },
