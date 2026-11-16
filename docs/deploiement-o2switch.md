@@ -473,14 +473,14 @@ Au démarrage, le backend crée les comptes réels du club qui n'existent pas en
 |---|---|---|
 | `president@` | Abdoul Rachid BONSA | membre, bureau, administrateur, Super Admin |
 | `vice-president@` | Prince Henri Junior PAMOUSSO | membre, bureau, administrateur |
-| `secretariat@` | Hannifah OUEDRAOGO | membre, bureau |
-| `tresorerie@` | Fode Sandrine KI | membre, bureau |
+| `secretariat@` | Hannifah OUEDRAOGO | membre, bureau, formateur |
+| `tresorerie@` | Fode Sandrine KI | membre, bureau, formateur |
 | `formation@` | Giles Christ-Orient SALOU | membre, bureau, formateur |
-| `projets@` | Tony Darel ZONGO | membre, bureau |
-| `communication@` | Davy Arnaud OUARE | membre, bureau |
-| `partenariats@` | Ramatou SIDIBE | membre, bureau |
+| `projets@` | Tony Darel ZONGO | membre, bureau, formateur |
+| `communication@` | Davy Arnaud OUARE | membre, bureau, formateur |
+| `partenariats@` | Ramatou SIDIBE | membre, bureau, formateur |
 | `dsi@` | DSI du club | DSI |
-| `sawadogof@`, `sawadogom@` | assistants DSI | DSI |
+| `sawadogof@`, `sawadogom@` | Francis SAWADOGO, Moses SAWADOGO, assistants DSI | DSI |
 
 Mise en place :
 1. cPanel > **Comptes de messagerie** : créer chacune de ces boîtes (domaine `informatique.ist-club.bf`). Sans boîte, le titulaire ne recevra ni notification, ni lien « mot de passe oublié ».

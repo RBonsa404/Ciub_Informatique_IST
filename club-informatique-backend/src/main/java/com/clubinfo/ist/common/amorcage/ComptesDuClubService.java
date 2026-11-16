@@ -37,7 +37,8 @@ public class ComptesDuClubService {
         }
     }
 
-    private static final List<String> BUREAU = List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB");
+    /** Membres du bureau : responsables du club et formateurs. */
+    private static final List<String> BUREAU = List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB", "ROLE_FORMATEUR");
 
     private static final List<Compte> COMPTES = List.of(
             new Compte("president", "Abdoul Rachid", "BONSA", "Président",
@@ -46,14 +47,13 @@ public class ComptesDuClubService {
                     List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB", "ROLE_ADMIN")),
             new Compte("secretariat", "Hannifah", "OUEDRAOGO", "Secrétaire générale", BUREAU),
             new Compte("tresorerie", "Fode Sandrine", "KI", "Responsable trésorerie", BUREAU),
-            new Compte("formation", "Giles Christ-Orient", "SALOU", "Responsable formation",
-                    List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB", "ROLE_FORMATEUR")),
+            new Compte("formation", "Giles Christ-Orient", "SALOU", "Responsable formation", BUREAU),
             new Compte("projets", "Tony Darel", "ZONGO", "Responsable projets", BUREAU),
             new Compte("communication", "Davy Arnaud", "OUARE", "Responsable communication", BUREAU),
             new Compte("partenariats", "Ramatou", "SIDIBE", "Responsable des relations extérieures", BUREAU),
             new Compte("dsi", "DSI", "Club Informatique", "DSI", List.of("ROLE_DSI")),
-            new Compte("sawadogof", "F.", "SAWADOGO", "Assistant DSI", List.of("ROLE_DSI")),
-            new Compte("sawadogom", "M.", "SAWADOGO", "Assistant DSI", List.of("ROLE_DSI")));
+            new Compte("sawadogof", "Francis", "SAWADOGO", "Assistant DSI", List.of("ROLE_DSI")),
+            new Compte("sawadogom", "Moses", "SAWADOGO", "Assistant DSI", List.of("ROLE_DSI")));
 
     private final UtilisateurRepository utilisateurs;
     private final RoleRepository roles;

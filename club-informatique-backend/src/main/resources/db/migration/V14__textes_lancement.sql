@@ -20,7 +20,7 @@ Faire de chaque membre un praticien : quelqu’un qui sait apprendre seul, trava
 
 # Ce que nous faisons
 
-Des formations courtes et concrètes, animées par des membres du club ou des intervenants : développement web et mobile, réseaux, cybersécurité, données et intelligence artificielle. Des ateliers pratiques, des projets réels menés en équipe et des événements ouverts aux étudiants. Les supports restent consultables à tout moment dans l’espace Ressources.
+Des formations courtes et concrètes, animées par des membres du club ou des intervenants : développement, réseaux, cybersécurité, data, intelligence artificielle, et bien plus encore. Des ateliers pratiques, des projets réels menés en équipe et des événements ouverts aux étudiants. Les supports restent consultables à tout moment dans l’espace Ressources.
 
 # Comment cela fonctionne
 
