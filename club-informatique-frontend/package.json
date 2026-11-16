@@ -6,6 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "build:dev": "ng build --configuration development",
+    "build:o2switch": "npm run check && ng build --configuration production,o2switch && node deploiement/optimiser-pages.mjs && node deploiement/o2switch/preparer.mjs",
     "test": "ng test --watch=false",
     "assets:icons": "node scripts/generate-icons.mjs",
     "assets:sprite": "node scripts/generate-icon-sprite.mjs",

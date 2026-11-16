@@ -13,6 +13,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
+import java.io.IOException;
 import java.net.URI;
 
 /**
@@ -25,12 +26,15 @@ import java.net.URI;
 public class StockageConfig {
 
     @ConfigurationProperties("app.storage")
-    public record Proprietes(String type, long maxSizeBytes, Local local, S3 s3) {
+    public record Proprietes(String type, long maxSizeBytes, Local local, S3 s3, Relais relais) {
 
         public record Local(String directory) {
         }
 
         public record S3(String endpoint, String region, String bucket, String accessKey, String secretKey) {
+        }
+
+        public record Relais(String url, String cle) {
         }
     }
 
@@ -46,6 +50,27 @@ public class StockageConfig {
     public StorageService stockageObjet(Proprietes proprietes) {
         log.info("Stockage des fichiers : stockage objet.");
         return new S3StorageService(clientS3(proprietes.s3()), proprietes.s3().bucket());
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "app.storage.type", havingValue = "relais")
+    public StorageService stockageRelais(Proprietes proprietes) {
+        Proprietes.Relais relais = proprietes.relais();
+        if (relais == null || vide(relais.url()) || vide(relais.cle())) {
+            throw new IllegalStateException("Coffre à fichiers : STORAGE_RELAIS_URL et STORAGE_RELAIS_CLE sont obligatoires.");
+        }
+        if (relais.cle().length() < 32) {
+            throw new IllegalStateException("Coffre à fichiers : STORAGE_RELAIS_CLE doit compter 32 caractères au moins.");
+        }
+        RelaisStorageService service = new RelaisStorageService(relais.url(), relais.cle());
+        try {
+            service.verifier();
+            log.info("Stockage des fichiers : coffre à fichiers de l'hébergement web, joignable.");
+        } catch (IOException erreur) {
+            // Le démarrage continue : le site reste consultable, seuls les dépôts et lectures de fichiers échouent.
+            log.error("Stockage des fichiers : coffre à fichiers injoignable au démarrage ({}).", erreur.getMessage());
+        }
+        return service;
     }
 
     /** Client S3 ; l'adressage par chemin est requis par les services compatibles hébergés hors d'AWS. */

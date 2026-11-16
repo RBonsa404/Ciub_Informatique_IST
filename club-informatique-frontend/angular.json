@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": false
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -53,6 +54,14 @@
               "outputHashing": "all",
               "server": "src/main.server.ts",
               "outputMode": "static"
+            },
+            "o2switch": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.o2switch.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
