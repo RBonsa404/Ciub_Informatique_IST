@@ -47,6 +47,10 @@ spring:
           auth: ${MAIL_SMTP_AUTH:false}
           starttls:
             enable: ${MAIL_SMTP_STARTTLS:false}
+          # Délais bornés : sans eux, un serveur injoignable bloque l'envoi indéfiniment, sans aucune trace.
+          connectiontimeout: 15000
+          timeout: 15000
+          writetimeout: 15000
 
 app:
   cookie:

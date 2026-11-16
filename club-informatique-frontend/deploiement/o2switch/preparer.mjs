@@ -56,12 +56,13 @@ AddType application/vnd.android.package-archive .apk
   RewriteEngine On
   RewriteBase /
 
-  # Validation des certificats (AutoSSL) : jamais redirigée.
+  # Validation des certificats (AutoSSL) et outils de l'hébergeur (messagerie, cPanel) : jamais redirigés.
   RewriteRule ^\\.well-known/ - [L]
+  RewriteRule ^(webmail|cpanel|webdisk)(/|$) - [L]
 
-  # Adresse unique : HTTPS, nom exact du site.
+  # Adresse unique : HTTPS, sans www.
   RewriteCond %{HTTPS} !=on [OR]
-  RewriteCond %{HTTP_HOST} !^${HOTE.replace(/\./g, '\\.')}$ [NC]
+  RewriteCond %{HTTP_HOST} ^www\\. [NC]
   RewriteRule ^ ${SITE}%{REQUEST_URI} [R=301,L]
 
   # API : servie par le backend sur son sous-domaine (photos et fichiers déposés gardent leur adresse /api/v1/...).

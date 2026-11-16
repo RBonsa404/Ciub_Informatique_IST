@@ -63,6 +63,7 @@ public class CourrielService {
             }
             redaction.setText(courriel.texte().stripTrailing() + signature(), false);
             smtp.send(message);
+            log.info("Courriel remis au serveur SMTP ({}).", courriel.objet());
             return CompletableFuture.completedFuture(true);
         } catch (Exception erreur) {
             log.error("Courriel non remis au serveur SMTP ({}) : {}", courriel.objet(), erreur.getMessage());

@@ -22,7 +22,9 @@ const parcourir = (dossier) => {
 };
 parcourir(site);
 
-const theme = readFileSync(join(site, 'theme-init.js'), 'utf8').trim();
+// Fins de ligne ramenées à LF : le navigateur normalise ainsi le texte d'un script en ligne avant d'en calculer
+// l'empreinte ; une construction sous Windows (CRLF) produirait sinon une empreinte refusée.
+const theme = readFileSync(join(site, 'theme-init.js'), 'utf8').replace(/\r\n?/g, '\n').trim();
 // Chargement différé : les lots de l'application, listés dans la page, sont demandés juste après le premier affichage.
 const chargeur =
   "requestAnimationFrame(function(){setTimeout(function(){var lots=JSON.parse(document.getElementById('lots-application').textContent);" +

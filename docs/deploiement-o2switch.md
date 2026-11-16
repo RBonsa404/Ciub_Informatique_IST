@@ -28,11 +28,12 @@ Durée totale : environ 2 heures, dont une bonne part d'attente (construction, c
 | Adresse | Rôle | Hébergeur | Dossier o2switch |
 |---|---|---|---|
 | `informatique.ist-club.bf` | Le site que voient les visiteurs | o2switch | `informatique.ist-club.bf` |
+| (pas d'adresse publique) | Envoi des courriels automatiques | Brevo, offre gratuite | aucun |
 | `ist-club.bf` (et `www.`) | Redirige vers le site | o2switch | `ist-club.bf` |
 | `api.ist-club.bf` | Le backend (comptes, actualités, formations…) | Render, offre gratuite | aucun |
 | `fichiers.ist-club.bf` | Coffre à fichiers, utilisé seulement par le backend | o2switch | `fichiers.ist-club.bf/public` |
 | (pas d'adresse publique) | Base de données | Supabase, offre gratuite | aucun |
-| `…@ist-club.bf` | Messagerie du club | o2switch | aucun |
+| `…@informatique.ist-club.bf` | Messagerie du club (le domaine `ist-club.bf` reste disponible pour d'autres clubs) | o2switch | aucun |
 
 Pourquoi ce découpage :
 - o2switch exécute PHP, Node.js, Python et Ruby, mais **pas Java** : le backend tourne donc chez Render.
@@ -46,6 +47,7 @@ Pourquoi ce découpage :
 deploiement-o2switch/
 ├── informatique.ist-club.bf/site-informatique-ist-club.zip   → le site
 ├── ist-club.bf/.htaccess                                      → la redirection du domaine
+├── render/variables-render.env                               → variables du backend (à compléter, puis supprimer)
 └── fichiers.ist-club.bf/
     ├── config-stockage-club.php                               → réglages du coffre (à compléter)
     └── public/  index.php, .htaccess, .user.ini               → le coffre
@@ -102,12 +104,16 @@ Le stockage de fichiers de Supabase ne sert pas : les fichiers vont sur o2switch
 
 ### 3.1 Créer les sous-domaines
 
-Pour chacun des deux sous-domaines : cPanel > **Domaines** > **Créer un domaine**.
+Il s'agit de **sous-domaines** de `ist-club.bf` : rien n'est acheté. Selon la version de cPanel, le menu s'appelle :
+- **Sous-domaines** (ancienne présentation) : champ « Sous-domaine » = `informatique` (puis `fichiers`), liste « Domaine » = `ist-club.bf` ;
+- **Domaines** > **Créer un domaine** (nouvelle présentation) : saisir le nom complet ; cPanel reconnaît un sous-domaine de `ist-club.bf`, et il faut décocher « Partager la racine du document ».
 
-| Domaine | « Partager la racine du document » | Racine du document |
-|---|---|---|
-| `informatique.ist-club.bf` | **décoché** | `informatique.ist-club.bf` |
-| `fichiers.ist-club.bf` | **décoché** | `fichiers.ist-club.bf/public` |
+| Sous-domaine | Racine du document |
+|---|---|
+| `informatique.ist-club.bf` | `informatique.ist-club.bf` |
+| `fichiers.ist-club.bf` | `fichiers.ist-club.bf/public` |
+
+cPanel propose une racine automatiquement : la corriger si elle diffère du tableau (en particulier le `/public` du second).
 
 La racine du document est le dossier dont le contenu est visible sur le web. Pour le coffre, c'est le sous-dossier `public` : son dossier parent `fichiers.ist-club.bf` reste invisible du web et accueillera le fichier de réglages contenant la clé.
 
@@ -177,115 +183,192 @@ Réponse attendue : `refuse`.
 
 ---
 
-## 5. o2switch : messagerie
+## 5. Messagerie : boîtes o2switch et envoi par Brevo
 
-1. cPanel > **Comptes de messagerie** > **Créer** :
-   - `contact@ist-club.bf` : adresse publique du club, reçoit les messages du formulaire de contact ;
-   - `ne-pas-repondre@ist-club.bf` : utilisée par le site pour envoyer les courriels automatiques.
+Deux services différents :
+- **recevoir** les courriels (messages du formulaire de contact, correspondance du club) : boîtes o2switch ;
+- **envoyer** les courriels automatiques du site (confirmation d'inscription, mot de passe oublié, notifications) : **Brevo**, service d'envoi gratuit (300 courriels par jour).
 
-   Mot de passe : bouton **Générer**, puis l'enregistrer.
-2. Sur la ligne `ne-pas-repondre@`, **Connect Devices** (« Configurer le client de messagerie ») : relever, dans « Paramètres SSL/TLS sécurisés », le **serveur sortant (SMTP)** et son port.
-3. cPanel > **Délivrabilité des e-mails** : pour `ist-club.bf`, SPF et DKIM doivent être valides ; sinon **Gérer** > **Installer l'enregistrement suggéré**.
-4. Nom affiché : dans le webmail (Roundcube) de chaque boîte, Paramètres > Identités > Nom d'affichage « Club Informatique de l'IST ». Les courriels automatiques du site portent déjà ce nom.
+Pourquoi Brevo : l'offre gratuite de Render interdit les connexions sortantes sur les ports 465 et 587, ceux du serveur d'envoi d'o2switch. Brevo accepte le port **2525**, autorisé par Render.
 
-**Vérification** : un courriel envoyé depuis le webmail de `contact@` vers un compte Gmail arrive en boîte de réception (pas en spam).
+### 5.1 Les boîtes o2switch
+
+cPanel > **Comptes de messagerie** > **Créer**, pour chacune :
+- Domaine : choisir **`informatique.ist-club.bf`** dans la liste (et non `ist-club.bf`) ;
+- Nom d'utilisateur : `contact`, puis `ne-pas-repondre` ;
+- Mot de passe : **Générer**, puis l'enregistrer dans le gestionnaire ;
+- **Créer**.
+
+| Adresse | Rôle |
+|---|---|
+| `contact@informatique.ist-club.bf` | adresse publique du club ; reçoit les messages du formulaire de contact |
+| `ne-pas-repondre@informatique.ist-club.bf` | expéditeur des courriels automatiques du site ; reçoit les éventuelles réponses et retours d'erreur |
+
+Puis cPanel > **Délivrabilité des e-mails** : sur la ligne `informatique.ist-club.bf`, si SPF ou DKIM n'est pas valide, **Gérer** > **Installer l'enregistrement suggéré**.
+
+Webmail : cPanel > Comptes de messagerie > **Check Email** sur la ligne de l'adresse (choisir Roundcube si un choix est proposé). Nom affiché : Paramètres > Identités > Nom d'affichage « Club Informatique de l'IST ».
+
+### 5.2 Le compte Brevo
+
+1. brevo.com > **S'inscrire gratuitement**. Utiliser l'adresse `contact@informatique.ist-club.bf` (le courriel de confirmation arrive dans son webmail). Renseigner le profil demandé (organisation : Club Informatique de l'IST). Choisir l'offre **Free**.
+2. **Authentifier le domaine d'envoi** : menu du compte (en haut à droite) > **Expéditeurs, domaines et IP dédiées** (Senders, Domains & Dedicated IPs) > onglet **Domaines** > **Ajouter un domaine** : `informatique.ist-club.bf`. Choisir l'authentification manuelle (« Authenticate the domain yourself »).
+3. Brevo affiche plusieurs enregistrements DNS (un code Brevo en TXT, une ou deux clés DKIM, un DMARC). Pour **chacun** : cPanel > **Zone Editor** > ligne `ist-club.bf` > **Gérer** > **+ Ajouter un enregistrement**, puis recopier exactement le **Type**, le **Nom** (cPanel attend le nom complet, terminé par `ist-club.bf.`) et la **Valeur** donnés par Brevo. Enregistrer.
+   - S'il existe déjà un enregistrement **DMARC** (`_dmarc.informatique.ist-club.bf`), ne pas en créer un second.
+   - Les enregistrements SPF et DKIM installés par cPanel à l'étape 5.1 restent en place : ils servent aux envois depuis le webmail.
+4. Revenir sur Brevo > **Authentifier** (ou « Vérifier »). La propagation prend de quelques minutes à quelques heures : réessayer plus tard si besoin, jusqu'à l'état **Authentifié**.
+5. **Expéditeur** : même page, onglet **Expéditeurs** > **Ajouter un expéditeur** : nom `Club Informatique de l'IST`, adresse `ne-pas-repondre@informatique.ist-club.bf`. Valider avec le code reçu dans le webmail de cette adresse.
+6. **Identifiants SMTP** : menu du compte > **SMTP et API** > onglet **SMTP** :
+   - relever l'**Identifiant** (Login), de la forme `xxxxxx@smtp-brevo.com` ;
+   - **Générer une nouvelle clé SMTP**, la nommer `render`, et l'enregistrer aussitôt dans le gestionnaire (elle ne s'affiche qu'une fois).
+
+Les paramètres d'envoi sont alors : serveur `smtp-relay.brevo.com`, port `2525`, identifiant et clé SMTP ci-dessus.
+
+**Vérification** : le domaine apparaît « Authentifié » et l'expéditeur « Vérifié » dans Brevo ; vous avez l'identifiant et la clé SMTP.
 
 ---
 
 ## 6. Backend : Render
 
-### 6.1 Le code sur GitHub
+Render construit le backend à partir du dépôt GitHub, dans un conteneur Docker, et le met en ligne. Compter 30 minutes, dont 10 d'attente pour la première construction.
 
-Render construit le backend à partir du dépôt GitHub. La branche choisie doit contenir le mode de stockage `relais` (coffre à fichiers) et la configuration o2switch du site. Vérifier sur GitHub que la branche existe avant de continuer.
+### 6.1 Avant de commencer : rassembler les valeurs
 
-### 6.2 Créer le service
-
-1. render.com > **Get Started** > s'inscrire avec **GitHub**. Si Render demande une carte bancaire, l'offre Free n'est pas débitée.
-2. **New +** > **Web Service** > **Git Provider** : autoriser Render à lire le dépôt du club (bouton « Configure account » si le dépôt n'apparaît pas, puis sélectionner le dépôt).
-3. Réglages :
-
-| Champ | Valeur |
-|---|---|
-| Name | `club-informatique-api` |
-| Language | **Docker** |
-| Branch | la branche vérifiée à l'étape 6.1 |
-| Region | **Frankfurt (EU Central)** |
-| Root Directory | `club-informatique-backend` |
-| Dockerfile Path | `./Dockerfile` |
-| Instance Type | **Free** |
-
-4. **Environment Variables** > « Add Environment Variable », une ligne par variable :
+Ouvrir le fichier `deploiement-o2switch/render/variables-render.env` avec le Bloc-notes (clic droit > Ouvrir avec > Bloc-notes). Il contient déjà toutes les variables. Remplacer chaque `A_REMPLIR` par la valeur indiquée dans le commentaire au-dessus :
 
 | Variable | Valeur |
 |---|---|
-| `SPRING_PROFILES_ACTIVE` | `prod` |
-| `SPRING_DATASOURCE_URL` | l'adresse `jdbc:postgresql://…` de l'étape 2 |
-| `SPRING_DATASOURCE_USERNAME` | `postgres.…` (étape 2) |
-| `SPRING_DATASOURCE_PASSWORD` | mot de passe de la base Supabase |
-| `DB_POOL_MAX` | `5` |
+| `SPRING_DATASOURCE_PASSWORD` | mot de passe de la base Supabase (étape 2) |
 | `JWT_SECRET` | première clé de l'étape 1 |
-| `CORS_ALLOWED_ORIGINS` | `https://informatique.ist-club.bf` |
-| `APP_FRONTEND_URL` | `https://informatique.ist-club.bf` |
-| `STORAGE_TYPE` | `relais` |
-| `STORAGE_RELAIS_URL` | `https://fichiers.ist-club.bf/` |
-| `STORAGE_RELAIS_CLE` | clé du coffre (étape 1), identique à celle de `config-stockage-club.php` |
-| `MAIL_HOST` | serveur SMTP relevé à l'étape 5.2 |
-| `MAIL_PORT` | `587` |
-| `MAIL_USERNAME` | `ne-pas-repondre@ist-club.bf` |
-| `MAIL_PASSWORD` | mot de passe de `ne-pas-repondre@` |
-| `MAIL_SMTP_AUTH` | `true` |
-| `MAIL_SMTP_STARTTLS` | `true` |
-| `MAIL_FROM` | `ne-pas-repondre@ist-club.bf` |
-| `CONTACT_EMAIL` | `contact@ist-club.bf` |
-| `APP_BOOTSTRAP_ADMIN_EMAIL` | adresse du premier Super Admin (par exemple celle du président) |
-| `APP_BOOTSTRAP_ADMIN_PASSWORD` | mot de passe provisoire, à changer à la première connexion |
+| `STORAGE_RELAIS_CLE` | clé du coffre, identique à celle de `config-stockage-club.php` (étape 4) |
+| `MAIL_USERNAME` | identifiant SMTP Brevo, `…@smtp-brevo.com` (étape 5.2) |
+| `MAIL_PASSWORD` | clé SMTP Brevo (étape 5.2) |
+| `APP_BOOTSTRAP_ADMIN_EMAIL` | adresse du premier Super Admin, par exemple `president@informatique.ist-club.bf` |
+| `APP_BOOTSTRAP_ADMIN_PASSWORD` | mot de passe provisoire de **12 caractères au moins**, à changer à la première connexion |
 
-5. **Advanced** > **Health Check Path** : `/api/v1/actuator/health/liveness`. Laisser **Auto-Deploy** activé.
-6. **Deploy Web Service**.
+Règles de saisie : coller la valeur juste après le `=`, sans espace, sans guillemet ni apostrophe, et sans espace en fin de ligne. Enregistrer le fichier (Ctrl + S).
 
-### 6.3 Suivre le premier déploiement
+Les autres lignes (adresse de la base, adresses du site et du coffre, serveur Brevo…) sont déjà remplies : ne pas les modifier.
 
-L'onglet **Logs** défile : construction Maven (5 à 10 minutes la première fois), puis démarrage. Le déploiement est réussi lorsque :
-- le journal contient `Started` (démarrage de Spring Boot) ;
-- une ligne indique « coffre à fichiers de l'hébergement web, joignable » ;
-- l'état du service passe à **Live**.
+### 6.2 Créer le compte Render
 
-Ouvrir alors dans le navigateur `https://club-informatique-api.onrender.com/api/v1/actuator/health/liveness` (l'adresse exacte figure en haut de la page du service) : réponse `{"status":"UP"}`.
+1. Aller sur **https://dashboard.render.com/register**.
+2. Cliquer sur **GitHub** et se connecter avec le compte GitHub qui possède le dépôt `Ciub_Informatique_IST`. Accepter l'autorisation demandée par Render.
+3. Compléter les informations demandées (nom, usage). Si une carte bancaire est demandée, l'offre Free n'est pas débitée ; la documentation de Render indique qu'aucun paiement n'est nécessaire pour les ressources gratuites.
 
-| Message dans les journaux | Cause | Solution |
+### 6.3 Créer le service web
+
+1. Tableau de bord Render > bouton **+ New** (en haut à droite) > **Web Service**.
+2. Source : onglet **Git Provider**. La liste des dépôts GitHub s'affiche.
+   - Si `Ciub_Informatique_IST` n'y figure pas : lien **Configure account** (ou « Configure GitHub ») > GitHub s'ouvre > section **Repository access** > **Only select repositories** > choisir `Ciub_Informatique_IST` > **Save**. Revenir sur Render : le dépôt apparaît.
+3. Cliquer sur **Connect** à côté de `Ciub_Informatique_IST`.
+4. Remplir le formulaire, champ par champ :
+
+| Champ | Valeur | Remarque |
 |---|---|---|
-| `password authentication failed` | utilisateur ou mot de passe de base erroné | revoir `SPRING_DATASOURCE_USERNAME` (avec `postgres.` devant) et le mot de passe |
-| `Connection refused`, `Network is unreachable` | adresse de connexion directe au lieu du pooler | reprendre l'hôte « Session pooler » (étape 2.3) |
-| `JWT_SECRET` ou « secret » obligatoire | variable absente | étape 6.2.4 |
-| « coffre à fichiers injoignable » | adresse ou clé du coffre | refaire le test 4.3 ; comparer les deux clés |
-| `OutOfMemoryError` | mémoire de l'offre gratuite | relancer (« Manual Deploy » > « Restart ») ; si cela se répète, me transmettre le journal |
+| **Name** | `club-informatique-api` | donne l'adresse provisoire `club-informatique-api.onrender.com` (Render ajoute un suffixe si le nom est pris) |
+| **Project** | laisser vide ou par défaut | |
+| **Language** | **Docker** | obligatoire : le backend est construit par son `Dockerfile` |
+| **Branch** | `deploiement/o2switch-render` | branche qui contient le coffre à fichiers |
+| **Region** | **Frankfurt (EU Central)** | la plus proche de la base Supabase (Irlande) et d'o2switch (France) |
+| **Root Directory** | `club-informatique-backend` | dossier du backend dans le dépôt |
+| **Dockerfile Path** | `./Dockerfile` | chemin dans le dossier ci-dessus ; si Render propose `club-informatique-backend/Dockerfile`, garder sa proposition |
+| **Instance Type** | **Free** (512 MB, 0.1 CPU) | |
 
-Après toute modification de variable, Render redéploie automatiquement.
+5. Section **Environment Variables** : cliquer sur **Add from .env**. Coller **tout le contenu** du fichier `variables-render.env` rempli (Ctrl + A, Ctrl + C dans le Bloc-notes, puis Ctrl + V dans Render). Render découpe le texte en variables ; les lignes commençant par `#` sont ignorées. Valider (**Add variables**).
 
-**Vérification** : `{"status":"UP"}` sur l'adresse `onrender.com`.
+   Contrôle : la liste compte **21 variables** ; aucune valeur ne vaut `A_REMPLIR`.
+
+6. Section **Advanced** (cliquer pour la déplier) :
+   - **Health Check Path** : `/api/v1/actuator/health/liveness` ;
+   - **Auto-Deploy** : **On Commit** (valeur par défaut) ;
+   - ne rien mettre dans *Docker Command*, *Pre-Deploy Command*, *Secret Files*, *Disk*.
+7. Cliquer sur **Create Web Service** (ou **Deploy Web Service**).
+
+### 6.4 Suivre la construction et le démarrage
+
+Render ouvre la page du service sur l'onglet **Logs**. Déroulement normal :
+
+| Moment | Ce que montrent les journaux | Durée |
+|---|---|---|
+| Récupération du code | `Cloning from https://github.com/…` puis `Checking out commit …` | quelques secondes |
+| Construction | lignes Docker (`load build definition from Dockerfile`, `RUN mvn …`), téléchargement des dépendances Maven | 5 à 10 minutes la première fois |
+| Envoi de l'image | `Pushing image to registry…`, `Upload succeeded` | 1 minute |
+| Démarrage | journaux de Spring Boot (au format JSON en production) ; migrations Flyway (`Migrating schema "public" to version …`) ; ligne « Stockage des fichiers : coffre à fichiers de l'hébergement web, joignable » ; puis `Started …` | 30 secondes à 1 minute |
+| Mise en ligne | `Your service is live` ; l'état en haut de page passe à **Live** (vert) | |
+
+Au premier démarrage, le backend crée toutes les tables dans Supabase et le compte Super Admin.
+
+Tester ensuite, dans le navigateur, l'adresse affichée en haut de la page du service suivie du chemin de santé :
+
+```
+https://club-informatique-api.onrender.com/api/v1/actuator/health/liveness
+```
+
+Réponse attendue : `{"status":"UP"}`.
+
+### 6.5 Si le déploiement échoue
+
+L'état passe à **Failed** ; ouvrir l'onglet **Events** puis le déploiement en échec pour lire son journal. Chercher le premier message d'erreur :
+
+| Message | Cause | Solution |
+|---|---|---|
+| `failed to read dockerfile` / `Dockerfile not found` | chemin du Dockerfile | Settings > Build & Deploy > **Dockerfile Path** : essayer `club-informatique-backend/Dockerfile` (ou l'inverse : `./Dockerfile`) |
+| `password authentication failed for user` | utilisateur ou mot de passe de la base | vérifier `SPRING_DATASOURCE_USERNAME` (avec `postgres.` devant) et `SPRING_DATASOURCE_PASSWORD` |
+| `Connection refused`, `Network is unreachable`, `UnknownHost` | adresse de la base | `SPRING_DATASOURCE_URL` doit contenir `pooler.supabase.com:5432` |
+| `Tenant or user not found` | utilisateur sans l'identifiant du projet | `SPRING_DATASOURCE_USERNAME` = `postgres.doxxiasmhwaepxmzntzk` |
+| `JWT_SECRET` obligatoire ou trop court | clé absente ou tronquée | recoller la clé de l'étape 1 |
+| « coffre à fichiers injoignable » | clé ou certificat du coffre | refaire le test 4.3 sans `-k` ; comparer `STORAGE_RELAIS_CLE` et `config-stockage-club.php` |
+| « Super Admin non créé : le mot de passe initial doit compter au moins 12 caractères » | mot de passe provisoire trop court | allonger `APP_BOOTSTRAP_ADMIN_PASSWORD` |
+| `OutOfMemoryError` ou redémarrages en boucle | mémoire de l'offre gratuite | **Manual Deploy** > **Restart service** ; si cela se répète, transmettre le journal |
+| `Timed out` sur le health check | démarrage trop lent | **Manual Deploy** > **Deploy latest commit** ; le démarrage prend normalement moins d'une minute |
+
+Modifier une variable : menu de gauche **Environment** > crayon (**Edit**) à côté de la variable > nouvelle valeur > **Save Changes** > **Save and deploy** (redémarre avec les nouvelles valeurs, sans reconstruire).
+
+Relancer : menu **Manual Deploy** (en haut à droite) : **Deploy latest commit** (reconstruire), **Clear build cache & deploy** (reconstruire de zéro), **Restart service** (redémarrer sans reconstruire).
+
+**Vérification** : état **Live**, et `{"status":"UP"}` sur l'adresse `onrender.com`.
+
+### 6.6 Après la mise en ligne
+
+- Les journaux restent consultables 7 jours (menu **Logs**, bouton **Live tail** pour le direct).
+- Chaque envoi de code sur la branche `deploiement/o2switch-render` déclenche un nouveau déploiement ; si le nouveau ne démarre pas, Render garde l'ancien en service.
+- Limites de l'offre gratuite : mise en veille après 15 minutes sans requête (évitée à l'étape 9), 750 heures par mois, disque effacé à chaque redémarrage (sans conséquence : les fichiers sont dans le coffre o2switch, les données dans Supabase).
 
 ---
 
 ## 7. Relier `api.ist-club.bf` à Render
 
-1. Render > service > **Settings** > **Custom Domains** > **Add Custom Domain** : `api.ist-club.bf`. Render affiche une cible de la forme `club-informatique-api.onrender.com`.
-2. cPanel > **Zone Editor** (Éditeur de zone) > ligne `ist-club.bf` > **Gérer** > **Ajouter un enregistrement** :
-   - Type : **CNAME** ;
-   - Nom : `api.ist-club.bf.` (cPanel complète souvent tout seul) ;
-   - Enregistrement : la cible donnée par Render.
+### 7.1 Déclarer le domaine chez Render
 
-   Enregistrer.
-3. Revenir sur Render, **Verify**. Le certificat HTTPS s'émet ensuite automatiquement (de quelques minutes à quelques heures).
+Page du service > menu de gauche **Settings** > descendre jusqu'à **Custom Domains** > **+ Add Custom Domain** > saisir `api.ist-club.bf` > **Save**.
 
-Contrôle de la propagation, dans PowerShell :
+Render affiche la ligne du domaine avec l'état « Pending » (ou « DNS update needed ») et la **cible** à utiliser, de la forme `club-informatique-api.onrender.com`. La copier.
 
-```powershell
-nslookup api.ist-club.bf
-```
+### 7.2 Créer l'enregistrement DNS chez o2switch
 
-La réponse doit mentionner `onrender.com`.
+cPanel > **Zone Editor** (Éditeur de zone) > ligne `ist-club.bf` > **Gérer** > **+ Ajouter un enregistrement** (flèche à côté de « Add Record », puis « Add CNAME Record » selon la version) :
 
-**Vérification** : `https://api.ist-club.bf/api/v1/actuator/health/liveness` répond `{"status":"UP"}`, avec un cadenas.
+| Champ | Valeur |
+|---|---|
+| Nom | `api.ist-club.bf.` (avec le point final ; cPanel le complète souvent tout seul) |
+| TTL | laisser la valeur proposée |
+| Type | **CNAME** |
+| Enregistrement / Cible | la cible copiée chez Render, par exemple `club-informatique-api.onrender.com` |
+
+**Save Record**. Ne pas créer d'enregistrement `A` ni `AAAA` pour `api`.
+
+### 7.3 Vérifier
+
+1. Contrôle de la propagation, dans PowerShell :
+
+   ```powershell
+   nslookup api.ist-club.bf 1.1.1.1
+   ```
+
+   La réponse doit mentionner `onrender.com`. Sinon, attendre quelques minutes.
+2. Render > Settings > Custom Domains > bouton **Verify** à côté de `api.ist-club.bf`. L'état passe à **Verified**, puis Render émet le certificat HTTPS (« Certificate issued »), en quelques minutes.
+
+**Vérification** : `https://api.ist-club.bf/api/v1/actuator/health/liveness` répond `{"status":"UP"}`, avec un cadenas. Une erreur 502 peut apparaître une ou deux minutes juste après la vérification : recharger.
 
 ---
 
@@ -314,7 +397,7 @@ Puis compresser **le contenu** de `dist/club-informatique-frontend/browser` (pas
 1. Dossier `ist-club.bf` : regarder son contenu ; retirer les fichiers d'exemple éventuels.
 2. Y **charger** le `.htaccess` de `deploiement-o2switch/ist-club.bf`.
 
-Toute adresse de `ist-club.bf` renvoie alors vers la même page de `https://informatique.ist-club.bf`, tandis que `/webmail` et `/cpanel` continuent de fonctionner.
+Toute adresse de `ist-club.bf` renvoie alors vers la même page de `https://informatique.ist-club.bf`, tandis que `/webmail` et `/cpanel` continuent de fonctionner (de même sur `informatique.ist-club.bf`).
 
 **Vérification** :
 - `https://informatique.ist-club.bf` affiche l'accueil ;
@@ -347,11 +430,11 @@ Les 750 heures gratuites mensuelles de Render couvrent un service allumé en per
 2. Se connecter avec le Super Admin (étape 6.2.4), changer le mot de passe demandé, recharger la page : la session est conservée.
 3. Déposer une photo de profil, recharger : la photo s'affiche. Dans le Gestionnaire de fichiers, le dossier `stockage-club/<année>/<mois>` contient un fichier.
 4. Publier une ressource PDF ou PowerPoint (moins de 10 Mo), puis l'ouvrir.
-5. Formulaire de contact : le message arrive dans `contact@ist-club.bf`.
+5. Formulaire de contact : le message arrive dans `contact@informatique.ist-club.bf`.
 6. Inscription d'un compte d'essai : le courriel de confirmation arrive (vérifier aussi les spams).
 7. Render > Environment : **supprimer** `APP_BOOTSTRAP_ADMIN_EMAIL` et `APP_BOOTSTRAP_ADMIN_PASSWORD`.
 
-Si les courriels n'arrivent pas et que les journaux Render mentionnent un délai dépassé vers le serveur SMTP, l'offre gratuite de Render bloque probablement le port 587 : créer un compte gratuit chez un service d'envoi qui accepte le port 2525 (Brevo, par exemple), puis remplacer `MAIL_HOST`, `MAIL_PORT` (`2525`), `MAIL_USERNAME` et `MAIL_PASSWORD` par ses paramètres. Ajouter l'enregistrement SPF qu'il indique dans l'Éditeur de zone.
+Si un courriel automatique n'arrive pas : Brevo > **Statistiques** > **E-mails transactionnels** > **Journaux** indique s'il a été envoyé, refusé ou classé en spam ; les journaux Render mentionnent les erreurs d'authentification SMTP (identifiant ou clé SMTP à revoir).
 
 ---
 
@@ -374,6 +457,6 @@ Si les courriels n'arrivent pas et que les journaux Render mentionnent un délai
 | `JWT_SECRET` | Render | gestionnaire de mots de passe |
 | Clé du coffre | Render (`STORAGE_RELAIS_CLE`) et `config-stockage-club.php` | gestionnaire de mots de passe |
 | Hôte, utilisateur, mot de passe de la base | Render (`SPRING_DATASOURCE_*`) | Supabase > Connect > Session pooler ; gestionnaire |
-| Mot de passe de `ne-pas-repondre@` | Render (`MAIL_PASSWORD`) | gestionnaire |
+| Identifiant et clé SMTP Brevo | Render (`MAIL_USERNAME`, `MAIL_PASSWORD`) | Brevo > SMTP et API ; gestionnaire |
 | Répertoire personnel o2switch | `config-stockage-club.php` | cPanel > Informations générales |
 | Cible CNAME de l'API | Éditeur de zone | Render > Settings > Custom Domains |
