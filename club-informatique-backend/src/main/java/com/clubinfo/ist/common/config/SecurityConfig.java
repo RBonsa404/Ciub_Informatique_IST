@@ -78,6 +78,8 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.GET, "/projets/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/ressources/publiques/**").permitAll()
                     .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
+                    // Vérification d'une carte de membre scannée : prénom, initiale et statut seulement
+                    .requestMatchers(HttpMethod.GET, "/cartes/*").permitAll()
                     // Documentation de l'API : désactivée en production par configuration
                     .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                     // Sondes de santé pour l'hébergeur ; le reste de l'outillage est réservé au Super Admin

@@ -29,6 +29,13 @@ public interface SessionFormationRepository extends JpaRepository<SessionFormati
     @Query("SELECT s FROM SessionFormation s WHERE s.formation.id IN :formationIds AND s.deletedAt IS NULL ORDER BY s.dateDebut ASC, s.id ASC")
     List<SessionFormation> desFormations(@Param("formationIds") Collection<Long> formationIds);
 
+    /** Séances non annulées qui commencent dans l'intervalle donné, avec leur formation et son formateur. */
+    @EntityGraph(attributePaths = {"formation", "formation.formateur"})
+    @Query("SELECT s FROM SessionFormation s WHERE s.deletedAt IS NULL AND s.formation.deletedAt IS NULL " +
+           "AND s.statut <> com.clubinfo.ist.formation.entity.StatutSession.ANNULEE " +
+           "AND s.dateDebut >= :debut AND s.dateDebut < :fin ORDER BY s.dateDebut ASC, s.id ASC")
+    List<SessionFormation> commencantEntre(@Param("debut") LocalDateTime debut, @Param("fin") LocalDateTime fin);
+
     /** Vrai si le formateur anime déjà, sur ce créneau, une autre séance non annulée. */
     @Query("SELECT COUNT(s) > 0 FROM SessionFormation s WHERE s.deletedAt IS NULL AND s.formation.deletedAt IS NULL " +
            "AND s.statut <> com.clubinfo.ist.formation.entity.StatutSession.ANNULEE " +

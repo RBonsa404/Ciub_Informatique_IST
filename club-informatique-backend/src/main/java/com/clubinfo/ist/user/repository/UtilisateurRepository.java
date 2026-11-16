@@ -47,6 +47,8 @@ public interface UtilisateurRepository extends JpaRepository<Utilisateur, Long> 
 
     Optional<Utilisateur> findByNumeroMembreAndDeletedAtIsNull(String numeroMembre);
 
+    Optional<Utilisateur> findByCarteJetonAndDeletedAtIsNull(String carteJeton);
+
     List<Utilisateur> findAllByStatutAndDeletedAtIsNull(StatutUtilisateur statut);
 
     @Query("SELECT COUNT(u) FROM Utilisateur u JOIN u.roles r WHERE u.deletedAt IS NULL AND u.test = false AND r.nom = :role")

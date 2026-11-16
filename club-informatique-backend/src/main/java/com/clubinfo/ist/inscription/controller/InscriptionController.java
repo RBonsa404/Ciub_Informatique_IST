@@ -2,7 +2,10 @@ package com.clubinfo.ist.inscription.controller;
 
 import com.clubinfo.ist.common.security.UserDetailsImpl;
 import com.clubinfo.ist.inscription.dto.InscriptionDtos.InscriptionDto;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.PointageCarte;
 import com.clubinfo.ist.inscription.dto.InscriptionDtos.Pointages;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.ResultatPointageCarte;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.SeanceAPointer;
 import com.clubinfo.ist.inscription.dto.InscriptionDtos.PresenceDto;
 import com.clubinfo.ist.inscription.dto.InscriptionDtos.StatutInscriptionSaisie;
 import com.clubinfo.ist.inscription.entity.StatutInscription;
@@ -117,5 +120,20 @@ public class InscriptionController {
     public List<PresenceDto> pointer(@PathVariable Long sessionId, @Valid @RequestBody Pointages pointages,
                                      @AuthenticationPrincipal UserDetailsImpl formateur) {
         return inscriptions.pointer(sessionId, pointages.presences(), formateur);
+    }
+
+    @GetMapping("/presences/seances-du-jour")
+    @PreAuthorize(EQUIPE)
+    @Operation(summary = "Séances du jour que je peux pointer avec les cartes de membre")
+    public List<SeanceAPointer> seancesDuJour(@AuthenticationPrincipal UserDetailsImpl pointeur) {
+        return inscriptions.seancesAPointer(pointeur);
+    }
+
+    @PostMapping("/presences/sessions/{sessionId}/carte")
+    @PreAuthorize(EQUIPE)
+    @Operation(summary = "Pointer un membre présent en scannant sa carte")
+    public ResultatPointageCarte pointerParCarte(@PathVariable Long sessionId, @Valid @RequestBody PointageCarte saisie,
+                                                 @AuthenticationPrincipal UserDetailsImpl pointeur) {
+        return inscriptions.pointerParCarte(sessionId, saisie.jeton(), pointeur);
     }
 }

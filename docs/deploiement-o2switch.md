@@ -526,3 +526,25 @@ Le site fournit une image d'aperçu (1200 × 630). Si un ancien partage s'affich
 - Facebook : developers.facebook.com/tools/debug > coller l'adresse > **Récupérer à nouveau** ;
 - LinkedIn : linkedin.com/post-inspector > coller l'adresse > **Inspect** ;
 - WhatsApp : partager l'adresse avec une variante (par exemple `https://informatique.ist-club.bf/?v=2`).
+
+---
+
+## 15. Carte de membre et pointage des séances
+
+### 15.1 Pour les membres
+
+- Dès qu'un compte est validé (lien de confirmation), le membre reçoit par courriel sa **carte de membre** : affichée dans le message et jointe en image. Elle porte son nom, sa filière, son numéro de membre et un QR code.
+- La carte est disponible à tout moment dans **Mon profil** > « Ma carte de membre », avec le bouton « Télécharger ma carte » et la progression vers le statut actif.
+- **Membre passif** jusqu'à 4 séances ; **membre actif** à partir de **5 séances de formation** pointées. Les événements ne comptent pas. Les séances de formation ont lieu les jeudis et les samedis.
+- Le QR code ne contient qu'un code aléatoire : aucune donnée personnelle.
+
+### 15.2 Pointer une séance (formateur ou membre du bureau)
+
+1. Se connecter sur le site depuis son téléphone (une seule fois : la session reste ouverte).
+2. Ouvrir l'**appareil photo** du téléphone et viser le QR code de la carte du membre (sur son téléphone ou imprimée).
+3. Toucher le lien qui apparaît : la page « Carte de membre » s'ouvre et affiche le membre et sa progression.
+4. Dans « Pointer la présence », toucher **Pointer présent** à côté de la séance du jour.
+
+Un membre venu sans inscription est inscrit et pointé dans la foulée ; un second scan ne compte pas deux fois. Seules apparaissent les séances du jour des formations que l'on anime (formateur) ou toutes celles du jour (bureau). La feuille d'émargement de la séance reste consultable et corrigeable dans l'espace formateur.
+
+Toute personne qui scanne une carte sans être connectée voit seulement que la carte est valide (prénom, initiale du nom, statut).

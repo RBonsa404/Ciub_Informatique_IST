@@ -12,6 +12,11 @@ import com.clubinfo.ist.formation.service.EquipePedagogique;
 import com.clubinfo.ist.inscription.dto.InscriptionDtos.InscriptionDto;
 import com.clubinfo.ist.inscription.dto.InscriptionDtos.Pointage;
 import com.clubinfo.ist.inscription.dto.InscriptionDtos.PresenceDto;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.ResultatPointageCarte;
+import com.clubinfo.ist.inscription.dto.InscriptionDtos.SeanceAPointer;
+import com.clubinfo.ist.inscription.entity.StatutPresence;
+import com.clubinfo.ist.carte.CarteService;
+import com.clubinfo.ist.user.entity.Utilisateur;
 import com.clubinfo.ist.inscription.entity.Inscription;
 import com.clubinfo.ist.inscription.entity.Presence;
 import com.clubinfo.ist.inscription.entity.StatutInscription;
@@ -30,6 +35,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +55,7 @@ public class InscriptionService {
     private final SessionFormationRepository seances;
     private final UtilisateurRepository utilisateurs;
     private final NotificationService notifications;
+    private final CarteService cartes;
 
     // ---------------------------------------------------------------- Inscription
 
@@ -202,6 +209,47 @@ public class InscriptionService {
             enregistres.add(presences.save(presence));
         }
         return enregistres.stream().map(PresenceDto::de).toList();
+    }
+
+    /**
+     * Pointage par la carte de membre : le titulaire est marqué présent à la séance. Venu sans inscription,
+     * il est inscrit dans la foulée (il est là : la capacité ne s'applique pas) ; un nouveau scan ne compte pas deux fois.
+     */
+    @Transactional
+    public ResultatPointageCarte pointerParCarte(Long seanceId, String jeton, UserDetailsImpl pointeur) {
+        SessionFormation seance = seanceGeree(seanceId, pointeur);
+        Utilisateur membre = utilisateurs.findByCarteJetonAndDeletedAtIsNull(jeton.trim())
+                .orElseThrow(() -> new BusinessException("Carte inconnue : elle n'appartient à aucun membre.", HttpStatus.NOT_FOUND, "CARTE_INCONNUE"));
+        Inscription inscription = inscriptions.toutesDeLaSeance(seanceId).stream()
+                .filter(existante -> existante.getUtilisateur().getId().equals(membre.getId()))
+                .findFirst()
+                .orElseGet(() -> inscriptions.save(Inscription.builder().utilisateur(membre).sessionFormation(seance)
+                        .statut(StatutInscription.CONFIRMEE).build()));
+        if (inscription.getStatut() != StatutInscription.CONFIRMEE) {
+            inscription.setStatut(StatutInscription.CONFIRMEE);
+            inscription.setMotifAnnulation(null);
+            inscriptions.save(inscription);
+        }
+        Presence presence = presences.findByInscriptionIdAndSessionFormationId(inscription.getId(), seanceId)
+                .orElseGet(() -> Presence.builder().inscription(inscription).sessionFormation(seance).build());
+        boolean dejaPointe = presence.getId() != null && presence.getStatut() == StatutPresence.PRESENT;
+        presence.setStatut(StatutPresence.PRESENT);
+        presence.setDatePointage(LocalDateTime.now());
+        presences.saveAndFlush(presence);
+        long suivies = cartes.seancesSuivies(membre);
+        return new ResultatPointageCarte(membre.getPrenom(), membre.getNom(), membre.getNumeroMembre(), suivies,
+                CarteService.SEANCES_POUR_ETRE_ACTIF, suivies >= CarteService.SEANCES_POUR_ETRE_ACTIF, dejaPointe);
+    }
+
+    /** Séances du jour (heure de Ouagadougou, UTC) que le connecté anime ou gère. */
+    @Transactional(readOnly = true)
+    public List<SeanceAPointer> seancesAPointer(UserDetailsImpl pointeur) {
+        LocalDateTime debut = LocalDate.now().atStartOfDay();
+        return seances.commencantEntre(debut, debut.plusDays(1)).stream()
+                .filter(seance -> EquipePedagogique.gere(seance.getFormation(), pointeur))
+                .map(seance -> new SeanceAPointer(seance.getId(), seance.getFormation().getTitre(), seance.getDateDebut(),
+                        seance.getDateFin(), seance.getLieu()))
+                .toList();
     }
 
     // ---------------------------------------------------------------- Règles communes

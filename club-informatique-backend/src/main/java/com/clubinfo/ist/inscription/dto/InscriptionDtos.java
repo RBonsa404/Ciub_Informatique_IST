@@ -9,6 +9,7 @@ import com.clubinfo.ist.inscription.entity.StatutInscription;
 import com.clubinfo.ist.inscription.entity.StatutPresence;
 import com.clubinfo.ist.user.entity.Utilisateur;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -84,5 +85,18 @@ public final class InscriptionDtos {
             @NotNull(message = "L'inscription est obligatoire.") Long inscriptionId,
             @NotNull(message = "Le statut de présence est obligatoire.") StatutPresence statut,
             @Size(max = 500, message = "La remarque ne doit pas dépasser 500 caractères.") String remarque) {
+    }
+
+    /** Pointage par le QR code de la carte de membre. */
+    public record PointageCarte(@NotBlank(message = "Le code de la carte est obligatoire.")
+                                @Size(max = 32, message = "Code de carte invalide.") String jeton) {
+    }
+
+    public record ResultatPointageCarte(String prenom, String nom, String numeroMembre, long seancesSuivies, int seuil,
+                                        boolean actif, boolean dejaPointe) {
+    }
+
+    /** Séance du jour que le connecté peut pointer. */
+    public record SeanceAPointer(Long id, String formation, LocalDateTime dateDebut, LocalDateTime dateFin, String lieu) {
     }
 }

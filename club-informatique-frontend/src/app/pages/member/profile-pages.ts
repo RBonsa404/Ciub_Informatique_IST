@@ -19,6 +19,7 @@ import { Icon } from '../../shared/ui/icon/icon';
 import { DataZone } from '../../shared/ui/states/data-zone';
 import { Skeleton } from '../../shared/ui/states/states';
 import { ToastService } from '../../shared/ui/toast/toast.service';
+import { MemberCardPanel } from '../../shared/ui/carte/member-card-panel';
 
 const AVATAR_STYLES = `
   .avatar {
@@ -37,7 +38,7 @@ const initials = (profil: Profil) => `${profil.prenom.charAt(0)}${profil.nom.cha
 @Component({
   selector: 'app-profile-page',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterLink, Icon, Badge, DataZone, Skeleton, FrDatePipe, ProfilePhoto],
+  imports: [RouterLink, Icon, Badge, DataZone, Skeleton, FrDatePipe, ProfilePhoto, MemberCardPanel],
   styles: `
     ${AVATAR_STYLES}
     .avatar {
@@ -135,6 +136,7 @@ const initials = (profil: Profil) => `${profil.prenom.charAt(0)}${profil.nom.cha
             </div>
           </dl>
         </div>
+        <app-member-card-panel />
       }
     </app-data-zone>
   `,

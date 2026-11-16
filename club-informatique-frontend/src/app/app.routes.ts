@@ -328,6 +328,7 @@ export const routes: Routes = [
       { path: 'ressources', canMatch: [featureGuard('ressources')], loadComponent: () => formations().then((m) => m.RessourcesPage) },
       { path: 'application', canMatch: [featureGuard('contenu-public')], loadComponent: () => import('./pages/public/application-page').then((m) => m.ApplicationPage) },
       { path: 'contact', canMatch: [featureGuard('contact')], loadComponent: () => import('./pages/public/contact-page').then((m) => m.ContactPage) },
+      { path: 'c/:jeton', loadComponent: () => import('./pages/public/carte-page').then((m) => m.CartePage) },
       { path: 'mentions-legales', loadComponent: () => legal().then((m) => m.MentionsLegalesPage) },
       { path: 'confidentialite', loadComponent: () => legal().then((m) => m.ConfidentialitePage) },
       { path: 'conditions-utilisation', loadComponent: () => legal().then((m) => m.ConditionsPage) },

@@ -6,6 +6,7 @@ import com.clubinfo.ist.auth.dto.AuthDtos.InscriptionCompte;
 import com.clubinfo.ist.auth.dto.AuthDtos.Reinitialisation;
 import com.clubinfo.ist.auth.dto.AuthDtos.Session;
 import com.clubinfo.ist.auth.entity.JetonUsageUnique;
+import com.clubinfo.ist.carte.CarteService;
 import com.clubinfo.ist.common.exception.BusinessException;
 import com.clubinfo.ist.common.journal.JournalService;
 import com.clubinfo.ist.common.journal.JournalService.Resultat;
@@ -51,6 +52,7 @@ public class AuthService {
     private final CourrielsDeCompte courriels;
     private final JournalService journal;
     private final ParametresService parametres;
+    private final CarteService cartes;
 
     /** Empreinte sans compte : vérifiée quand l'adresse est inconnue, pour que le refus prenne le même temps. */
     private String empreinteFactice;
@@ -98,6 +100,7 @@ public class AuthService {
         compte.setEmailVerifieLe(LocalDateTime.now());
         if (compte.getStatut() == StatutUtilisateur.EN_ATTENTE_ACTIVATION) {
             compte.setStatut(StatutUtilisateur.ACTIF);
+            envoyerCarteDeMembre(compte);
         }
         journal.enregistrer("VERIFICATION_ADRESSE", "Adresse électronique vérifiée", compte.getEmail(), Resultat.SUCCES);
     }
@@ -174,7 +177,17 @@ public class AuthService {
         journal.enregistrer("REINITIALISATION_MOT_DE_PASSE", "Mot de passe réinitialisé par lien", compte.getEmail(), Resultat.SUCCES);
     }
 
-    private String prochainNumeroDeMembre() {
+/** Une carte qui ne peut pas être produite ne bloque jamais l'activation : le membre la retrouve dans son profil. */
+    private void envoyerCarteDeMembre(Utilisateur compte) {
+        try {
+            Utilisateur membre = cartes.preparer(compte);
+            courriels.carteDeMembre(membre, cartes.image(membre));
+        } catch (RuntimeException erreur) {
+            log.error("Carte de membre non envoyée : {}", erreur.getMessage());
+        }
+    }
+
+        private String prochainNumeroDeMembre() {
         return "IST-%d-%04d".formatted(LocalDate.now().getYear(), utilisateurs.prochainNumeroDeMembre());
     }
 

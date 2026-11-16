@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -63,7 +64,14 @@ public class CourrielService {
                 redaction.setReplyTo(courriel.repondreA());
             }
             String texte = courriel.texte().stripTrailing() + signature();
-            redaction.setText(texte, MiseEnFormeCourriel.html(texte, nomExpediteur));
+            redaction.setText(MiseEnFormeCourriel.texteBrut(texte), MiseEnFormeCourriel.html(texte, nomExpediteur));
+            for (Courriel.PieceJointe piece : courriel.pieces()) {
+                ByteArrayResource contenu = new ByteArrayResource(piece.contenu());
+                if (piece.identifiant() != null) {
+                    redaction.addInline(piece.identifiant(), contenu, piece.typeMime());
+                }
+                redaction.addAttachment(piece.nom(), contenu, piece.typeMime());
+            }
             smtp.send(message);
             log.info("Courriel remis au serveur SMTP ({}).", courriel.objet());
             return CompletableFuture.completedFuture(true);

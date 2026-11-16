@@ -76,6 +76,10 @@ public class Utilisateur extends BaseEntity {
     @Column(name = "numero_membre", unique = true, length = 20)
     private String numeroMembre;
 
+    /** Jeton opaque du QR code de la carte de membre (attribué à la première demande de carte). */
+    @Column(name = "carte_jeton", unique = true, length = 32)
+    private String carteJeton;
+
     @Column(name = "date_adhesion")
     private LocalDate dateAdhesion;
 

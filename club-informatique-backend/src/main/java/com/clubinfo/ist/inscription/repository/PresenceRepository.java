@@ -18,4 +18,10 @@ public interface PresenceRepository extends JpaRepository<Presence, Long> {
     List<Presence> deLaSeance(@Param("seanceId") Long seanceId);
 
     Optional<Presence> findByInscriptionIdAndSessionFormationId(Long inscriptionId, Long sessionId);
+
+    /** Séances de formation auxquelles le membre a été pointé présent (les événements ne comptent pas). */
+    @Query("SELECT COUNT(p) FROM Presence p WHERE p.inscription.utilisateur.id = :utilisateurId " +
+           "AND p.statut = com.clubinfo.ist.inscription.entity.StatutPresence.PRESENT " +
+           "AND p.inscription.deletedAt IS NULL AND p.sessionFormation.deletedAt IS NULL")
+    long seancesSuivies(@Param("utilisateurId") Long utilisateurId);
 }

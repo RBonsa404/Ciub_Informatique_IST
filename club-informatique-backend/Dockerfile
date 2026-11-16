@@ -24,6 +24,9 @@ RUN mvn clean package -DskipTests -B
 # ── Stage 2: Runtime ───────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine AS runtime
 
+# Rendu du texte de la carte de membre (Java2D) : bibliothèques de polices du système.
+RUN apk add --no-cache fontconfig freetype ttf-dejavu
+
 # Security: run as non-root user
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
@@ -42,7 +45,7 @@ EXPOSE 8080
 
 # Réglages pour un petit conteneur : mémoire bornée par celle du conteneur, ramasse-miettes série (un seul processeur),
 # piles réduites, arrêt franc en cas de mémoire épuisée.
-ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom"
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=70.0 -XX:+UseSerialGC -Xss512k -XX:+ExitOnOutOfMemoryError -Djava.security.egd=file:/dev/./urandom -Djava.awt.headless=true"
 
 # Entrypoint: Railway injects PORT and SPRING_PROFILES_ACTIVE env vars
 ENTRYPOINT ["sh", "-c", \

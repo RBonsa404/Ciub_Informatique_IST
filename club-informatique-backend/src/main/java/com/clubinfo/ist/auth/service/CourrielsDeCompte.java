@@ -1,8 +1,11 @@
 package com.clubinfo.ist.auth.service;
 
 import com.clubinfo.ist.common.courriel.Courriel;
+import com.clubinfo.ist.common.courriel.Courriel.PieceJointe;
 import com.clubinfo.ist.common.courriel.CourrielService;
 import com.clubinfo.ist.user.entity.Utilisateur;
+
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,6 +32,31 @@ public class CourrielsDeCompte {
 
                 Si vous n'êtes pas à l'origine de cette inscription, ignorez ce message : aucun compte ne sera activé.
                 """.formatted(utilisateur.getPrenom(), base(), jeton, heuresDeValidite));
+    }
+
+    /** Bienvenue après validation du compte, avec la carte de membre affichée dans le message et jointe. */
+    public void carteDeMembre(Utilisateur utilisateur, byte[] carte) {
+        String numero = utilisateur.getNumeroMembre();
+        courriels.envoyer(new Courriel(utilisateur.getEmail(), "Bienvenue au Club Informatique de l'IST : votre carte de membre", """
+                Bonjour %s,
+
+                Bienvenue au Club Informatique de l'IST ! Votre compte est activé et voici votre carte de membre :
+
+                [[image:carte-membre]]
+
+                Votre numéro de membre : %s
+
+                Présentez le QR code de votre carte à chaque séance de formation : il sert à enregistrer votre présence. Les séances de formation ont lieu chaque jeudi et chaque samedi.
+
+                Vous êtes pour l'instant membre passif. Vous deviendrez membre actif du club dès que votre carte aura été scannée lors de 5 séances de formation. Les événements du club ne comptent pas dans ce décompte.
+
+                Votre carte est jointe à ce message : enregistrez-la sur votre téléphone pour l'avoir toujours sur vous. Elle reste aussi disponible à tout moment dans votre profil :
+
+                %s/espace/profil
+
+                À très bientôt en séance !
+                """.formatted(utilisateur.getPrenom(), numero, base()), null,
+                List.of(new PieceJointe("carte-membre-" + numero + ".png", "image/png", carte, "carte-membre"))));
     }
 
     public void compteDejaExistant(Utilisateur utilisateur) {

@@ -23,7 +23,15 @@ public final class MiseEnFormeCourriel {
             Map.entry("/mot-de-passe-oublie", "Réinitialiser mon mot de passe"),
             Map.entry("/connexion", "Me connecter"));
 
+    /** Ligne réservant l'emplacement d'une image jointe affichée dans le corps HTML. */
+    private static final Pattern IMAGE = Pattern.compile("\\[\\[image:([A-Za-z0-9-]+)]]");
+
     private MiseEnFormeCourriel() {
+    }
+
+    /** Version texte : les emplacements d'image disparaissent (l'image reste jointe au message). */
+    public static String texteBrut(String texte) {
+        return texte.replaceAll("(?m)^[ \\t]*\\[\\[image:[A-Za-z0-9-]+]][ \\t]*\\R(?:[ \\t]*\\R)?", "");
     }
 
     public static String html(String texte, String nomExpediteur) {
@@ -38,6 +46,12 @@ public final class MiseEnFormeCourriel {
                 signature = true;
                 corps.append("<hr style=\"border:none;border-top:1px solid #E2E8F0;margin:28px 0 16px\">");
                 contenu = contenu.replaceFirst("^--\\s*", "");
+            }
+            Matcher image = IMAGE.matcher(contenu);
+            if (image.matches()) {
+                corps.append("<img src=\"cid:").append(image.group(1))
+                        .append("\" alt=\"\" width=\"544\" style=\"display:block;width:100%;max-width:544px;height:auto;border-radius:14px;margin:6px 0 22px\">");
+                continue;
             }
             if (!signature && ADRESSE_WEB.matcher(contenu).matches()) {
                 corps.append(bouton(contenu));
