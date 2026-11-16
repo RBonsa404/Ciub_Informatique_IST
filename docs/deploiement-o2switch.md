@@ -479,8 +479,8 @@ Au démarrage, le backend crée les comptes réels du club qui n'existent pas en
 | `projets@` | Tony Darel ZONGO | membre, bureau, formateur |
 | `communication@` | Davy Arnaud OUARE | membre, bureau, formateur |
 | `partenariats@` | Ramatou SIDIBE | membre, bureau, formateur |
-| `dsi@` | DSI du club | DSI |
-| `sawadogof@`, `sawadogom@` | Francis SAWADOGO, Moses SAWADOGO, assistants DSI | DSI |
+| `dsi@` | Soumaïla SANKARA | DSI |
+| `sawadogof@`, `sawadogom@` | Francis SAWADOGO, Moses Wilfried SAWADOGO (équipe DSI) | DSI |
 
 Mise en place :
 1. cPanel > **Comptes de messagerie** : créer chacune de ces boîtes (domaine `informatique.ist-club.bf`). Sans boîte, le titulaire ne recevra ni notification, ni lien « mot de passe oublié ».

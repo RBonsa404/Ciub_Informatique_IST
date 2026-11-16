@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Comptes réels du club, attachés aux fonctions (adresses @informatique.ist-club.bf) : bureau, DSI et assistants DSI.
+ * Comptes réels du club, attachés aux fonctions (adresses @informatique.ist-club.bf) : bureau et équipe DSI (le DSI et ses deux assistants, dont la fonction affichée est « DSI »).
  * Créés au démarrage s'ils n'existent pas encore, avec un mot de passe provisoire fourni par l'environnement
  * (APP_INITIAL_ACCOUNTS_PASSWORD), à changer obligatoirement à la première connexion. Un compte existant n'est
  * jamais modifié : la liste ne sert qu'à la première mise en place.
@@ -51,9 +51,9 @@ public class ComptesDuClubService {
             new Compte("projets", "Tony Darel", "ZONGO", "Responsable projets", BUREAU),
             new Compte("communication", "Davy Arnaud", "OUARE", "Responsable communication", BUREAU),
             new Compte("partenariats", "Ramatou", "SIDIBE", "Responsable des relations extérieures", BUREAU),
-            new Compte("dsi", "DSI", "Club Informatique", "DSI", List.of("ROLE_DSI")),
-            new Compte("sawadogof", "Francis", "SAWADOGO", "Assistant DSI", List.of("ROLE_DSI")),
-            new Compte("sawadogom", "Moses", "SAWADOGO", "Assistant DSI", List.of("ROLE_DSI")));
+            new Compte("dsi", "Soumaïla", "SANKARA", "DSI", List.of("ROLE_DSI")),
+            new Compte("sawadogof", "Francis", "SAWADOGO", "DSI", List.of("ROLE_DSI")),
+            new Compte("sawadogom", "Moses Wilfried", "SAWADOGO", "DSI", List.of("ROLE_DSI")));
 
     private final UtilisateurRepository utilisateurs;
     private final RoleRepository roles;
