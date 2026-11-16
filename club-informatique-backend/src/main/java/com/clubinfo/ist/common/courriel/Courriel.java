@@ -1,7 +1,8 @@
 package com.clubinfo.ist.common.courriel;
 
 /**
- * Message en texte brut adressé à un seul destinataire.
+ * Message rédigé en texte brut, adressé à un seul destinataire ; une version HTML en est dérivée à l'envoi
+ * ({@link MiseEnFormeCourriel}).
  * « repondreA », facultatif, est l'adresse vers laquelle part la réponse du destinataire.
  */
 public record Courriel(String destinataire, String objet, String texte, String repondreA) {

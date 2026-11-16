@@ -10,11 +10,11 @@ import { Icon } from '../../shared/ui/icon/icon';
  * À chaque nouvelle version : remplacer les fichiers, puis mettre à jour ces valeurs.
  */
 export const APPLICATION_ANDROID = {
-  version: '1.0.1',
+  version: '1.0.2',
   versionPrecedente: '1.0.0',
   androidMinimum: 'Android 7.0',
-  principal: { fichier: '/telechargements/club-info-ist-1.0.1-arm64.apk', taille: '21,1 Mo' },
-  ancien: { fichier: '/telechargements/club-info-ist-1.0.1-armv7.apk', taille: '18,8 Mo', libelle: 'Téléphone plus ancien ? Version 32 bits' },
+  principal: { fichier: '/telechargements/club-info-ist-1.0.2-arm64.apk', taille: '21,1 Mo' },
+  ancien: { fichier: '/telechargements/club-info-ist-1.0.2-armv7.apk', taille: '18,8 Mo', libelle: 'Téléphone plus ancien ? Version 32 bits' },
   /** Empreinte SHA-256 du certificat de signature du club, identique pour toutes les versions. */
   libelleEmpreinte: 'Empreinte SHA-256 du certificat',
   empreinteCertificat: 'EC:14:FC:F1:A4:55:FB:3D:9F:10:7C:68:62:51:39:65:8A:38:53:0B:1E:9D:54:6B:DB:FF:8B:0C:6A:8A:7C:92',

@@ -91,10 +91,10 @@ app:
     # Expéditeur des courriels ; l'envoi passe par le serveur SMTP configuré (MAIL_HOST…).
     from: ${MAIL_FROM:ne-pas-repondre@localhost}
     from-name: Club Informatique de l'IST
-    contact: clubinformatique.ist@gmail.com
+    contact: contact@informatique.ist-club.bf
   contact:
     # Adresse du club qui reçoit les messages du formulaire de contact.
-    destinataire: ${CONTACT_EMAIL:clubinformatique.ist@gmail.com}
+    destinataire: ${CONTACT_EMAIL:contact@informatique.ist-club.bf}
   # Adresse publique du frontend, pour les liens placés dans les courriels.
   frontend-url: ${APP_FRONTEND_URL:http://localhost:4200}
   storage:
@@ -117,6 +117,10 @@ app:
     # Premier Super Admin réel : créé au démarrage tant qu'aucun n'existe, mot de passe à changer à la première connexion.
     admin-email: ${APP_BOOTSTRAP_ADMIN_EMAIL:}
     admin-password: ${APP_BOOTSTRAP_ADMIN_PASSWORD:}
+  initial-accounts:
+    # Comptes réels du club (bureau, DSI, assistants DSI) : créés au démarrage s'ils manquent, avec ce mot de passe
+    # provisoire (12 caractères au moins), à changer obligatoirement à la première connexion.
+    password: ${APP_INITIAL_ACCOUNTS_PASSWORD:}
   test-accounts:
     # Comptes de test (un par rôle, domaine .invalid). Jamais activés par défaut.
     seed: ${APP_SEED_TEST_ACCOUNTS:false}

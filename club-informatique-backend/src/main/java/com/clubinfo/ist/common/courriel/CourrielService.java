@@ -54,14 +54,16 @@ public class CourrielService {
         }
         try {
             MimeMessage message = smtp.createMimeMessage();
-            MimeMessageHelper redaction = new MimeMessageHelper(message, false, StandardCharsets.UTF_8.name());
+            // Message en deux versions : texte brut (secours) et HTML (liens et boutons cliquables).
+            MimeMessageHelper redaction = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
             redaction.setFrom(new InternetAddress(adresseExpediteur, nomExpediteur, StandardCharsets.UTF_8.name()));
             redaction.setTo(courriel.destinataire());
             redaction.setSubject(courriel.objet());
             if (courriel.repondreA() != null) {
                 redaction.setReplyTo(courriel.repondreA());
             }
-            redaction.setText(courriel.texte().stripTrailing() + signature(), false);
+            String texte = courriel.texte().stripTrailing() + signature();
+            redaction.setText(texte, MiseEnFormeCourriel.html(texte, nomExpediteur));
             smtp.send(message);
             log.info("Courriel remis au serveur SMTP ({}).", courriel.objet());
             return CompletableFuture.completedFuture(true);

@@ -460,3 +460,69 @@ Si un courriel automatique n'arrive pas : Brevo > **Statistiques** > **E-mails t
 | Identifiant et clé SMTP Brevo | Render (`MAIL_USERNAME`, `MAIL_PASSWORD`) | Brevo > SMTP et API ; gestionnaire |
 | Répertoire personnel o2switch | `config-stockage-club.php` | cPanel > Informations générales |
 | Cible CNAME de l'API | Éditeur de zone | Render > Settings > Custom Domains |
+
+---
+
+## 13. Comptes du club
+
+### 13.1 Comptes créés automatiquement
+
+Au démarrage, le backend crée les comptes réels du club qui n'existent pas encore, tous en `@informatique.ist-club.bf` :
+
+| Adresse | Titulaire | Rôles |
+|---|---|---|
+| `president@` | Abdoul Rachid BONSA | membre, bureau, administrateur, Super Admin |
+| `vice-president@` | Prince Henri Junior PAMOUSSO | membre, bureau, administrateur |
+| `secretariat@` | Hannifah OUEDRAOGO | membre, bureau |
+| `tresorerie@` | Fode Sandrine KI | membre, bureau |
+| `formation@` | Giles Christ-Orient SALOU | membre, bureau, formateur |
+| `projets@` | Tony Darel ZONGO | membre, bureau |
+| `communication@` | Davy Arnaud OUARE | membre, bureau |
+| `partenariats@` | Ramatou SIDIBE | membre, bureau |
+| `dsi@` | DSI du club | DSI |
+| `sawadogof@`, `sawadogom@` | assistants DSI | DSI |
+
+Mise en place :
+1. cPanel > **Comptes de messagerie** : créer chacune de ces boîtes (domaine `informatique.ist-club.bf`). Sans boîte, le titulaire ne recevra ni notification, ni lien « mot de passe oublié ».
+2. Render > **Environment** : ajouter `APP_INITIAL_ACCOUNTS_PASSWORD` = mot de passe provisoire commun (12 caractères au moins), **Save and deploy**.
+3. Transmettre à chaque titulaire, en privé, son adresse et le mot de passe provisoire. À la première connexion, le site impose de choisir un mot de passe personnel.
+4. Une fois tous les comptes utilisés, **supprimer** `APP_INITIAL_ACCOUNTS_PASSWORD` de Render. Un compte existant n'est jamais modifié par ce mécanisme ; les noms et prénoms se corrigent depuis le profil ou l'administration.
+
+### 13.2 Retirer les comptes de test
+
+Render > Environment : `APP_PURGE_TEST_ACCOUNTS` = `true`, **Save and deploy**. Au démarrage, le backend retire les comptes marqués « test » et leurs données. Remettre ensuite la variable à `false` (ou la supprimer). Les autres comptes indésirables se désactivent depuis l'administration (Utilisateurs > statut).
+
+### 13.3 Utiliser les boîtes du club dans Outlook ou sur téléphone
+
+cPanel > Comptes de messagerie > **Connect Devices** sur la ligne de l'adresse : relever les « Paramètres SSL/TLS sécurisés ». Dans Outlook (ou l'application Mail, Gmail…) : ajouter un compte, choisir **IMAP**, puis :
+- serveur entrant : celui indiqué, port **993**, SSL/TLS ;
+- serveur sortant (SMTP) : celui indiqué, port **465**, SSL/TLS, authentification requise ;
+- identifiant : l'adresse complète ; mot de passe : celui de la boîte.
+
+---
+
+## 14. Être trouvé sur Google et partager le site
+
+### 14.1 Google Search Console (indispensable)
+
+1. search.google.com/search-console > **Ajouter une propriété** > type **Domaine** : `ist-club.bf`.
+2. Google affiche un enregistrement **TXT** (`google-site-verification=…`) : cPanel > Zone Editor > `ist-club.bf` > + Ajouter un enregistrement **TXT**, nom `ist-club.bf.`, valeur copiée chez Google. Revenir sur Google > **Valider**.
+3. Menu **Sitemaps** : envoyer `https://informatique.ist-club.bf/sitemap.xml`.
+4. Menu **Inspection de l'URL** : saisir `https://informatique.ist-club.bf/` > **Demander l'indexation**. Recommencer pour `/presentation`, `/bureau`, `/formations`.
+
+Faire de même sur Bing Webmaster Tools (bing.com/webmasters, bouton « Importer depuis Google Search Console »).
+
+### 14.2 Ce qui fait remonter le site
+
+- Des liens vers le site depuis des sites déjà connus : page de l'IST (demander un lien vers le club), profils LinkedIn, Facebook et TikTok du club (champ « site web »), descriptions des vidéos et des publications.
+- Des actualités régulières sur le site (chaque article est une nouvelle page indexée).
+- Le nom « Club Informatique de l'IST » écrit de la même façon partout.
+
+Le positionnement prend de quelques jours à quelques semaines après l'indexation.
+
+### 14.3 Miniature de partage
+
+Le site fournit une image d'aperçu (1200 × 630). Si un ancien partage s'affiche sans miniature, l'aperçu a été mémorisé avant la mise en ligne complète :
+- Facebook : developers.facebook.com/tools/debug > coller l'adresse > **Récupérer à nouveau** ;
+- LinkedIn : linkedin.com/post-inspector > coller l'adresse > **Inspect** ;
+- WhatsApp : partager l'adresse avec une variante (par exemple `https://informatique.ist-club.bf/?v=2`).

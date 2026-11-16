@@ -9,7 +9,8 @@ import org.springframework.stereotype.Component;
 
 /**
  * Opérations de démarrage sur les comptes techniques, toutes pilotées par l'environnement :
- * retrait des comptes de test, création des comptes de test, création du premier Super Admin réel.
+ * retrait des comptes de test, création des comptes de test, création des comptes du club, création du premier
+ * Super Admin réel.
  */
 @Component
 @RequiredArgsConstructor
@@ -18,6 +19,10 @@ public class AmorcageAuDemarrage implements ApplicationRunner {
 
     private final SuperAdminAmorcage superAdmin;
     private final ComptesDeTestService comptesDeTest;
+    private final ComptesDuClubService comptesDuClub;
+
+    @Value("${app.initial-accounts.password:}")
+    private String motDePasseDesComptesDuClub;
 
     @Value("${app.bootstrap.admin-email:}")
     private String adresseAdmin;
@@ -46,6 +51,14 @@ public class AmorcageAuDemarrage implements ApplicationRunner {
             // Comptes d'essai confiés aux étudiants : mot de passe distinct, créés seulement s'il est fourni.
             if (!motDePasseDesEssais.isBlank()) {
                 creerSansBloquer(() -> comptesDeTest.creerEssais(motDePasseDesEssais));
+            }
+        }
+        // Comptes réels du club (bureau, DSI) : créés seulement si le mot de passe provisoire est fourni.
+        if (!motDePasseDesComptesDuClub.isBlank()) {
+            try {
+                comptesDuClub.creer(motDePasseDesComptesDuClub);
+            } catch (IllegalArgumentException refus) {
+                log.error("Comptes du club non créés : {}", refus.getMessage());
             }
         }
         superAdmin.amorcer(adresseAdmin, motDePasseAdmin);

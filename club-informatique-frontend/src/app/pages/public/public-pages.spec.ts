@@ -255,7 +255,7 @@ describe('ContactPage', () => {
     const fixture = TestBed.createComponent(ContactPage);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    expect(root.querySelector('a[href="mailto:clubinformatique.ist@gmail.com"]')).not.toBeNull();
+    expect(root.querySelector('a[href="mailto:contact@informatique.ist-club.bf"]')).not.toBeNull();
     expect(root.querySelector('a[href="https://wa.me/22664931557"]')).not.toBeNull();
     expect(root.querySelector('a[href="tel:+22675545259"]')).not.toBeNull();
     expect(root.querySelector('a[href="tel:+22655633724"]')).not.toBeNull();
@@ -263,12 +263,22 @@ describe('ContactPage', () => {
 });
 
 describe('pages légales', () => {
-  it('signalent les informations en attente au lieu de les inventer', () => {
+  it('sont complètes : aucune information en attente à la publication', () => {
     for (const document of [MENTIONS_LEGALES, POLITIQUE_CONFIDENTIALITE, CONDITIONS_UTILISATION]) {
-      const pending = document.sections.flatMap((s) => s.paragraphs).filter((p) => p.pending);
-      expect(pending.length).toBeGreaterThan(0);
-      for (const paragraph of pending) expect(paragraph.text).toContain('Information en attente de validation par le club.');
+      expect(document.sections.flatMap((s) => s.paragraphs).filter((p) => p.pending)).toEqual([]);
+      expect(JSON.stringify(document)).not.toContain('en attente');
     }
+  });
+
+  it('n’affirment aucune formalité accomplie auprès de l’autorité de contrôle', () => {
+    const all = JSON.stringify([MENTIONS_LEGALES, POLITIQUE_CONFIDENTIALITE, CONDITIONS_UTILISATION]);
+    expect(all).not.toMatch(/déclaration|autorisation de la CIL|formalités/i);
+  });
+
+  it('indiquent l’hébergeur du site et le directeur de la publication', () => {
+    const mentions = JSON.stringify(MENTIONS_LEGALES);
+    expect(mentions).toContain('o2switch');
+    expect(mentions).toContain('directeur de la publication');
   });
 
   it('citent la loi applicable et l’autorité de contrôle', () => {
@@ -282,8 +292,8 @@ describe('pages légales', () => {
     const fixture = TestBed.createComponent(MentionsLegalesPage);
     fixture.detectChanges();
     const root = fixture.nativeElement as HTMLElement;
-    expect([...root.querySelectorAll('.number')].map((n) => n.textContent)).toEqual(['01', '02', '03', '04', '05']);
-    expect(root.textContent).toContain('Dernière mise à jour : 1 octobre 2026');
+    expect([...root.querySelectorAll('.number')].map((n) => n.textContent)).toEqual(['01', '02', '03', '04', '05', '06']);
+    expect(root.textContent).toContain('Dernière mise à jour : 16 novembre 2026');
     expect(root.querySelectorAll('h1').length).toBe(1);
   });
 });

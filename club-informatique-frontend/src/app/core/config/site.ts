@@ -5,7 +5,7 @@ export const SITE = {
   institution: 'Institut Supérieur de Technologie',
   city: 'Ouagadougou',
   country: 'Burkina Faso',
-  email: 'clubinformatique.ist@gmail.com',
+  email: 'contact@informatique.ist-club.bf',
   whatsapp: { label: '+226 64 93 15 57', href: 'https://wa.me/22664931557' },
   phones: [
     { label: '+226 75 54 52 59', href: 'tel:+22675545259' },
@@ -13,7 +13,7 @@ export const SITE = {
   ],
   social: {
     linkedin: 'https://www.linkedin.com/in/club-informatique-453a4043b/',
-    facebook: 'https://web.facebook.com/profile.php?id=61594887003694',
-    tiktok: 'https://www.tiktok.com/@clubinformatique74',
+    facebook: 'https://www.facebook.com/profile.php?id=61595555190991',
+    tiktok: 'https://www.tiktok.com/@istclubinformatique',
   },
 } as const;
