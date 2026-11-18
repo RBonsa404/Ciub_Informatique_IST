@@ -34,15 +34,48 @@ public class RelaisStorageService implements StorageService {
 
     @Override
     public void enregistrer(String cle, InputStream contenu, long taille, String typeMime) throws IOException {
-        HttpRequest requete = requete("enregistrer", cle)
-                .header("Content-Type", "application/octet-stream")
-                .POST(HttpRequest.BodyPublishers.fromPublisher(HttpRequest.BodyPublishers.ofInputStream(() -> contenu), taille))
-                .timeout(Duration.ofSeconds(120))
-                .build();
-        HttpResponse<String> reponse = envoyer(requete, HttpResponse.BodyHandlers.ofString());
-        if (reponse.statusCode() / 100 != 2) {
-            throw new IOException("Dépôt refusé par le coffre à fichiers (" + reponse.statusCode() + ")");
+        // Contenu lu en entier (10 Mo au plus) : envoyé d'un bloc, avec sa taille exacte, et renvoyable en cas d'échec passager.
+        byte[] octets = contenu.readAllBytes();
+        HttpResponse<String> reponse = null;
+        for (int essai = 1; essai <= ESSAIS; essai++) {
+            HttpRequest requete = requete("enregistrer", cle)
+                    .header("Content-Type", "application/octet-stream")
+                    .POST(HttpRequest.BodyPublishers.ofByteArray(octets))
+                    .timeout(Duration.ofSeconds(120))
+                    .build();
+            reponse = envoyer(requete, HttpResponse.BodyHandlers.ofString());
+            if (reponse.statusCode() / 100 == 2) {
+                return;
+            }
+            if (!passager(reponse.statusCode()) || essai == ESSAIS) {
+                break;
+            }
+            pause(essai);
         }
+        throw new IOException("Dépôt refusé par le coffre à fichiers (" + reponse.statusCode() + ", serveur « "
+                + reponse.headers().firstValue("server").orElse("?") + " ») : " + extrait(reponse.body()));
+    }
+
+    private static final int ESSAIS = 3;
+
+    /** Réponses d'un hébergeur momentanément indisponible ou qui limite le débit : un nouvel essai peut réussir. */
+    private static boolean passager(int statut) {
+        return statut == 429 || statut == 502 || statut == 503 || statut == 504;
+    }
+
+    private static void pause(int essai) throws IOException {
+        try {
+            Thread.sleep(800L * essai * essai);
+        } catch (InterruptedException interruption) {
+            Thread.currentThread().interrupt();
+            throw new IOException("Dépôt interrompu", interruption);
+        }
+    }
+
+    /** Début de la réponse d'erreur, sur une ligne, pour le journal. */
+    private static String extrait(String corps) {
+        String ligne = corps == null ? "" : corps.replaceAll("<[^>]+>", " ").replaceAll("\\s+", " ").strip();
+        return ligne.length() > 300 ? ligne.substring(0, 300) + "…" : ligne;
     }
 
     @Override

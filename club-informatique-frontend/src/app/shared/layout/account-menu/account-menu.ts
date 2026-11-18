@@ -15,7 +15,7 @@ import { Icon } from '../../ui/icon/icon';
     @if (auth.user(); as user) {
       <button type="button" class="btn btn-secondary btn-sm" style="padding-left:0.35rem" [cdkMenuTriggerFor]="menu" aria-label="Menu du compte">
         <span class="user-avatar user-avatar-sm" aria-hidden="true">{{ auth.initials() }}</span>
-        <span class="max-[600px]:hidden">{{ user.prenom }}</span>
+        <span class="account-menu-name max-[600px]:hidden">{{ user.prenom }}</span>
         <app-icon name="chevron-down" [size]="14" />
       </button>
       <ng-template #menu>
