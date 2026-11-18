@@ -43,10 +43,21 @@ export class FilesApi {
 
   /** Télécharge un fichier déposé avec le jeton de la session ; le nom vient de l'en-tête de la réponse. */
   telecharger(adresse: string): Observable<FichierTelecharge> {
-    return this.http.get(adresse.trim(), { responseType: 'blob', observe: 'response' }).pipe(
+    return this.http.get(adresseDeLApi(adresse), { responseType: 'blob', observe: 'response' }).pipe(
       map((reponse) => ({ contenu: reponse.body ?? new Blob(), nom: nomDuFichier(reponse.headers.get('Content-Disposition')) })),
     );
   }
+}
+
+/**
+ * Adresse d'un fichier déposé, ramenée à l'origine de l'API. Le serveur enregistre une adresse relative
+ * (« /api/v1/fichiers/… ») ; quand l'API est servie sur un autre domaine que le site, elle doit y être demandée
+ * directement : une redirection ne transporterait pas le jeton de session et le fichier réservé serait refusé.
+ */
+export function adresseDeLApi(adresse: string): string {
+  const relative = adresse.trim();
+  if (!relative.startsWith('/') || !/^https?:\/\//i.test(environment.apiBaseUrl)) return relative;
+  return new URL(environment.apiBaseUrl).origin + relative;
 }
 
 /** Nom porté par l'en-tête « Content-Disposition » (forme étendue UTF-8 d'abord, puis forme simple). */
