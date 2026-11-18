@@ -333,7 +333,7 @@ export class HomePage {
     seo.apply({
       title: 'Accueil',
       fullTitle: 'Club Informatique de l’IST | Formations, projets et événements à Ouagadougou',
-      description: 'Club Informatique de l’IST (Institut Supérieur de Technologie, Ouagadougou, Burkina Faso) : formations pratiques, ateliers, projets en équipe et événements pour apprendre l’informatique en construisant.',
+      description: 'Club Informatique de l’IST (Institut Supérieur de Technologies, Ouagadougou, Burkina Faso) : formations pratiques, ateliers, projets en équipe et événements pour apprendre l’informatique en construisant.',
       path: '/',
     });
     seo.setOrganizationJsonLd();

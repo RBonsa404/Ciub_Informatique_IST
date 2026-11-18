@@ -42,7 +42,7 @@ public class ComptesDuClubService {
 
     private static final List<Compte> COMPTES = List.of(
             new Compte("president", "Abdoul Rachid", "BONSA", "Président",
-                    List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")),
+                    List.of("ROLE_MEMBRE", "ROLE_FORMATEUR", "ROLE_RESPONSABLE_CLUB", "ROLE_DSI", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")),
             new Compte("vice-president", "Prince Henri Junior", "PAMOUSSO", "Vice-président",
                     List.of("ROLE_MEMBRE", "ROLE_RESPONSABLE_CLUB", "ROLE_ADMIN")),
             new Compte("secretariat", "Hannifah", "OUEDRAOGO", "Secrétaire générale", BUREAU),

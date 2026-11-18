@@ -2,7 +2,7 @@
 export const SITE = {
   name: 'Club Informatique de l’IST',
   shortName: 'Club Informatique',
-  institution: 'Institut Supérieur de Technologie',
+  institution: 'Institut Supérieur de Technologies',
   city: 'Ouagadougou',
   country: 'Burkina Faso',
   email: 'contact@informatique.ist-club.bf',

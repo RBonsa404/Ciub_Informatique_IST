@@ -1,5 +1,6 @@
 package com.clubinfo.ist.common.config;
 
+import org.springframework.core.Ordered;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -33,6 +34,21 @@ public class CacheConfig implements WebMvcConfigurer {
         FilterRegistrationBean<ShallowEtagHeaderFilter> filtre = new FilterRegistrationBean<>(etag);
         filtre.addUrlPatterns(CONTENUS_PUBLICS);
         filtre.setName("etagDesContenusPublics");
+        // Enveloppe le cache en mémoire : l'ETag est calculé sur la réponse, qu'elle vienne du cache ou non.
+        filtre.setOrder(Ordered.LOWEST_PRECEDENCE - 10);
+        return filtre;
+    }
+
+    /**
+     * Réponses publiques conservées en mémoire ; appliqué à toutes les adresses pour que chaque modification
+     * réussie, quelle qu'elle soit, vide le cache.
+     */
+    @Bean
+    public FilterRegistrationBean<CacheDesContenusPublics> cacheDesContenusPublics() {
+        FilterRegistrationBean<CacheDesContenusPublics> filtre = new FilterRegistrationBean<>(new CacheDesContenusPublics(CONTENUS_PUBLICS));
+        filtre.addUrlPatterns("/*");
+        filtre.setName("cacheDesContenusPublics");
+        filtre.setOrder(Ordered.LOWEST_PRECEDENCE - 5);
         return filtre;
     }
 

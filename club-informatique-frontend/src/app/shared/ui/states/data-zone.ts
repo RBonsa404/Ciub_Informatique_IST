@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, Signal, computed, inject, input, output, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, Signal, computed, effect, inject, input, output, signal } from '@angular/core';
 import { Observable, Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { Page } from '../../../core/api/api-client';
 import { LoadStatus, ResourceState } from '../../../core/api/resource-state';
@@ -15,12 +15,23 @@ import { EmptyState, ErrorState } from './states';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [EmptyState, ErrorState],
   host: { style: 'display:block' },
+  styles: `
+    .zone-lente {
+      margin-top: 0.75rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+  `,
   template: `
     @switch (status()) {
       @case ('loading') {
         <div role="status" aria-busy="true">
           <span class="sr-only">Chargement en cours</span>
           <ng-content select="[zone-skeleton]" />
+          @if (lent()) {
+            <p class="zone-lente">Le serveur se réveille, merci de patienter quelques instants…</p>
+          }
         </div>
       }
       @case ('error') {
@@ -47,6 +58,25 @@ export class DataZone {
   readonly hideWhenEmpty = input(false);
   readonly retry = output<void>();
   protected readonly defaultError = 'Les données n’ont pas pu être chargées. Vérifiez votre connexion, puis réessayez.';
+
+  /** Chargement anormalement long (serveur en cours de réveil) : un message rassurant s'affiche après quelques secondes. */
+  protected readonly lent = signal(false);
+
+  constructor() {
+    let minuteur: ReturnType<typeof setTimeout> | null = null;
+    effect(() => {
+      const enCours = this.status() === 'loading';
+      if (minuteur) clearTimeout(minuteur);
+      minuteur = null;
+      this.lent.set(false);
+      if (enCours && typeof window !== 'undefined') {
+        minuteur = setTimeout(() => this.lent.set(true), 5000);
+      }
+    });
+    inject(DestroyRef).onDestroy(() => {
+      if (minuteur) clearTimeout(minuteur);
+    });
+  }
 }
 
 /** Liste paginée côté serveur avec recherche différée et filtre par catégorie. */

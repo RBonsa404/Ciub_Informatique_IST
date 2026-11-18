@@ -29,7 +29,8 @@ interface PresentationContent {
 export function parsePresentation(contenu: string): PresentationContent {
   const intro: string[] = [];
   const sections: { title: string; paragraphs: string[] }[] = [];
-  for (const chunk of contenu.replace(/\\n/g, '\n').split(/\n{2,}/)) {
+  // Fins de ligne normalisées : un texte saisi sous Windows (CRLF) se découpe comme les autres.
+  for (const chunk of contenu.replace(/\r\n?/g, '\n').replace(/\\n/g, '\n').split(/\n{2,}/)) {
     const text = chunk.trim();
     if (!text) continue;
     const heading = text.match(/^#{1,6}\s+(.*)$/);

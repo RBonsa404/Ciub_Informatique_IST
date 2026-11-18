@@ -152,7 +152,7 @@ public final class DessinCarte {
         g.drawString("IST", texteX + largeurDe, y + 126);
         g.setFont(INTER_500.deriveFont(25f));
         g.setColor(GRIS);
-        g.drawString("Institut Supérieur de Technologie · Ouagadougou", texteX, y + 166);
+        g.drawString("Institut Supérieur de Technologies · Ouagadougou", texteX, y + 166);
 
         // Mention « Carte de membre », en capitales espacées, dans une pastille ambre.
         Font mention = espacee(INTER_700.deriveFont(22f), 0.18f);

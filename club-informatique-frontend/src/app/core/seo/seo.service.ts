@@ -18,7 +18,7 @@ export interface PageMeta {
 }
 
 /** Image de partage par défaut : 1200 x 630 pixels, format attendu par les réseaux sociaux et les messageries. */
-const DEFAULT_IMAGE = { path: '/img/partage.png', width: '1200', height: '630', alt: `Logo du ${SITE.name}` };
+const DEFAULT_IMAGE = { path: '/img/partage.jpg', width: '1200', height: '630', alt: `Logo du ${SITE.name}` };
 
 /**
  * Origine écrite dans les pages pré-rendues quand l'adresse publique du site n'est pas configurée.

@@ -277,7 +277,7 @@ export const CONDITIONS_UTILISATION: LegalDocumentContent = {
       shortTitle: 'Compte',
       paragraphs: [
         { text: 'Les pages de présentation, les actualités, les événements, les formations, les projets et les ressources publiques sont consultables librement, sans compte. L’inscription à une activité, l’accès aux supports réservés et la proposition d’un projet nécessitent un compte.' },
-        { text: 'La création d’un compte est gratuite et ouverte à toute personne intéressée par les activités du club, en priorité aux étudiants de l’Institut Supérieur de Technologie. Elle est confirmée par un lien envoyé à l’adresse électronique indiquée. Le bureau peut vérifier les informations fournies et réserver certaines activités aux membres du club.' },
+        { text: 'La création d’un compte est gratuite et ouverte à toute personne intéressée par les activités du club, en priorité aux étudiants de l’Institut Supérieur de Technologies. Elle est confirmée par un lien envoyé à l’adresse électronique indiquée. Le bureau peut vérifier les informations fournies et réserver certaines activités aux membres du club.' },
         { text: 'Vous vous engagez à fournir des informations exactes et à garder votre mot de passe confidentiel. Vous êtes responsable de l’usage fait de votre compte. En cas de doute sur la sécurité de votre compte, changez votre mot de passe et prévenez le club.' },
         { text: 'Les comptes créés par le club pour les membres du bureau et l’équipe technique reçoivent un mot de passe provisoire, à remplacer obligatoirement lors de la première connexion.' },
       ],

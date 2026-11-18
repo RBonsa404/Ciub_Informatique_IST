@@ -19,7 +19,7 @@ import { ThemeToggle } from '../theme-toggle/theme-toggle';
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink, RouterLinkActive, Brand, ThemeToggle, AccountMenu, Button, Icon],
   template: `
-    <header class="site-header">
+    <header class="site-header" [class.site-header-connecte]="auth.isAuthenticated()">
       <div class="page-container header-inner">
         <app-brand />
 
